@@ -31,6 +31,20 @@ public class SacBungeePlugin extends Plugin implements ProxyMessenger, GlobalPla
 
     @Override
     public void sendAlert(UUID playerUuid, String alertJson) {
+        try {
+            com.google.gson.JsonObject json = com.google.gson.JsonParser.parseString(alertJson).getAsJsonObject();
+            String player = json.has("player") ? json.get("player").getAsString() : "?";
+            String check = json.has("check") ? json.get("check").getAsString() : "?";
+            getLogger().info("[SAC] " + player + " flagged by " + check);
+
+            for (var p : getProxy().getPlayers()) {
+                if (p.hasPermission("sac.alerts")) {
+                    p.sendMessage(net.md_5.bungee.api.chat.TextComponent.fromLegacy(
+                        "§c[SAC] §7" + player + " §eflagged by §6" + check));
+                }
+            }
+        } catch (Exception ignored) {}
+
         if (alertHandler != null) {
             alertHandler.onAlert(playerUuid, "proxy", alertJson);
         }
