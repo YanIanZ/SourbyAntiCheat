@@ -29,7 +29,7 @@ public class NoWeb extends Check implements PacketCheck {
 
         if (deltaH > MAX_WEB_SPEED && deltaH < 0.5) {
             webBuffer += deltaH - MAX_WEB_SPEED;
-            if (webBuffer > 0.3) {
+            if (webBuffer > 0.15) {
                 flagAndAlert("h=" + String.format("%.3f", deltaH) + " buf=" + String.format("%.3f", webBuffer));
             }
         } else {

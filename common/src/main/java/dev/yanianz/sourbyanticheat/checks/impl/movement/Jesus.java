@@ -32,7 +32,7 @@ public class Jesus extends Check implements PacketCheck {
 
         if (nearSurface && notFalling) {
             surfaceTicks++;
-            if (surfaceTicks > 15) {
+            if (surfaceTicks > 8) {
                 flagAndAlert("surface=" + String.format("%.3f", frac) + " dY=" + String.format("%.3f", deltaY));
             }
         } else {

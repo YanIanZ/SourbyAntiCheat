@@ -45,7 +45,7 @@ public class Spider extends Check implements PostPredictionCheck {
 
         if (deltaY > 0.1 && !wasOnGround && climbTicks > 3) {
             climbTicks++;
-            if (climbTicks > 8) {
+            if (climbTicks > 4) {
                 flagAndAlert("dY=" + String.format("%.3f", deltaY) + " ticks=" + climbTicks);
             }
         } else if (deltaY > 0) {

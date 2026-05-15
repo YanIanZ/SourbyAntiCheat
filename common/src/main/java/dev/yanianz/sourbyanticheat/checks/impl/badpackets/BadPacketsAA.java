@@ -7,7 +7,7 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 
-@CheckData(name = "BadPacketsAA", stableKey = "sac.badpackets.invalid_pitch", description = "Detects impossible pitch angles")
+@CheckData(name = "BadPacketsAA", stableKey = "sac.badpackets.invalid_pitch", description = "Detects impossible pitch angles", setback = 5)
 public class BadPacketsAA extends Check implements PacketCheck {
 
     public BadPacketsAA(SacPlayer player) {

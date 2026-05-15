@@ -27,7 +27,7 @@ public class FastLadder extends Check implements PacketCheck {
 
         if (deltaY > MAX_LADDER_SPEED && deltaY < 0.5) {
             ladderBuffer += deltaY - MAX_LADDER_SPEED;
-            if (ladderBuffer > 0.5) {
+            if (ladderBuffer > 0.3) {
                 flagAndAlert("dY=" + String.format("%.3f", deltaY) + " buffer=" + String.format("%.3f", ladderBuffer));
             }
         } else {

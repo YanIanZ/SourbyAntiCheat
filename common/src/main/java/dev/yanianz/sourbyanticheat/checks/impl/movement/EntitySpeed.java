@@ -29,7 +29,7 @@ public class EntitySpeed extends Check implements PacketCheck {
 
         if (deltaH > MAX_HORSE_SPEED) {
             speedBuffer += deltaH - MAX_HORSE_SPEED;
-            if (speedBuffer > 1.0) {
+            if (speedBuffer > 0.5) {
                 flagAndAlert("h=" + String.format("%.3f", deltaH) + " buf=" + String.format("%.3f", speedBuffer));
             }
         } else {

@@ -27,7 +27,7 @@ public class Step extends Check implements PacketCheck {
 
         if (deltaY > MAX_STEP && deltaY < 5.0) {
             stepFlags++;
-            if (stepFlags > 2) {
+            if (stepFlags > 1) {
                 flagAndAlert("dY=" + String.format("%.3f", deltaY) + " flags=" + stepFlags);
             }
         } else {
