@@ -170,6 +170,7 @@ public class CheckManager {
                 .put(FastBow.class, new FastBow(player))
                 .put(FastEat.class, new FastEat(player))
                 .put(AutoArmor.class, new AutoArmor(player))
+                .put(FastSwitch.class, new FastSwitch(player))
                 .put(FlightA.class, new FlightA(player))
                 .put(MultiActionsA.class, new MultiActionsA(player))
                 .put(MultiActionsC.class, new MultiActionsC(player))
