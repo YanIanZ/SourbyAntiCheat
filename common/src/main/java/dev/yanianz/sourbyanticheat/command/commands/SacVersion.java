@@ -42,6 +42,12 @@ public class SacVersion implements BuildableCommand {
                 .append(Component.text("SAC Version: ").color(NamedTextColor.GRAY))
                 .append(Component.text(current).color(NamedTextColor.AQUA))
                 .build());
+        sender.sendMessage(Component.text()
+                .append(Component.text("Java: ").color(NamedTextColor.GRAY))
+                .append(Component.text(System.getProperty("java.version")).color(NamedTextColor.WHITE))
+                .append(Component.text(" | Platform: ").color(NamedTextColor.GRAY))
+                .append(Component.text(SacAPI.INSTANCE.getPlatform().name()).color(NamedTextColor.WHITE))
+                .build());
         // use cached message if last check was less than 1 minute ago
         final long now = System.currentTimeMillis();
         if (now - lastCheck < 60000) {
