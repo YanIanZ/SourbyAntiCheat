@@ -12,6 +12,7 @@ import dev.yanianz.sourbyanticheat.manager.init.Initable;
 import dev.yanianz.sourbyanticheat.manager.init.start.ExemptOnlinePlayersOnReload;
 import dev.yanianz.sourbyanticheat.manager.init.start.StartableInitable;
 import dev.yanianz.sourbyanticheat.api.SacAbstractAPI;
+import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.netty.SacNettyInjector;
 import dev.yanianz.sourbyanticheat.platform.api.proxy.ProxyMessenger;
 import dev.yanianz.sourbyanticheat.platform.bukkit.gui.SacGUI;
