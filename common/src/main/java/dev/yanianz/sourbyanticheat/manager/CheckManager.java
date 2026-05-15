@@ -155,6 +155,7 @@ public class CheckManager {
                 .put(BadPacketsAB.class, new BadPacketsAB(player))
                 .put(BadPacketsAC.class, new BadPacketsAC(player))
                 .put(BadPacketsAD.class, new BadPacketsAD(player))
+                .put(BadPacketsAE.class, new BadPacketsAE(player))
                 .put(SelfInteract.class, new SelfInteract(player))
                 .put(AutoClicker.class, new AutoClicker(player))
                 .put(FlightA.class, new FlightA(player))
