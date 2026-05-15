@@ -150,6 +150,16 @@ public final class SacBukkitLoaderPlugin extends JavaPlugin implements PlatformL
     }
 
     @Override
+    public dev.yanianz.sourbyanticheat.platform.api.proxy.GlobalPlayerStore getGlobalPlayerStore() {
+        return new dev.yanianz.sourbyanticheat.platform.api.proxy.ProxyNoOpMessenger();
+    }
+
+    @Override
+    public dev.yanianz.sourbyanticheat.platform.api.proxy.AuditLogger getAuditLogger() {
+        return new dev.yanianz.sourbyanticheat.platform.api.proxy.ProxyNoOpMessenger();
+    }
+
+    @Override
     public PlatformScheduler getScheduler() {
         return scheduler.get();
     }
