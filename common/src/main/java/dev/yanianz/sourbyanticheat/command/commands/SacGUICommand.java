@@ -29,10 +29,17 @@ public class SacGUICommand implements BuildableCommand {
         }
         try {
             Class<?> guiClass = Class.forName("dev.yanianz.sourbyanticheat.platform.bukkit.gui.SacGUI");
+            org.bukkit.entity.Player player = getBukkitPlayer(sender);
+            if (player == null) {
+                sender.sendMessage(Component.text("Could not get player instance.", SacColors.RED));
+                return;
+            }
             guiClass.getMethod("openMain", org.bukkit.entity.Player.class)
-                .invoke(null, getBukkitPlayer(sender));
+                .invoke(null, player);
+        } catch (ClassNotFoundException e) {
+            sender.sendMessage(Component.text("GUI not available on this platform.", SacColors.RED));
         } catch (Exception e) {
-            sender.sendMessage(Component.text("Failed to open GUI.", SacColors.RED));
+            sender.sendMessage(Component.text("Error opening GUI: " + e.getMessage(), SacColors.RED));
         }
     }
 

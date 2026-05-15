@@ -27,7 +27,7 @@ public class ExperimentalChecksFeature implements SacFeature {
 
     @Override
     public boolean isEnabledInConfig(SacPlayer player, ConfigManager config) {
-        return config.getBooleanElse("experimental-checks", false);
+        return config.getBooleanElse("experimental-checks", true);
     }
 
 }
