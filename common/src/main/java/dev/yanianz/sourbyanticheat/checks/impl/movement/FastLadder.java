@@ -1,0 +1,38 @@
+package dev.yanianz.sourbyanticheat.checks.impl.movement;
+
+import dev.yanianz.sourbyanticheat.checks.Check;
+import dev.yanianz.sourbyanticheat.checks.CheckData;
+import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
+import dev.yanianz.sourbyanticheat.player.SacPlayer;
+import com.github.retrooper.packetevents.event.PacketReceiveEvent;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
+
+@CheckData(name = "FastLadder", stableKey = "sac.movement.fastladder", description = "Detects fast ladder climbing", setback = 10, decay = 0.02)
+public class FastLadder extends Check implements PacketCheck {
+
+    private static final double MAX_LADDER_SPEED = 0.15;
+    private double ladderBuffer = 0;
+
+    public FastLadder(SacPlayer player) {
+        super(player);
+    }
+
+    @Override
+    public void onPacketReceive(PacketReceiveEvent event) {
+        if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
+        if (player.packetStateData.lastPacketWasTeleport) return;
+        if (player.canFly || player.isFlying || player.isGliding || player.inVehicle()) return;
+
+        double deltaY = player.y - player.lastY;
+
+        if (deltaY > MAX_LADDER_SPEED && deltaY < 0.5) {
+            ladderBuffer += deltaY - MAX_LADDER_SPEED;
+            if (ladderBuffer > 0.5) {
+                flagAndAlert("dY=" + String.format("%.3f", deltaY) + " buffer=" + String.format("%.3f", ladderBuffer));
+            }
+        } else {
+            ladderBuffer = Math.max(0, ladderBuffer - 0.01);
+            if (ladderBuffer < 0.01) reward();
+        }
+    }
+}

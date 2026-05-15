@@ -30,6 +30,7 @@ import dev.yanianz.sourbyanticheat.checks.impl.misc.SpartanDivergence;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.SpartanSync;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.TransactionOrder;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.Jesus;
+import dev.yanianz.sourbyanticheat.checks.impl.movement.FastLadder;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.NoSlow;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.Speed;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.Spider;
@@ -120,6 +121,7 @@ public class CheckManager {
                 .put(SpartanDivergence.class, new SpartanDivergence(player))
                 .put(APIBypass.class, new APIBypass(player))
                 .put(Jesus.class, new Jesus(player))
+                .put(FastLadder.class, new FastLadder(player))
                 .put(NoFall.class, new NoFall(player))
                 .put(ChatA.class, new ChatA(player))
                 .put(ChatB.class, new ChatB(player))
