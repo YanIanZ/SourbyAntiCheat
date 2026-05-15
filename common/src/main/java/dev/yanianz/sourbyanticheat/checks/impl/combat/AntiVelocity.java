@@ -5,12 +5,13 @@ import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
-import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 
-@CheckData(name = "AntiVelocity", stableKey = "sac.combat.antivelocity", description = "Detects anti-knockback / velocity hacks", setback = 15, decay = 0.01)
+@CheckData(name = "AntiVelocity", stableKey = "sac.combat.antivelocity", description = "Detects anti-knockback hacks", setback = 15, decay = 0.01, experimental = true)
 public class AntiVelocity extends Check implements PacketCheck {
 
-    private int veloFlags = 0;
+    private double lastVelocityX, lastVelocityZ;
+    private int flags = 0;
 
     public AntiVelocity(SacPlayer player) {
         super(player);
@@ -18,31 +19,25 @@ public class AntiVelocity extends Check implements PacketCheck {
 
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
-        if (event.getPacketType() != PacketType.Play.Client.PLAYER_FLYING
-            && event.getPacketType() != PacketType.Play.Client.PLAYER_POSITION
-            && event.getPacketType() != PacketType.Play.Client.PLAYER_POSITION_AND_ROTATION) return;
-
+        if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
+        if (!event.getPacketType().toString().contains("POSITION")) return;
         if (player.packetStateData.lastPacketWasTeleport) return;
         if (player.inVehicle() || player.isFlying || player.canFly) return;
 
         double deltaX = Math.abs(player.x - player.lastX);
         double deltaZ = Math.abs(player.z - player.lastZ);
 
-        if (player.likelyKB != null && player.likelyKB.getX() != 0 && player.likelyKB.getZ() != 0) {
-            double expectedX = Math.abs(player.likelyKB.getX());
-            double expectedZ = Math.abs(player.likelyKB.getZ());
-            double reductionX = expectedX > 0.01 ? deltaX / expectedX : 1;
-            double reductionZ = expectedZ > 0.01 ? deltaZ / expectedZ : 1;
-
-            if (reductionX < 0.3 && reductionZ < 0.3) {
-                veloFlags++;
-                if (veloFlags > 3) {
-                    flagAndAlert("reduction=" + String.format("%.0f%%", (1 - Math.min(reductionX, reductionZ)) * 100));
-                }
-            } else {
-                veloFlags = Math.max(0, veloFlags - 1);
-                if (veloFlags < 1) reward();
+        if (deltaX < 0.001 && deltaZ < 0.001 && (lastVelocityX > 0.01 || lastVelocityZ > 0.01)) {
+            flags++;
+            if (flags > 5) {
+                flagAndAlert("zero_movement flags=" + flags);
             }
+        } else {
+            flags = Math.max(0, flags - 1);
+            if (flags < 2) reward();
         }
+
+        lastVelocityX = deltaX;
+        lastVelocityZ = deltaZ;
     }
 }
