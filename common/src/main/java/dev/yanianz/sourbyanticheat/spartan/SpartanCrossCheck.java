@@ -28,7 +28,7 @@ public class SpartanCrossCheck {
         crossCheckEnabled = enabled;
         startTime = System.currentTimeMillis();
         try {
-            Class.forName("me.vagdedes.spartan.api.API");
+            Class.forName("me.vagdedes.spartan.api.PlayerViolationEvent");
             spartanAvailable = true;
             try {
                 Class<?> apiClass = Class.forName("me.vagdedes.spartan.api.API");

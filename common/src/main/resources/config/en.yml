@@ -213,7 +213,7 @@ spartanapi:
     # Should SAC cross-check violations with Spartan AntiCheat via SpartanAPI?
     # When both SAC and Spartan flag the same player/check, alerts are tagged [SAC+Spartan].
     # Requires Spartan (Spartan) to be installed. If absent, this setting is ignored.
-    cross-check: false
+    cross-check: true
     # Minimum SAC violations before querying Spartan (reduces overhead)
     min-vl: 3
     # Confidence multiplier when both SAC and Spartan agree (1.0 = normal)
