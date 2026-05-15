@@ -21,7 +21,10 @@ import dev.yanianz.sourbyanticheat.checks.impl.flight.FlightA;
 import dev.yanianz.sourbyanticheat.checks.impl.groundspoof.NoFall;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.ClientBrand;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.GhostBlockMitigation;
+import dev.yanianz.sourbyanticheat.checks.impl.misc.NettyFlood;
+import dev.yanianz.sourbyanticheat.checks.impl.misc.PayloadCheck;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.Post;
+import dev.yanianz.sourbyanticheat.checks.impl.misc.SpartanSync;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.TransactionOrder;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.NoSlow;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.Speed;
@@ -105,6 +108,9 @@ public class CheckManager {
                 .put(AttackCooldownHandler.class, player.attackCooldown)
                 .put(TeamHandler.class, new TeamHandler(player))
                 .put(ClientBrand.class, new ClientBrand(player))
+                .put(NettyFlood.class, new NettyFlood(player))
+                .put(PayloadCheck.class, new PayloadCheck(player))
+                .put(SpartanSync.class, new SpartanSync(player))
                 .put(NoFall.class, new NoFall(player))
                 .put(ChatA.class, new ChatA(player))
                 .put(ChatB.class, new ChatB(player))
