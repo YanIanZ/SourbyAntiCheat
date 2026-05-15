@@ -124,6 +124,7 @@ public class CheckManager {
                 .put(Jesus.class, new Jesus(player))
                 .put(FastLadder.class, new FastLadder(player))
                 .put(NoWeb.class, new NoWeb(player))
+                .put(Step.class, new Step(player))
                 .put(NoFall.class, new NoFall(player))
                 .put(ChatA.class, new ChatA(player))
                 .put(ChatB.class, new ChatB(player))
