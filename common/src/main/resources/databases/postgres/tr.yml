@@ -1,0 +1,37 @@
+# ===========================================================================
+#  Postgres backend ayarları.
+#
+#  Postgres çoklu sunuculu kurulumları destekler (birden çok SAC
+#  instance'ı tek bir merkezi DB'ye yazar). Çalışma zamanında Postgres
+#  JDBC sürücüsünü gerektirir; sürücü yoksa backend başlangıçta kendini
+#  devre dışı bırakır ve buraya yönlenen routing fallback'ine düşer.
+# ===========================================================================
+
+# Tüm anahtarlar `postgres:` altında yer alır; böylece Configuralize
+# tümünü tek bir global ad alanında birleştirdiğinde bu dosyanın anahtar
+# uzayı kardeş backend dosyalarıyla çakışmaz.
+postgres:
+  host: "localhost"
+  port: 5432
+  database: "sac"
+  user: "postgres"
+  password: ""
+
+  # `?` sonrasına eklenen ek URL parametreleri. Belirli bir gereksinim
+  # yoksa boş bırak.
+  extra-jdbc-params: ""
+
+  batch-flush-cap: 256
+
+  # Tablo adı geçersiz kılmaları. Varsayılanlar aşağıda.
+  tables:
+    meta: sac_meta
+    checks: sac_checks
+    players: sac_players
+    sessions: sac_sessions
+    violations: sac_violations
+    settings: sac_settings
+
+# Şema işaretçileri — bkz. config.yml'deki başlık yorumu.
+config-flavor: V2
+config-version: 1

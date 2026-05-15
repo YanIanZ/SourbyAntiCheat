@@ -1,0 +1,37 @@
+# ===========================================================================
+#  Impostazioni del backend MongoDB.
+#
+#  Richiede il driver MongoDB sincrono a runtime; se assente, il backend
+#  si disabilita e il routing ricade sul suo fallback.
+# ===========================================================================
+
+# Tutte le chiavi vivono sotto `mongo:` così il keyspace di questo file
+# non collide con i file fratelli per backend quando Configuralize li
+# unisce in un namespace globale.
+mongo:
+  # Connection string MongoDB. Le credenziali sono codificate nell'URL
+  # secondo la convenzione del driver
+  # (mongodb://user:pass@host:port/?authSource=admin).
+  connection-string: "mongodb://localhost:27017"
+
+  # Database in cui scrivere. Le collection al suo interno vengono
+  # nominate dal blocco `tables:` sotto.
+  database: "sac"
+
+  # Dimensione di bulkWrite() per handler. Il driver Mongo gestisce
+  # internamente i pool di connessioni — questo controlla il batching dei
+  # commit, non il numero di connessioni.
+  batch-flush-cap: 256
+
+  # Override dei nomi collection. Default sotto.
+  tables:
+    meta: sac_meta
+    checks: sac_checks
+    players: sac_players
+    sessions: sac_sessions
+    violations: sac_violations
+    settings: sac_settings
+
+# Marcatori di schema — vedi il commento di intestazione in config.yml.
+config-flavor: V2
+config-version: 1

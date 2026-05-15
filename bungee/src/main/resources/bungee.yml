@@ -1,0 +1,5 @@
+name: SourbyAntiCheat
+main: dev.yanianz.sourbyanticheat.platform.bungee.SacBungeePlugin
+version: ${version}
+author: YanIanZ
+description: SAC proxy-side anti-cheat companion for BungeeCord
