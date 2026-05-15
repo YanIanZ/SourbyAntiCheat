@@ -34,6 +34,7 @@ import dev.yanianz.sourbyanticheat.checks.impl.movement.Jesus;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.FastLadder;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.NoWeb;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.Step;
+import dev.yanianz.sourbyanticheat.checks.impl.movement.Blink;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.NoSlow;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.Speed;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.Spider;
