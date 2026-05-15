@@ -164,6 +164,7 @@ public class CheckManager {
                 .put(AutoClicker.class, new AutoClicker(player))
                 .put(Criticals.class, new Criticals(player))
                 .put(FastBow.class, new FastBow(player))
+                .put(FastEat.class, new FastEat(player))
                 .put(FlightA.class, new FlightA(player))
                 .put(MultiActionsA.class, new MultiActionsA(player))
                 .put(MultiActionsC.class, new MultiActionsC(player))
