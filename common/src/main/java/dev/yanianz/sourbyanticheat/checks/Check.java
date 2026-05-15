@@ -8,7 +8,6 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.spartan.SpartanEventBridge;
 import dev.yanianz.sourbyanticheat.manager.AutoPunishment;
-import dev.yanianz.sourbyanticheat.logging.ViolationLogger;
 import dev.yanianz.sourbyanticheat.utils.reflection.GeyserUtil;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
@@ -181,6 +180,8 @@ public class Check extends SacProcessor implements AbstractCheck {
                 + ",\"verbose\":\"" + (verbose + spartanSuffix).replace("\"", "'") + "\""
                 + "}";
             SacAPI.INSTANCE.getProxyMessenger().sendAlert(player.uuid, json);
+            SacAPI.INSTANCE.getAuditLogger().logAction(player.uuid, player.getName(),
+                "VL_CHECK", checkName, verbose, true);
         } catch (Exception ignored) {}
         return player.punishmentManager.handleAlert(player, verbose + spartanSuffix, this);
     }
