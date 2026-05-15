@@ -199,6 +199,7 @@ public class CheckManager {
                 .put(AimModulo360.class, new AimModulo360(player))
                 .put(AimDuplicateLook.class, new AimDuplicateLook(player))
                 .put(AimAssist.class, new AimAssist(player))
+                .put(Baritone.class, new Baritone(player))
                 .build();
         vehicleChecks = new ImmutableClassToInstanceMap.Builder<VehicleCheck>()
                 .put(VehiclePredictionRunner.class, new VehiclePredictionRunner(player))
