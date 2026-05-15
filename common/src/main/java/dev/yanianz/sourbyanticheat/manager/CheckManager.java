@@ -131,6 +131,7 @@ public class CheckManager {
                 .put(NoWeb.class, new NoWeb(player))
                 .put(Step.class, new Step(player))
                 .put(EntitySpeed.class, new EntitySpeed(player))
+                .put(SafeWalk.class, new SafeWalk(player))
                 .put(Blink.class, new Blink(player))
                 .put(NoFall.class, new NoFall(player))
                 .put(ChatA.class, new ChatA(player))
