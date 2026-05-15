@@ -19,11 +19,14 @@ import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitA;
 import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitB;
 import dev.yanianz.sourbyanticheat.checks.impl.flight.FlightA;
 import dev.yanianz.sourbyanticheat.checks.impl.groundspoof.NoFall;
+import dev.yanianz.sourbyanticheat.checks.impl.misc.APIBypass;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.ClientBrand;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.GhostBlockMitigation;
+import dev.yanianz.sourbyanticheat.checks.impl.misc.NettyDelay;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.NettyFlood;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.PayloadCheck;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.Post;
+import dev.yanianz.sourbyanticheat.checks.impl.misc.SpartanDivergence;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.SpartanSync;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.TransactionOrder;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.NoSlow;
@@ -109,8 +112,11 @@ public class CheckManager {
                 .put(TeamHandler.class, new TeamHandler(player))
                 .put(ClientBrand.class, new ClientBrand(player))
                 .put(NettyFlood.class, new NettyFlood(player))
+                .put(NettyDelay.class, new NettyDelay(player))
                 .put(PayloadCheck.class, new PayloadCheck(player))
                 .put(SpartanSync.class, new SpartanSync(player))
+                .put(SpartanDivergence.class, new SpartanDivergence(player))
+                .put(APIBypass.class, new APIBypass(player))
                 .put(NoFall.class, new NoFall(player))
                 .put(ChatA.class, new ChatA(player))
                 .put(ChatB.class, new ChatB(player))
@@ -142,6 +148,7 @@ public class CheckManager {
                 .put(BadPacketsZ.class, new BadPacketsZ(player))
                 .put(BadPacketsAA.class, new BadPacketsAA(player))
                 .put(BadPacketsAB.class, new BadPacketsAB(player))
+                .put(BadPacketsAC.class, new BadPacketsAC(player))
                 .put(SelfInteract.class, new SelfInteract(player))
                 .put(AutoClicker.class, new AutoClicker(player))
                 .put(FlightA.class, new FlightA(player))
