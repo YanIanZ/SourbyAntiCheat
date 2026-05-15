@@ -10,6 +10,8 @@ import dev.yanianz.sourbyanticheat.platform.api.sender.Sender;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.anticheat.SacColors;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.description.Description;
@@ -38,11 +40,13 @@ public class SacInfo implements BuildableCommand {
 
         SacPlayer sp = SacAPI.INSTANCE.getPlayerDataManager().getPlayer(tp.getUniqueId());
         if (sp == null) {
-            sender.sendMessage(Component.text("Player not tracked by SAC.", SacColors.RED));
+            sender.sendMessage(Component.text("  " + SacColors.CROSS + " Player not tracked by SAC.", SacColors.RED));
             return;
         }
 
-        sender.sendMessage(Component.text("=== " + sp.getName() + " Violation Info ===", SacColors.GOLD));
+        sender.sendMessage(SacColors.spacer());
+        sender.sendMessage(SacColors.header(sp.getName() + " " + SacColors.DASH + " Violations"));
+        sender.sendMessage(SacColors.spacer());
 
         var checks = new ArrayList<>(sp.checkManager.allChecks.values());
         checks.sort(Comparator.comparingDouble(c -> -((Check) c).violations));
@@ -51,26 +55,44 @@ public class SacInfo implements BuildableCommand {
         for (var entry : checks) {
             Check c = (Check) entry;
             if (c.getCheckName() == null || c.violations < 0.5) continue;
-            if (shown++ > 15) break;
+            if (shown++ > 15) {
+                sender.sendMessage(Component.text("   ... and more (use /sac gui)", SacColors.DARK_GRAY));
+                break;
+            }
 
-            sender.sendMessage(Component.text()
-                .append(Component.text("  " + c.getCheckName() + " ", c.isEnabled() ? SacColors.WHITE : SacColors.RED))
-                .append(Component.text(String.format("VL=%.1f", c.violations), SacColors.YELLOW))
-                .append(c.isEnabled() ? Component.empty() : Component.text(" [OFF]", SacColors.RED))
-                .build());
+            double vl = c.violations;
+            Component line = Component.text()
+                .append(Component.text("   ", SacColors.MUTED))
+                .append(Component.text(c.isEnabled() ? SacColors.DOT : SacColors.CROSS, c.isEnabled() ? SacColors.vlColor(vl) : SacColors.RED))
+                .append(Component.text(" " + c.getCheckName() + " ", c.isEnabled() ? SacColors.WHITE : SacColors.DARK_GRAY))
+                .append(Component.text(String.format("%.1f", vl), SacColors.vlColor(vl)))
+                .append(c.isExperimental() ? Component.text(" *", SacColors.PURPLE) : Component.empty())
+                .hoverEvent(HoverEvent.showText(Component.text()
+                    .append(Component.text(c.getCheckName() + "\n", SacColors.WHITE))
+                    .append(Component.text("VL: " + String.format("%.2f", vl) + "\n", SacColors.vlColor(vl)))
+                    .append(Component.text("Status: " + (c.isEnabled() ? "Enabled" : "Disabled") + "\n", c.isEnabled() ? SacColors.GREEN : SacColors.RED))
+                    .append(c.isExperimental() ? Component.text("Experimental\n", SacColors.PURPLE) : Component.empty())
+                    .append(Component.text("Click to toggle", SacColors.GRAY))
+                    .build()))
+                .clickEvent(ClickEvent.runCommand("/sac toggle " + c.getCheckName() + " " + sp.getName()))
+                .build();
+            sender.sendMessage(line);
         }
 
         if (shown == 0) {
-            sender.sendMessage(Component.text("  No active violations.", SacColors.GREEN));
+            sender.sendMessage(Component.text("   " + SacColors.CHECKMARK + " No active violations.", SacColors.GREEN));
         }
+
+        sender.sendMessage(SacColors.spacer());
 
         int totalVL = (int) checks.stream().mapToDouble(c -> ((Check) c).violations).sum();
         long enabled = checks.stream().filter(c -> ((Check) c).isEnabled()).count();
         sender.sendMessage(Component.text()
-            .append(Component.text("Total: ", SacColors.GRAY))
-            .append(Component.text(totalVL + " VL", SacColors.GREEN))
-            .append(Component.text(" | ", SacColors.GRAY))
-            .append(Component.text(enabled + "/" + checks.size() + " checks enabled", SacColors.WHITE))
+            .append(Component.text("   Total  ", SacColors.GRAY))
+            .append(Component.text(totalVL + " VL", SacColors.vlColor(totalVL)))
+            .append(Component.text("  " + SacColors.DASH + "  ", SacColors.MUTED))
+            .append(Component.text(enabled + "/" + checks.size() + " checks", SacColors.DARK_GRAY))
             .build());
+        sender.sendMessage(SacColors.footer());
     }
 }

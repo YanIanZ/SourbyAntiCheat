@@ -40,7 +40,7 @@ public class Check extends SacProcessor implements AbstractCheck {
     private String description;
     private String stableKey = "";
 
-    private boolean experimental;
+    @Getter private boolean experimental;
     private @Setter boolean isEnabled;
 
     private boolean exemptPermission;
@@ -116,7 +116,7 @@ public class Check extends SacProcessor implements AbstractCheck {
         if (player.disableGrim || exemptPermission)
             return false;
 
-        if (experimental && !SacAPI.INSTANCE.getConfigManager().getConfig().getBooleanElse("experimental-checks", true))
+        if (experimental && !player.isExperimentalChecks())
             return false; // Avoid calling event if disabled
 
         if (skipForBedrock && GeyserUtil.isBedrockPlayer(player.uuid))

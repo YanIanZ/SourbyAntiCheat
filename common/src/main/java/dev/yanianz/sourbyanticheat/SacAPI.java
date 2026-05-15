@@ -115,9 +115,7 @@ public final class SacAPI {
 
     public void start() {
         checkInitialized();
-        if (configManager.getConfig().getBooleanElse("spartanapi.cross-check", true)) {
-            SpartanCrossCheck.init(true);
-        }
+        SpartanCrossCheck.init(configManager.getConfig().getBooleanElse("spartanapi.cross-check", true));
         AutoPunishment.init();
         WavePunishment.init();
         initManager.start();

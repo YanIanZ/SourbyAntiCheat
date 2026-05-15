@@ -9,8 +9,8 @@ import dev.yanianz.sourbyanticheat.platform.api.sender.Sender;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.utils.anticheat.MessageUtil;
+import dev.yanianz.sourbyanticheat.utils.anticheat.SacColors;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.context.CommandContext;
 import org.jetbrains.annotations.NotNull;
@@ -53,9 +53,15 @@ public class SacProfile implements BuildableCommand {
         if (SpartanCrossCheck.isAvailable()) {
             var stats = SpartanCrossCheck.getStats(grimPlayer.uuid);
             if (stats.agreements > 0 || stats.disagreements > 0) {
-                sender.sendMessage(Component.text("  Spartan: " + stats.agreements + " agree / "
-                    + stats.disagreements + " disagree (" + String.format("%.0f%%", stats.agreementRate() * 100) + " rate)",
-                    NamedTextColor.GOLD));
+                sender.sendMessage(Component.text()
+                    .append(Component.text("  " + SacColors.DIAMOND + " ", SacColors.ACCENT2))
+                    .append(Component.text("Spartan  ", SacColors.GRAY))
+                    .append(Component.text(stats.agreements + " " + SacColors.CHECKMARK, SacColors.GREEN))
+                    .append(Component.text("  " + stats.disagreements + " " + SacColors.CROSS, SacColors.RED))
+                    .append(Component.text("  (", SacColors.MUTED))
+                    .append(Component.text(String.format("%.0f%%", stats.agreementRate() * 100), SacColors.CYAN))
+                    .append(Component.text(")", SacColors.MUTED))
+                    .build());
             }
         }
     }

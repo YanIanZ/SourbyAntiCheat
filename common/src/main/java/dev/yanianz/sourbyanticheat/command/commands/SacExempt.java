@@ -34,7 +34,7 @@ public class SacExempt implements BuildableCommand {
 
         SacPlayer sp = SacAPI.INSTANCE.getPlayerDataManager().getPlayer(tp.getUniqueId());
         if (sp == null) {
-            sender.sendMessage(Component.text("Player not tracked.", SacColors.RED));
+            sender.sendMessage(Component.text("  " + SacColors.CROSS + " Player not tracked.", SacColors.RED));
             return;
         }
 
@@ -42,8 +42,12 @@ public class SacExempt implements BuildableCommand {
         sp.disableGrim = !currently;
 
         sender.sendMessage(Component.text()
-            .append(Component.text(tp.getName() + " is now ", SacColors.GRAY))
-            .append(Component.text(sp.disableGrim ? "EXEMPT" : "CHECKED", sp.disableGrim ? SacColors.GREEN : SacColors.RED))
+            .append(Component.text("  " + (sp.disableGrim ? SacColors.STAR : SacColors.DOT) + " ",
+                sp.disableGrim ? SacColors.HIGHLIGHT : SacColors.GREEN))
+            .append(Component.text(tp.getName(), SacColors.ACCENT))
+            .append(Component.text(" " + SacColors.ARROW_RIGHT + " ", SacColors.MUTED))
+            .append(Component.text(sp.disableGrim ? "EXEMPT" : "CHECKED",
+                sp.disableGrim ? SacColors.HIGHLIGHT : SacColors.GREEN))
             .build());
 
         SacAPI.INSTANCE.getAuditLogger().logAction(

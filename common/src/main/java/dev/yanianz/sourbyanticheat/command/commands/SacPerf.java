@@ -3,8 +3,8 @@ package dev.yanianz.sourbyanticheat.command.commands;
 import dev.yanianz.sourbyanticheat.platform.api.manager.cloud.CloudCommandAdapter;
 import dev.yanianz.sourbyanticheat.platform.api.sender.Sender;
 import dev.yanianz.sourbyanticheat.predictionengine.MovementCheckRunner;
+import dev.yanianz.sourbyanticheat.utils.anticheat.SacColors;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.incendo.cloud.Command;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.context.CommandContext;
@@ -29,17 +29,32 @@ public class SacPerf {
         double millis = MovementCheckRunner.predictionNanos / 1000000;
         double longMillis = MovementCheckRunner.longPredictionNanos / 1000000;
 
-        Component message1 = Component.text()
-                .append(Component.text("Milliseconds per prediction (avg. 500): ", NamedTextColor.GRAY))
-                .append(Component.text(millis, NamedTextColor.WHITE))
-                .build();
+        // Determine color based on performance
+        var shortColor = millis < 1.0 ? SacColors.GREEN : millis < 3.0 ? SacColors.YELLOW : SacColors.RED;
+        var longColor = longMillis < 1.0 ? SacColors.GREEN : longMillis < 3.0 ? SacColors.YELLOW : SacColors.RED;
 
-        Component message2 = Component.text()
-                .append(Component.text("Milliseconds per prediction (avg. 20k): ", NamedTextColor.GRAY))
-                .append(Component.text(longMillis, NamedTextColor.WHITE))
-                .build();
+        sender.sendMessage(SacColors.spacer());
+        sender.sendMessage(SacColors.header("Performance"));
+        sender.sendMessage(SacColors.spacer());
 
-        sender.sendMessage(message1);
-        sender.sendMessage(message2);
+        sender.sendMessage(SacColors.subHeader("Prediction Engine"));
+        sender.sendMessage(Component.text()
+            .append(Component.text("   avg/500   ", SacColors.GRAY))
+            .append(Component.text(String.format("%.3f", millis), shortColor))
+            .append(Component.text(" ms", SacColors.DARK_GRAY))
+            .append(Component.text("  ", SacColors.MUTED))
+            .append(SacColors.progressBar(Math.min(millis / 5.0, 1.0), 12))
+            .build());
+
+        sender.sendMessage(Component.text()
+            .append(Component.text("   avg/20k   ", SacColors.GRAY))
+            .append(Component.text(String.format("%.3f", longMillis), longColor))
+            .append(Component.text(" ms", SacColors.DARK_GRAY))
+            .append(Component.text("  ", SacColors.MUTED))
+            .append(SacColors.progressBar(Math.min(longMillis / 5.0, 1.0), 12))
+            .build());
+
+        sender.sendMessage(SacColors.spacer());
+        sender.sendMessage(SacColors.footer());
     }
 }

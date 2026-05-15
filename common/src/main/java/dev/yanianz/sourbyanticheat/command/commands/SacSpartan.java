@@ -39,15 +39,30 @@ public class SacSpartan implements BuildableCommand {
 
         UUID uuid = tp.getUniqueId();
         SpartanCrossCheck.CrossCheckStats stats = SpartanCrossCheck.getStats(uuid);
-
         boolean available = SpartanCrossCheck.isAvailable();
 
-        sender.sendMessage(Component.text("--- SAC-Spartan Cross-Check ---", SacColors.GOLD));
-        sender.sendMessage(Component.text("SpartanAPI: " + (available ? "ENABLED" : "DISABLED"), available ? SacColors.GREEN : SacColors.RED));
-        sender.sendMessage(Component.text("Player: " + tp.getName(), SacColors.YELLOW));
-        sender.sendMessage(Component.text("Agreements: " + stats.agreements, SacColors.GREEN));
-        sender.sendMessage(Component.text("Disagreements: " + stats.disagreements, SacColors.RED));
-        sender.sendMessage(Component.text("Agreement Rate: " + String.format("%.1f%%", stats.agreementRate() * 100), SacColors.CYAN));
-        sender.sendMessage(Component.text("Min-VL threshold: " + SpartanCrossCheck.getMinVL(), SacColors.GRAY));
+        sender.sendMessage(SacColors.spacer());
+        sender.sendMessage(SacColors.header("Spartan Cross-Check"));
+        sender.sendMessage(SacColors.spacer());
+
+        sender.sendMessage(SacColors.statusBadge("SpartanAPI", available));
+        sender.sendMessage(SacColors.kv("Player", tp.getName(), SacColors.ACCENT));
+        sender.sendMessage(SacColors.kv("Min-VL Threshold", String.valueOf(SpartanCrossCheck.getMinVL()), SacColors.DARK_GRAY));
+        sender.sendMessage(SacColors.spacer());
+
+        if (stats.agreements > 0 || stats.disagreements > 0) {
+            sender.sendMessage(SacColors.subHeader("Correlation"));
+            sender.sendMessage(SacColors.kv(SacColors.CHECKMARK + " Agreements", String.valueOf(stats.agreements), SacColors.GREEN));
+            sender.sendMessage(SacColors.kv(SacColors.CROSS + " Disagreements", String.valueOf(stats.disagreements), SacColors.RED));
+            sender.sendMessage(Component.text()
+                .append(Component.text("   Rate  ", SacColors.GRAY))
+                .append(SacColors.progressBar(stats.agreementRate(), 20))
+                .build());
+        } else {
+            sender.sendMessage(Component.text("   No cross-check data for this player yet.", SacColors.DARK_GRAY));
+        }
+
+        sender.sendMessage(SacColors.spacer());
+        sender.sendMessage(SacColors.footer());
     }
 }

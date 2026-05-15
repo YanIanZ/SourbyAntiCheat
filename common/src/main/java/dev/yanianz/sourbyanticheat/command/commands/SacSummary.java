@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SacSummary implements BuildableCommand {
     @Override
@@ -32,7 +33,7 @@ public class SacSummary implements BuildableCommand {
         var entries = pdm.getEntries();
 
         if (entries.isEmpty()) {
-            sender.sendMessage(Component.text("No tracked players.", SacColors.GRAY));
+            sender.sendMessage(Component.text("   No tracked players.", SacColors.DARK_GRAY));
             return;
         }
 
@@ -50,35 +51,59 @@ public class SacSummary implements BuildableCommand {
             playerVLs.put(sp.getName(), total);
         }
 
-        sender.sendMessage(Component.text("=== SAC Violation Summary ===", SacColors.GOLD));
+        double maxCheckVL = checkVLs.values().stream().mapToDouble(Double::doubleValue).max().orElse(1);
+        int maxPlayerVL = playerVLs.values().stream().mapToInt(Integer::intValue).max().orElse(1);
 
-        sender.sendMessage(Component.text("Top Checks:", SacColors.CYAN));
+        sender.sendMessage(SacColors.spacer());
+        sender.sendMessage(SacColors.header("Violation Summary"));
+        sender.sendMessage(SacColors.spacer());
+
+        // ── Top Checks ──
+        sender.sendMessage(SacColors.subHeader("Hottest Checks"));
+        AtomicInteger checkRank = new AtomicInteger(1);
         checkVLs.entrySet().stream()
             .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
             .limit(5)
-            .forEach(e -> sender.sendMessage(Component.text()
-                .append(Component.text("  " + e.getKey() + " ", SacColors.WHITE))
-                .append(Component.text(String.format("%.0f VL", e.getValue()), SacColors.YELLOW))
-                .build()));
+            .forEach(e -> {
+                int r = checkRank.getAndIncrement();
+                sender.sendMessage(Component.text()
+                    .append(SacColors.rank(r))
+                    .append(Component.text(e.getKey() + " ", SacColors.WHITE))
+                    .append(Component.text(String.format("%.0f", e.getValue()), SacColors.vlColor(e.getValue())))
+                    .append(Component.text("  ", SacColors.MUTED))
+                    .append(SacColors.progressBar(e.getValue() / maxCheckVL, 12))
+                    .build());
+            });
+        sender.sendMessage(SacColors.spacer());
 
-        sender.sendMessage(Component.text("Top Players:", SacColors.CYAN));
+        // ── Top Players ──
+        sender.sendMessage(SacColors.subHeader("Highest VL Players"));
+        AtomicInteger playerRank = new AtomicInteger(1);
         playerVLs.entrySet().stream()
             .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
             .limit(5)
-            .forEach(e -> sender.sendMessage(Component.text()
-                .append(Component.text("  " + e.getKey() + " ", SacColors.WHITE))
-                .append(Component.text(e.getValue() + " VL", e.getValue() > 50 ? SacColors.RED : SacColors.YELLOW))
-                .build()));
+            .forEach(e -> {
+                int r = playerRank.getAndIncrement();
+                sender.sendMessage(Component.text()
+                    .append(SacColors.rank(r))
+                    .append(Component.text(e.getKey() + " ", SacColors.WHITE))
+                    .append(Component.text(e.getValue() + " VL", SacColors.vlColor(e.getValue())))
+                    .append(Component.text("  ", SacColors.MUTED))
+                    .append(SacColors.progressBar((double) e.getValue() / maxPlayerVL, 12))
+                    .build());
+            });
+        sender.sendMessage(SacColors.spacer());
 
-        int totalChecks = checkVLs.size();
+        // ── Footer Stats ──
         double totalVL = checkVLs.values().stream().mapToDouble(Double::doubleValue).sum();
         sender.sendMessage(Component.text()
-            .append(Component.text("Total: ", SacColors.GRAY))
-            .append(Component.text(String.format("%.0f VL", totalVL), SacColors.GREEN))
-            .append(Component.text(" across ", SacColors.GRAY))
-            .append(Component.text(totalChecks + " checks", SacColors.WHITE))
-            .append(Component.text(" for ", SacColors.GRAY))
-            .append(Component.text(entries.size() + " players", SacColors.WHITE))
+            .append(Component.text("   " + SacColors.DIAMOND + " ", SacColors.ACCENT))
+            .append(Component.text(String.format("%.0f VL", totalVL), SacColors.vlColor(totalVL)))
+            .append(Component.text("  across ", SacColors.MUTED))
+            .append(Component.text(checkVLs.size() + " checks", SacColors.DARK_GRAY))
+            .append(Component.text("  for ", SacColors.MUTED))
+            .append(Component.text(entries.size() + " players", SacColors.DARK_GRAY))
             .build());
+        sender.sendMessage(SacColors.footer());
     }
 }

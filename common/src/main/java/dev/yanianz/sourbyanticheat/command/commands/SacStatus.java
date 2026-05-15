@@ -13,7 +13,6 @@ import dev.yanianz.sourbyanticheat.utils.reflection.GeyserUtil;
 import dev.yanianz.sourbyanticheat.utils.viaversion.ViaVersionUtil;
 import net.kyori.adventure.text.Component;
 import dev.yanianz.sourbyanticheat.utils.anticheat.SacColors;
-import net.kyori.adventure.text.format.TextColor;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.description.Description;
@@ -39,42 +38,59 @@ public class SacStatus implements BuildableCommand {
         boolean viaversion = ViaVersionUtil.isAvailable;
         boolean spartan = SpartanCrossCheck.isAvailable();
 
-        sender.sendMessage(Component.text("=== SAC Status ===", SacColors.GOLD));
-        sender.sendMessage(line("Version", "1.0.0"));
-        sender.sendMessage(line("Uptime", formatUptime(api.getUptime())));
-        sender.sendMessage(line("Platform", api.getPlatform().name()));
-        sender.sendMessage(line("Tick", String.valueOf(api.getTickManager().currentTick)));
-        sender.sendMessage(line("Netty", nettyFailed ? "FAILED (PacketEvents)" : "ACTIVE (" + dev.yanianz.sourbyanticheat.netty.SacNettyInjector.getSuccessCount() + " ok / " + dev.yanianz.sourbyanticheat.netty.SacNettyInjector.getFailCount() + " fail)", nettyFailed ? SacColors.RED : SacColors.GREEN));
-        sender.sendMessage(line("ViaVersion", viaversion ? "DETECTED" : "NOT FOUND", viaversion ? SacColors.GREEN : SacColors.GRAY));
-        sender.sendMessage(line("GeyserMC", geyser ? "DETECTED" : "NOT FOUND", geyser ? SacColors.GREEN : SacColors.GRAY));
-        sender.sendMessage(line("SpartanAPI", spartan ? "ACTIVE v" + (SpartanCrossCheck.getSpartanVersion() != null ? SpartanCrossCheck.getSpartanVersion() : "?") : "DISABLED", spartan ? SacColors.GREEN : SacColors.GRAY));
-        if (spartan) {
-            sender.sendMessage(line("  Agree", SpartanCrossCheck.getAgreements() + "/" + SpartanCrossCheck.getTotalFlags()
-                + " (" + String.format("%.0f%%", SpartanCrossCheck.getAgreementRate() * 100) + ")"));
-        }
-
         var pdm = api.getPlayerDataManager();
         int tracked = pdm.getEntries().size();
         int checks = tracked > 0 ? pdm.getEntries().iterator().next().checkManager.allChecks.size() : 0;
         int active = tracked > 0 ? (int) pdm.getEntries().iterator().next().checkManager.allChecks.values().stream()
             .filter(c -> ((dev.yanianz.sourbyanticheat.checks.Check)c).isEnabled()).count() : 0;
-        sender.sendMessage(line("Tracked", String.valueOf(tracked)));
-        sender.sendMessage(line("Checks", active + "/" + checks + " active"));
-    }
 
-    private static Component line(String key, String value) {
-        return line(key, value, SacColors.WHITE);
-    }
+        sender.sendMessage(SacColors.spacer());
+        sender.sendMessage(SacColors.header("SAC Health Dashboard"));
+        sender.sendMessage(SacColors.spacer());
 
-    private static Component line(String key, String value, TextColor color) {
-        return Component.text()
-                .append(Component.text("  " + key + ": ", SacColors.GRAY))
-                .append(Component.text(value, color))
-                .build();
+        // ── Core Info ─────────────────
+        sender.sendMessage(SacColors.subHeader("Core"));
+        sender.sendMessage(SacColors.kv("Version", "1.0.0", SacColors.ACCENT));
+        sender.sendMessage(SacColors.kv("Platform", api.getPlatform().name(), SacColors.WHITE));
+        sender.sendMessage(SacColors.kv("Uptime", formatUptime(api.getUptime()), SacColors.WHITE));
+        sender.sendMessage(SacColors.kv("Tick", String.valueOf(api.getTickManager().currentTick), SacColors.DARK_GRAY));
+        sender.sendMessage(SacColors.spacer());
+
+        // ── Services ──────────────────
+        sender.sendMessage(SacColors.subHeader("Services"));
+        String nettyLabel = nettyFailed
+            ? "Netty " + SacColors.DASH + " PacketEvents fallback"
+            : "Netty " + SacColors.DASH + " " + dev.yanianz.sourbyanticheat.netty.SacNettyInjector.getSuccessCount() + " injected";
+        sender.sendMessage(SacColors.statusBadge(nettyLabel, !nettyFailed));
+        sender.sendMessage(SacColors.statusBadge("ViaVersion", viaversion));
+        sender.sendMessage(SacColors.statusBadge("GeyserMC", geyser));
+
+        String spartanLabel = spartan
+            ? "SpartanAPI v" + (SpartanCrossCheck.getSpartanVersion() != null ? SpartanCrossCheck.getSpartanVersion() : "?")
+            : "SpartanAPI";
+        sender.sendMessage(SacColors.statusBadge(spartanLabel, spartan));
+
+        if (spartan && SpartanCrossCheck.getTotalFlags() > 0) {
+            double rate = SpartanCrossCheck.getAgreementRate();
+            sender.sendMessage(Component.text()
+                .append(Component.text("     Agreement  ", SacColors.DARK_GRAY))
+                .append(SacColors.progressBar(rate, 16))
+                .build());
+        }
+        sender.sendMessage(SacColors.spacer());
+
+        // ── Tracking ──────────────────
+        sender.sendMessage(SacColors.subHeader("Tracking"));
+        sender.sendMessage(SacColors.kv("Players", String.valueOf(tracked), tracked > 0 ? SacColors.GREEN : SacColors.GRAY));
+        sender.sendMessage(SacColors.kv("Checks", active + "/" + checks + " active",
+            active == checks ? SacColors.GREEN : SacColors.YELLOW));
+        sender.sendMessage(SacColors.spacer());
+        sender.sendMessage(SacColors.footer());
     }
 
     private static String formatUptime(long ms) {
-        long s = ms / 1000, m = s / 60, h = m / 60;
+        long s = ms / 1000, m = s / 60, h = m / 60, d = h / 24;
+        if (d > 0) return d + "d " + (h % 24) + "h " + (m % 60) + "m";
         if (h > 0) return h + "h " + (m % 60) + "m";
         if (m > 0) return m + "m " + (s % 60) + "s";
         return s + "s";

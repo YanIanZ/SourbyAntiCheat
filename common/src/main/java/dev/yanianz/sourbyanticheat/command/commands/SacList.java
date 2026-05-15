@@ -2,17 +2,18 @@ package dev.yanianz.sourbyanticheat.command.commands;
 
 import dev.yanianz.sourbyanticheat.SacAPI;
 import ac.grim.grimac.api.GrimIdentity;
+import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.command.BuildableCommand;
 import dev.yanianz.sourbyanticheat.command.CommandUtils;
 import dev.yanianz.sourbyanticheat.platform.api.manager.cloud.CloudCommandAdapter;
 import dev.yanianz.sourbyanticheat.platform.api.player.PlatformPlayer;
 import dev.yanianz.sourbyanticheat.platform.api.sender.Sender;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
+import dev.yanianz.sourbyanticheat.utils.anticheat.SacColors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.parser.standard.StringParser;
 import org.incendo.cloud.suggestion.SuggestionProvider;
@@ -45,9 +46,14 @@ public class SacList implements BuildableCommand {
             case "players" -> handleListPlayers(sender);
             case "checks" -> handleListChecks(sender);
             default -> sender.sendMessage(Component.text()
-                    .append(Component.text("Invalid argument: ", NamedTextColor.GRAY))
-                    .append(Component.text(id, NamedTextColor.RED))
-                    .append(Component.text(" — use 'players' or 'checks'", NamedTextColor.GRAY))
+                    .append(Component.text("  " + SacColors.CROSS + " Invalid: ", SacColors.RED))
+                    .append(Component.text(id, SacColors.WHITE))
+                    .append(Component.text(" " + SacColors.DASH + " use ", SacColors.MUTED))
+                    .append(Component.text("players", SacColors.ACCENT)
+                        .clickEvent(ClickEvent.runCommand("/sac list players")))
+                    .append(Component.text(" or ", SacColors.MUTED))
+                    .append(Component.text("checks", SacColors.ACCENT)
+                        .clickEvent(ClickEvent.runCommand("/sac list checks")))
                     .build());
         }
     }
@@ -55,30 +61,47 @@ public class SacList implements BuildableCommand {
     private void handleListChecks(Sender sender) {
         var pdm = SacAPI.INSTANCE.getPlayerDataManager();
         if (pdm.getEntries().isEmpty()) {
-            sender.sendMessage(Component.text("No tracked players — checks load per-player.", NamedTextColor.GRAY));
+            sender.sendMessage(Component.text("   No tracked players " + SacColors.DASH + " checks load per-player.", SacColors.DARK_GRAY));
             return;
         }
         var player = pdm.getEntries().iterator().next();
         var checks = player.checkManager.allChecks;
 
-        sender.sendMessage(Component.text("SAC Checks (" + checks.size() + "):", NamedTextColor.GOLD));
+        long enabled = checks.values().stream().filter(c -> ((Check) c).isEnabled()).count();
+
+        sender.sendMessage(SacColors.spacer());
+        sender.sendMessage(SacColors.header("Check Registry"));
+        sender.sendMessage(Component.text()
+            .append(Component.text("   ", SacColors.MUTED))
+            .append(Component.text(enabled + " active", SacColors.GREEN))
+            .append(Component.text(" / " + checks.size() + " total", SacColors.DARK_GRAY))
+            .build());
+        sender.sendMessage(SacColors.spacer());
+
         checks.values().stream()
             .filter(c -> c.getCheckName() != null)
             .sorted((a, b) -> a.getCheckName().compareToIgnoreCase(b.getCheckName()))
             .forEach(c -> {
-                var check = (dev.yanianz.sourbyanticheat.checks.Check) c;
+                var check = (Check) c;
+                double vl = check.violations;
                 sender.sendMessage(Component.text()
-                    .append(Component.text("  " + check.getCheckName() + " ", check.isEnabled() ? NamedTextColor.GREEN : NamedTextColor.RED))
-                    .append(Component.text("VL=" + String.format("%.1f", check.violations), NamedTextColor.GRAY))
-                    .append(Component.text(check.isEnabled() ? "" : " [DISABLED]", NamedTextColor.RED))
+                    .append(Component.text("   ", SacColors.MUTED))
+                    .append(Component.text(check.isEnabled() ? SacColors.DOT : SacColors.CROSS,
+                        check.isEnabled() ? SacColors.GREEN : SacColors.RED))
+                    .append(Component.text(" " + check.getCheckName() + " ", check.isEnabled() ? SacColors.WHITE : SacColors.DARK_GRAY))
+                    .append(vl > 0.5 ? Component.text(String.format("%.1f", vl), SacColors.vlColor(vl)) : Component.empty())
+                    .append(check.isExperimental() ? Component.text(" *", SacColors.PURPLE) : Component.empty())
+                    .clickEvent(ClickEvent.suggestCommand("/sac toggle " + check.getCheckName() + " "))
+                    .hoverEvent(HoverEvent.showText(Component.text("Click to toggle " + check.getCheckName(), SacColors.GRAY)))
                     .build());
             });
+        sender.sendMessage(SacColors.footer());
     }
 
     private Component playerComponent(String name, UUID uuid, boolean online, boolean exempt) {
         return Component.text(name)
-                .color(exempt ? (online ? NamedTextColor.GRAY : NamedTextColor.DARK_GRAY)
-                        : (online ? NamedTextColor.WHITE : NamedTextColor.RED))
+                .color(exempt ? SacColors.DARK_GRAY
+                        : (online ? SacColors.WHITE : SacColors.RED))
                 .clickEvent(ClickEvent.copyToClipboard(name))
                 .hoverEvent(HoverEvent.showText(playerHoverComponent(uuid, online, exempt, true)));
     }
@@ -86,37 +109,39 @@ public class SacList implements BuildableCommand {
     private Component playerHoverComponent(UUID uuid, boolean online, boolean exempt, boolean registered) {
         var builder = Component.text();
         builder.append(Component.text()
-                .append(Component.text("UUID: ").color(NamedTextColor.GRAY))
-                .append(Component.text(uuid + "").color(NamedTextColor.WHITE))
+                .append(Component.text("UUID: ", SacColors.GRAY))
+                .append(Component.text(uuid + "", SacColors.WHITE))
                 .append(Component.newline())
-                .append(Component.text("Status: ").color(NamedTextColor.GRAY))
-                .append(online ? Component.text("Online").color(NamedTextColor.GREEN)
-                        : Component.text("Offline").color(NamedTextColor.RED)));
+                .append(Component.text("Status: ", SacColors.GRAY))
+                .append(online ? Component.text(SacColors.DOT + " Online", SacColors.GREEN)
+                        : Component.text(SacColors.CROSS + " Offline", SacColors.RED)));
         if (exempt) {
             builder.append(Component.newline());
-            builder.append(Component.text("Is Exempt").color(NamedTextColor.LIGHT_PURPLE));
+            builder.append(Component.text(SacColors.STAR + " Exempt", SacColors.PURPLE));
         }
         if (!registered) {
             builder.append(Component.newline());
-            builder.append(Component.text("Not Registered").color(NamedTextColor.RED));
+            builder.append(Component.text(SacColors.CROSS + " Not Registered", SacColors.RED));
         }
         return builder.build();
     }
 
     private void handleListPlayers(Sender sender) {
-        final TextComponent.Builder builder = Component.text();
-
         final Map<UUID, PlatformPlayer> onlinePlayers = SacAPI.INSTANCE.getPlatformPlayerFactory().getOnlinePlayers()
                 .stream().collect(Collectors.toMap(GrimIdentity::getUniqueId, Function.identity()));
-        //
         final Set<PlatformPlayer> unregisteredPlayers = new HashSet<>(onlinePlayers.values());
 
+        sender.sendMessage(SacColors.spacer());
+        sender.sendMessage(SacColors.header("Player List"));
+        sender.sendMessage(SacColors.spacer());
+
+        final TextComponent.Builder builder = Component.text();
+        builder.append(Component.text("   ", SacColors.MUTED));
+
         boolean after = false;
-        builder.append(Component.text("Players = [", NamedTextColor.GRAY));
-        //
         for (SacPlayer entry : SacAPI.INSTANCE.getPlayerDataManager().getEntries()) {
             if (after) {
-                builder.append(Component.text(", ").color(NamedTextColor.GRAY));
+                builder.append(Component.text(", ", SacColors.MUTED));
             } else {
                 after = true;
             }
@@ -126,21 +151,22 @@ public class SacList implements BuildableCommand {
             boolean exempt = !SacAPI.INSTANCE.getPlayerDataManager().shouldCheck(entry.user);
             builder.append(playerComponent(entry.getName(), entry.getUniqueId(), online, exempt));
         }
-        //
+
         for (PlatformPlayer platformPlayer : unregisteredPlayers) {
             if (after) {
-                builder.append(Component.text(", ").color(NamedTextColor.GRAY));
+                builder.append(Component.text(", ", SacColors.MUTED));
             } else {
                 after = true;
             }
-            builder.append(Component.text(platformPlayer.getName()).color(NamedTextColor.LIGHT_PURPLE)
+            builder.append(Component.text(platformPlayer.getName(), SacColors.PURPLE)
                     .clickEvent(ClickEvent.suggestCommand(platformPlayer.getName()))
                     .hoverEvent(HoverEvent.showText(playerHoverComponent(platformPlayer.getUniqueId(), platformPlayer.isOnline(), false, false)))
             );
         }
-        // close and send
-        builder.append(Component.text("]", NamedTextColor.GRAY));
+
         sender.sendMessage(builder.build());
+        sender.sendMessage(SacColors.spacer());
+        sender.sendMessage(SacColors.footer());
     }
 
 }

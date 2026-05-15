@@ -46,9 +46,9 @@ public class SacNote implements BuildableCommand {
         notes.put(tp.getUniqueId(), existing == null ? entry : existing + " | " + entry);
 
         sender.sendMessage(Component.text()
-            .append(Component.text("Note added for ", SacColors.GRAY))
-            .append(Component.text(tp.getName(), SacColors.YELLOW))
-            .append(Component.text(": ", SacColors.GRAY))
+            .append(Component.text("  " + SacColors.CHECKMARK + " Note for ", SacColors.GREEN))
+            .append(Component.text(tp.getName(), SacColors.ACCENT))
+            .append(Component.text(" " + SacColors.DASH + " ", SacColors.MUTED))
             .append(Component.text(message, SacColors.WHITE))
             .build());
 

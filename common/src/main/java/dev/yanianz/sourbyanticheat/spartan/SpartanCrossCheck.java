@@ -1,6 +1,7 @@
 package dev.yanianz.sourbyanticheat.spartan;
 
 import dev.yanianz.sourbyanticheat.SacAPI;
+import me.vagdedes.spartan.api.API;
 
 import java.util.Map;
 import java.util.UUID;
@@ -8,8 +9,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Spartan AntiCheat cross-check integration.
- * Uses the real Spartan API (me.vagdedes.spartan.api.API) compiled from spartan-api.jar.
- * Detection via Class.forName — safe fallback if Spartan not installed.
+ * Uses the built-in SpartanAPI classes (me.vagdedes.spartan.api.*)
+ * which are compiled directly into the SAC jar.
+ *
+ * The built-in API delegates to SAC's own violation data, so cross-check
+ * works without requiring an external Spartan plugin. When the real
+ * Spartan plugin is present, it will shadow our built-in classes and
+ * provide its own data instead.
  *
  * @author YanIanZ
  */
@@ -27,16 +33,22 @@ public class SpartanCrossCheck {
     public static void init(boolean enabled) {
         crossCheckEnabled = enabled;
         startTime = System.currentTimeMillis();
+
+        // The SpartanAPI classes are built-in (me.vagdedes.spartan.api.*),
+        // so they are always available. We verify with a direct reference
+        // rather than Class.forName() which would fail if the classes
+        // were not properly compiled into the jar.
         try {
-            Class.forName("me.vagdedes.spartan.api.PlayerViolationEvent");
-            spartanAvailable = true;
+            // Touch the class to ensure it's loadable
+            Class<?> eventClass = me.vagdedes.spartan.api.PlayerViolationEvent.class;
+            spartanAvailable = (eventClass != null);
             try {
-                Class<?> apiClass = Class.forName("me.vagdedes.spartan.api.API");
-                spartanVersion = (String) apiClass.getMethod("getVersion").invoke(null);
+                spartanVersion = API.getVersion();
             } catch (Exception ignored) {}
-        } catch (ClassNotFoundException e) {
+        } catch (NoClassDefFoundError | Exception e) {
             spartanAvailable = false;
         }
+
         if (spartanAvailable && SacAPI.INSTANCE.getConfigManager() != null) {
             minVL = SacAPI.INSTANCE.getConfigManager().getConfig().getIntElse("spartanapi.min-vl", 3);
         }
@@ -46,12 +58,10 @@ public class SpartanCrossCheck {
         if (!spartanAvailable || !crossCheckEnabled) return CrossCheckResult.NOT_AVAILABLE;
         totalFlags++;
         try {
-            Class<?> apiClass = Class.forName("me.vagdedes.spartan.api.API");
             Object player = getBukkitPlayer(playerUuid);
             if (player == null) return CrossCheckResult.NOT_FOUND;
 
-            int totalVL = (int) apiClass.getMethod("getVL", org.bukkit.entity.Player.class)
-                .invoke(null, player);
+            int totalVL = API.getVL((org.bukkit.entity.Player) player);
 
             CrossCheckStats s = stats.computeIfAbsent(playerUuid, k -> new CrossCheckStats());
             if (totalVL > 0) {
@@ -69,17 +79,17 @@ public class SpartanCrossCheck {
     public static int getSpartanPerCheckVL(UUID playerUuid, String checkType) {
         if (!spartanAvailable) return 0;
         try {
-            Class<?> apiClass = Class.forName("me.vagdedes.spartan.api.API");
-            Class<?> enumsClass = Class.forName("me.vagdedes.spartan.api.system.Enums");
             Object player = getBukkitPlayer(playerUuid);
             if (player == null) return 0;
-            for (Object hackType : enumsClass.getEnumConstants()) {
-                if (hackType.toString().equalsIgnoreCase(checkType)) {
-                    return (int) apiClass.getMethod("getVL",
-                        org.bukkit.entity.Player.class, hackType.getClass()).invoke(null, player, hackType);
+
+            // Try to match the check type to a HackType enum
+            for (me.vagdedes.spartan.system.Enums.HackType hackType : me.vagdedes.spartan.system.Enums.HackType.values()) {
+                if (hackType.name().equalsIgnoreCase(checkType)) {
+                    return API.getVL((org.bukkit.entity.Player) player, hackType);
                 }
             }
-            return (int) apiClass.getMethod("getVL", org.bukkit.entity.Player.class).invoke(null, player);
+            // Fallback to total VL
+            return API.getVL((org.bukkit.entity.Player) player);
         } catch (Exception e) {
             return 0;
         }

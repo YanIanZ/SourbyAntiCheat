@@ -14,8 +14,8 @@ import dev.yanianz.sourbyanticheat.platform.api.player.PlatformPlayer;
 import dev.yanianz.sourbyanticheat.platform.api.sender.Sender;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.anticheat.LogUtil;
-import net.kyori.adventure.text.Component;
 import dev.yanianz.sourbyanticheat.utils.anticheat.SacColors;
+import net.kyori.adventure.text.Component;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.description.Description;
@@ -57,13 +57,13 @@ public class SacToggle implements BuildableCommand {
         PlayerSelector target = context.get("target");
         PlatformPlayer tp = target.getSinglePlayer().getPlatformPlayer();
         if (tp == null) {
-            sender.sendMessage(Component.text("Player not found.", SacColors.RED));
+            sender.sendMessage(Component.text("  " + SacColors.CROSS + " Player not found.", SacColors.RED));
             return;
         }
 
         SacPlayer player = SacAPI.INSTANCE.getPlayerDataManager().getPlayer(tp.getUniqueId());
         if (player == null) {
-            sender.sendMessage(Component.text("Player is not tracked by SAC.", SacColors.RED));
+            sender.sendMessage(Component.text("  " + SacColors.CROSS + " Player is not tracked by SAC.", SacColors.RED));
             return;
         }
 
@@ -77,8 +77,12 @@ public class SacToggle implements BuildableCommand {
         }
 
         if (found == null) {
-            sender.sendMessage(Component.text("Check '" + checkName + "' not found.", SacColors.RED));
-            sender.sendMessage(Component.text("Use /sac list to see available checks.", SacColors.GRAY));
+            sender.sendMessage(Component.text()
+                .append(Component.text("  " + SacColors.CROSS + " Check ", SacColors.RED))
+                .append(Component.text("'" + checkName + "'", SacColors.WHITE))
+                .append(Component.text(" not found.", SacColors.RED))
+                .build());
+            sender.sendMessage(Component.text("  Use /sac list checks to browse.", SacColors.DARK_GRAY));
             return;
         }
 
@@ -86,14 +90,13 @@ public class SacToggle implements BuildableCommand {
         found.setEnabled(newState);
 
         sender.sendMessage(Component.text()
-                .append(Component.text("Check ", SacColors.GRAY))
-                .append(Component.text(found.getCheckName(), SacColors.YELLOW))
-                .append(Component.text(" for ", SacColors.GRAY))
-                .append(Component.text(tp.getName(), SacColors.WHITE))
-                .append(Component.text(" → ", SacColors.GRAY))
-                .append(Component.text(newState ? "ENABLED" : "DISABLED",
-                        newState ? SacColors.GREEN : SacColors.RED))
-                .build());
+            .append(Component.text("  " + (newState ? SacColors.CHECKMARK : SacColors.CROSS) + " ", newState ? SacColors.GREEN : SacColors.RED))
+            .append(Component.text(found.getCheckName(), SacColors.WHITE))
+            .append(Component.text(" " + SacColors.ARROW_RIGHT + " ", SacColors.MUTED))
+            .append(Component.text(newState ? "ENABLED" : "DISABLED", newState ? SacColors.GREEN : SacColors.RED))
+            .append(Component.text(" for ", SacColors.MUTED))
+            .append(Component.text(tp.getName(), SacColors.ACCENT))
+            .build());
 
         LogUtil.info("SAC toggle: " + sender.getName() + " set " + found.getCheckName()
                 + " → " + (newState ? "enabled" : "disabled") + " for " + tp.getName());

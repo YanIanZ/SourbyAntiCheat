@@ -5,7 +5,6 @@ import dev.yanianz.sourbyanticheat.platform.api.manager.cloud.CloudCommandAdapte
 import dev.yanianz.sourbyanticheat.platform.api.sender.Sender;
 import dev.yanianz.sourbyanticheat.utils.anticheat.SacColors;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.description.Description;
@@ -16,35 +15,42 @@ import java.util.Map;
 
 public class SacHelp implements BuildableCommand {
 
-    private static final Map<String, String> COMMANDS = new LinkedHashMap<>() {{
-        put("alerts", "Toggle alert notifications");
-        put("brands", "View client brands");
-        put("debug", "Debug mode toggle");
-        put("dump", "Export debug log");
-        put("exempt <player>", "Toggle player exemption");
-        put("gui", "Open control panel GUI");
-        put("help", "Show this help");
-        put("history", "View violation history");
-        put("info <player>", "Detailed violation breakdown");
-        put("list players", "List tracked players");
-        put("list checks", "List active checks + VLs");
-        put("log", "Upload debug log");
-        put("note <player> <msg>", "Add staff note");
-        put("perf", "Performance stats");
-        put("profile <player>", "View player profile");
-        put("reload", "Reload configuration");
-        put("reset <player>", "Reset player violations");
-        put("sendalert", "Send test alert");
-        put("spartan <player>", "Spartan cross-check stats");
-        put("spectate <player>", "Spectate a player");
-        put("status", "System health status");
-        put("stopspectating", "Stop spectating");
-        put("summary", "Violation summary by check");
-        put("testwebhook", "Test Discord webhook");
-        put("toggle <check> <player>", "Enable/disable check");
-        put("top", "Top 10 offenders by VL");
-        put("verbose", "Toggle verbose mode");
-        put("version", "Version + update check");
+    private static final Map<String, String[]> COMMAND_GROUPS = new LinkedHashMap<>() {{
+        // [category, commands...]
+        put("Monitoring", new String[]{
+            "alerts|Toggle alert notifications",
+            "verbose|Toggle verbose mode",
+            "status|System health dashboard",
+            "top|Top 10 offenders by VL",
+            "summary|Violation summary by check",
+            "perf|Performance statistics"
+        });
+        put("Player Intel", new String[]{
+            "info <player>|Detailed violation breakdown",
+            "profile <player>|View player profile card",
+            "history|View violation history log",
+            "brands|View connected client brands",
+            "list players|List tracked players",
+            "list checks|List active checks + VLs"
+        });
+        put("Administration", new String[]{
+            "gui|Open control panel GUI",
+            "toggle <check> <player>|Enable/disable check",
+            "exempt <player>|Toggle player exemption",
+            "reset <player>|Reset player violations",
+            "reload|Reload configuration",
+            "note <player> <msg>|Add staff note"
+        });
+        put("Integration", new String[]{
+            "spartan <player>|Spartan cross-check stats",
+            "spectate <player>|Spectate a player",
+            "stopspectating|Stop spectating",
+            "testwebhook|Test Discord webhook",
+            "sendalert|Send test alert",
+            "dump|Export debug log",
+            "log|Upload debug log",
+            "version|Version + update check"
+        });
     }};
 
     @Override
@@ -59,16 +65,24 @@ public class SacHelp implements BuildableCommand {
 
     private void handleHelp(@NotNull CommandContext<Sender> context) {
         Sender sender = context.sender();
-        sender.sendMessage(Component.text("=== SAC Commands ===", SacColors.GOLD));
-        sender.sendMessage(Component.text("Use /sac <command> or click below:", SacColors.GRAY));
 
-        for (var entry : COMMANDS.entrySet()) {
-            sender.sendMessage(Component.text()
-                .append(Component.text("  /sac ", SacColors.GRAY))
-                .append(Component.text(entry.getKey(), SacColors.CYAN)
-                    .clickEvent(ClickEvent.suggestCommand("/sac " + entry.getKey().split(" ")[0])))
-                .append(Component.text(" — " + entry.getValue(), SacColors.GRAY))
-                .build());
+        sender.sendMessage(SacColors.spacer());
+        sender.sendMessage(SacColors.header("SAC Command Reference"));
+        sender.sendMessage(SacColors.spacer());
+
+        for (var group : COMMAND_GROUPS.entrySet()) {
+            sender.sendMessage(SacColors.subHeader(group.getKey()));
+            for (String cmdLine : group.getValue()) {
+                String[] parts = cmdLine.split("\\|", 2);
+                sender.sendMessage(SacColors.cmdEntry(parts[0], parts[1]));
+            }
+            sender.sendMessage(SacColors.spacer());
         }
+
+        sender.sendMessage(Component.text()
+            .append(Component.text("  Tip: ", SacColors.HIGHLIGHT))
+            .append(Component.text("Click any command above to auto-fill it", SacColors.GRAY))
+            .build());
+        sender.sendMessage(SacColors.footer());
     }
 }

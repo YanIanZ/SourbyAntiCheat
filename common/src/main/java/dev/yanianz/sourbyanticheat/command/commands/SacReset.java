@@ -14,8 +14,8 @@ import dev.yanianz.sourbyanticheat.platform.api.player.PlatformPlayer;
 import dev.yanianz.sourbyanticheat.platform.api.sender.Sender;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.anticheat.LogUtil;
-import net.kyori.adventure.text.Component;
 import dev.yanianz.sourbyanticheat.utils.anticheat.SacColors;
+import net.kyori.adventure.text.Component;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.description.Description;
@@ -68,7 +68,7 @@ public class SacReset implements BuildableCommand {
 
         SacPlayer player = SacAPI.INSTANCE.getPlayerDataManager().getPlayer(tp.getUniqueId());
         if (player == null) {
-            sender.sendMessage(Component.text("Player not tracked by SAC.", SacColors.RED));
+            sender.sendMessage(Component.text("  " + SacColors.CROSS + " Player not tracked by SAC.", SacColors.RED));
             return;
         }
 
@@ -79,7 +79,12 @@ public class SacReset implements BuildableCommand {
             count++;
         }
 
-        sender.sendMessage(Component.text("Reset " + count + " checks for " + tp.getName() + ".", SacColors.GREEN));
+        sender.sendMessage(Component.text()
+            .append(Component.text("  " + SacColors.CHECKMARK + " Reset ", SacColors.GREEN))
+            .append(Component.text(count + " checks", SacColors.WHITE))
+            .append(Component.text(" for ", SacColors.MUTED))
+            .append(Component.text(tp.getName(), SacColors.ACCENT))
+            .build());
         LogUtil.info("SAC reset: " + sender.getName() + " reset all VLs for " + tp.getName());
     }
 
@@ -92,7 +97,7 @@ public class SacReset implements BuildableCommand {
 
         SacPlayer player = SacAPI.INSTANCE.getPlayerDataManager().getPlayer(tp.getUniqueId());
         if (player == null) {
-            sender.sendMessage(Component.text("Player not tracked by SAC.", SacColors.RED));
+            sender.sendMessage(Component.text("  " + SacColors.CROSS + " Player not tracked by SAC.", SacColors.RED));
             return;
         }
 
@@ -101,13 +106,24 @@ public class SacReset implements BuildableCommand {
             if (check.getCheckName() != null && check.getCheckName().equalsIgnoreCase(checkName)) {
                 double oldVL = check.violations;
                 check.violations = 0;
-                sender.sendMessage(Component.text("Reset " + check.getCheckName() + " for " + tp.getName()
-                        + " (was VL=" + String.format("%.1f", oldVL) + ").", SacColors.GREEN));
+                sender.sendMessage(Component.text()
+                    .append(Component.text("  " + SacColors.CHECKMARK + " Reset ", SacColors.GREEN))
+                    .append(Component.text(check.getCheckName(), SacColors.WHITE))
+                    .append(Component.text(" for ", SacColors.MUTED))
+                    .append(Component.text(tp.getName(), SacColors.ACCENT))
+                    .append(Component.text("  (was ", SacColors.DARK_GRAY))
+                    .append(Component.text(String.format("%.1f", oldVL), SacColors.vlColor(oldVL)))
+                    .append(Component.text(")", SacColors.DARK_GRAY))
+                    .build());
                 LogUtil.info("SAC reset: " + sender.getName() + " reset " + check.getCheckName()
                         + " VL for " + tp.getName() + " (was " + String.format("%.1f", oldVL) + ")");
                 return;
             }
         }
-        sender.sendMessage(Component.text("Check '" + checkName + "' not found.", SacColors.RED));
+        sender.sendMessage(Component.text()
+            .append(Component.text("  " + SacColors.CROSS + " Check ", SacColors.RED))
+            .append(Component.text("'" + checkName + "'", SacColors.WHITE))
+            .append(Component.text(" not found.", SacColors.RED))
+            .build());
     }
 }

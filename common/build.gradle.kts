@@ -51,7 +51,7 @@ dependencies {
     compileOnly(libs.placeholderapi)
     compileOnly(libs.viaversion)
     compileOnly(libs.viabackwards)
-    compileOnly(files("libs/spartan-api.jar"))
+    // SpartanAPI classes are built-in at me.vagdedes.spartan.api.*
 }
 
 publishing {
