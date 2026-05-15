@@ -34,6 +34,7 @@ import dev.yanianz.sourbyanticheat.checks.impl.movement.Jesus;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.FastLadder;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.NoWeb;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.Step;
+import dev.yanianz.sourbyanticheat.checks.impl.movement.EntitySpeed;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.Blink;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.NoSlow;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.Speed;
@@ -129,6 +130,7 @@ public class CheckManager {
                 .put(FastLadder.class, new FastLadder(player))
                 .put(NoWeb.class, new NoWeb(player))
                 .put(Step.class, new Step(player))
+                .put(EntitySpeed.class, new EntitySpeed(player))
                 .put(Blink.class, new Blink(player))
                 .put(NoFall.class, new NoFall(player))
                 .put(ChatA.class, new ChatA(player))
