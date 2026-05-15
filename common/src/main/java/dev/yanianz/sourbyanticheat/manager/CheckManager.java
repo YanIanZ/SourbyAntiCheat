@@ -264,6 +264,7 @@ public class CheckManager {
                 .put(MultiPlace.class, new MultiPlace(player))
                 .put(MultiActionsF.class, new MultiActionsF(player))
                 .put(MultiActionsG.class, new MultiActionsG(player))
+                .put(FastSwitch.class, new FastSwitch(player))
                 .put(BadPacketsH.class, new BadPacketsH(player))
                 .put(CrashG.class, new CrashG(player))
                 .put(FarPlace.class, new FarPlace(player))
