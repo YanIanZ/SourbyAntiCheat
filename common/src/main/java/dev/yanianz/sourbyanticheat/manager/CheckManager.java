@@ -42,6 +42,7 @@ import dev.yanianz.sourbyanticheat.checks.impl.movement.PredictionRunner;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.SetbackBlocker;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.VehiclePredictionRunner;
 import dev.yanianz.sourbyanticheat.checks.impl.multiactions.*;
+import dev.yanianz.sourbyanticheat.checks.impl.multiactions.FastSwitch;
 import dev.yanianz.sourbyanticheat.checks.impl.packetorder.*;
 import dev.yanianz.sourbyanticheat.checks.impl.prediction.DebugHandler;
 import dev.yanianz.sourbyanticheat.checks.impl.prediction.GroundSpoof;
