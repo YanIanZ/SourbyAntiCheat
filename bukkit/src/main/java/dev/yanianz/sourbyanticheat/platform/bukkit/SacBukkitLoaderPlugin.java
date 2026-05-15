@@ -118,24 +118,36 @@ public final class SacBukkitLoaderPlugin extends JavaPlugin implements PlatformL
     private class NettyInjectListener implements Listener {
         @EventHandler(priority = EventPriority.LOWEST)
         public void onPlayerJoin(PlayerJoinEvent event) {
-            if (SacNettyInjector.isInjectionFailed()) return;
-            Player player = event.getPlayer();
-            try {
-                Object craftPlayer = player.getClass().getMethod("getHandle").invoke(player);
-                Object connection = craftPlayer.getClass().getField("connection").get(craftPlayer);
-                Object networkManager = connection.getClass().getField("connection").get(connection);
-                Channel channel = (Channel) networkManager.getClass().getField("channel").get(networkManager);
-                SacNettyInjector.inject(player.getName(), channel);
-            } catch (Exception e) {
-                LogUtil.warn("Failed to inject Netty handler for " + player.getName() + " — falling back to PacketEvents-only");
-                SacNettyInjector.markInjectionFailed();
+            if (!SacNettyInjector.isInjectionFailed()) {
+                Player player = event.getPlayer();
+                try {
+                    Object craftPlayer = player.getClass().getMethod("getHandle").invoke(player);
+                    Object connection = craftPlayer.getClass().getField("connection").get(craftPlayer);
+                    Object networkManager = connection.getClass().getField("connection").get(connection);
+                    Channel channel = (Channel) networkManager.getClass().getField("channel").get(networkManager);
+                    SacNettyInjector.inject(player.getName(), channel);
+                } catch (Exception e) {
+                    LogUtil.warn("Netty inject failed for " + player.getName());
+                    SacNettyInjector.markInjectionFailed();
+                }
+            }
+            var sp = SacAPI.INSTANCE.getPlayerDataManager().getPlayer(event.getPlayer().getUniqueId());
+            if (sp != null) {
+                int total = sp.checkManager.allChecks.size();
+                long enabled = sp.checkManager.allChecks.values().stream()
+                    .filter(c -> c instanceof Check && ((Check)c).isEnabled()).count();
+                LogUtil.info("Loaded " + enabled + "/" + total + " checks for " + event.getPlayer().getName());
             }
         }
     }
 
     @Override
-    public void onDisable() {
-        SacAPI.INSTANCE.stop();
+    public void onEnable() {
+        SacAPI.INSTANCE.start();
+        getServer().getMessenger().registerOutgoingPluginChannel(SacBukkitLoaderPlugin.LOADER, "sac:main");
+        getServer().getPluginManager().registerEvents(new NettyInjectListener(), this);
+        getServer().getPluginManager().registerEvents(new SacGUI(), this);
+        LogUtil.info("SAC ready — use /sac help for commands");
     }
 
     @Override
