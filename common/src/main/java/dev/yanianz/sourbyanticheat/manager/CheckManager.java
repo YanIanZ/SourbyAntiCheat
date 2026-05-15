@@ -160,6 +160,7 @@ public class CheckManager {
                 .put(BadPacketsAE.class, new BadPacketsAE(player))
                 .put(SelfInteract.class, new SelfInteract(player))
                 .put(AutoClicker.class, new AutoClicker(player))
+                .put(Criticals.class, new Criticals(player))
                 .put(FlightA.class, new FlightA(player))
                 .put(MultiActionsA.class, new MultiActionsA(player))
                 .put(MultiActionsC.class, new MultiActionsC(player))
