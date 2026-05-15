@@ -4,7 +4,7 @@ import dev.yanianz.sourbyanticheat.command.BuildableCommand;
 import dev.yanianz.sourbyanticheat.platform.api.manager.cloud.CloudCommandAdapter;
 import dev.yanianz.sourbyanticheat.platform.api.sender.Sender;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import dev.yanianz.sourbyanticheat.utils.anticheat.SacColors;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.description.Description;
