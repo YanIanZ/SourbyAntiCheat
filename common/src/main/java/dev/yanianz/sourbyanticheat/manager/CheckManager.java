@@ -29,6 +29,7 @@ import dev.yanianz.sourbyanticheat.checks.impl.misc.Post;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.SpartanDivergence;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.SpartanSync;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.TransactionOrder;
+import dev.yanianz.sourbyanticheat.checks.impl.movement.Jesus;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.NoSlow;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.Speed;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.Spider;
@@ -217,6 +218,7 @@ public class CheckManager {
                 .put(NoSlow.class, new NoSlow(player))
                 .put(Speed.class, new Speed(player))
                 .put(Spider.class, new Spider(player))
+                .put(Jesus.class, new Jesus(player))
                 .put(SprintB.class, new SprintB(player))
                 .put(SprintC.class, new SprintC(player))
                 .put(SprintD.class, new SprintD(player))
