@@ -40,12 +40,17 @@ public class SacStatus implements BuildableCommand {
 
         sender.sendMessage(Component.text("=== SAC Status ===", NamedTextColor.GOLD));
         sender.sendMessage(line("Version", "1.0.0"));
+        sender.sendMessage(line("Uptime", formatUptime(api.getUptime())));
         sender.sendMessage(line("Platform", api.getPlatform().name()));
         sender.sendMessage(line("Tick", String.valueOf(api.getTickManager().currentTick)));
         sender.sendMessage(line("Netty", nettyFailed ? "FAILED (PacketEvents)" : "ACTIVE", nettyFailed ? NamedTextColor.RED : NamedTextColor.GREEN));
         sender.sendMessage(line("ViaVersion", viaversion ? "DETECTED" : "NOT FOUND", viaversion ? NamedTextColor.GREEN : NamedTextColor.GRAY));
         sender.sendMessage(line("GeyserMC", geyser ? "DETECTED" : "NOT FOUND", geyser ? NamedTextColor.GREEN : NamedTextColor.GRAY));
-        sender.sendMessage(line("SpartanAPI", spartan ? "ACTIVE" : "DISABLED", spartan ? NamedTextColor.GREEN : NamedTextColor.GRAY));
+        sender.sendMessage(line("SpartanAPI", spartan ? "ACTIVE v" + (SpartanCrossCheck.getSpartanVersion() != null ? SpartanCrossCheck.getSpartanVersion() : "?") : "DISABLED", spartan ? NamedTextColor.GREEN : NamedTextColor.GRAY));
+        if (spartan) {
+            sender.sendMessage(line("  Agree", SpartanCrossCheck.getAgreements() + "/" + SpartanCrossCheck.getTotalFlags()
+                + " (" + String.format("%.0f%%", SpartanCrossCheck.getAgreementRate() * 100) + ")"));
+        }
 
         var pdm = api.getPlayerDataManager();
         int tracked = pdm.getEntries().size();
@@ -65,5 +70,12 @@ public class SacStatus implements BuildableCommand {
                 .append(Component.text("  " + key + ": ", NamedTextColor.GRAY))
                 .append(Component.text(value, color))
                 .build();
+    }
+
+    private static String formatUptime(long ms) {
+        long s = ms / 1000, m = s / 60, h = m / 60;
+        if (h > 0) return h + "h " + (m % 60) + "m";
+        if (m > 0) return m + "m " + (s % 60) + "s";
+        return s + "s";
     }
 }

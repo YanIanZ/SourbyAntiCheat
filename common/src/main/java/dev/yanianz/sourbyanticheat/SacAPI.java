@@ -66,6 +66,7 @@ public final class SacAPI {
     private GlobalPlayerStore globalPlayerStore;
     private AuditLogger auditLogger;
     private boolean initialized = false;
+    private final long startTime = System.currentTimeMillis();
 
     private SacAPI() {
         this.configManager = new BaseConfigManager();
@@ -145,6 +146,14 @@ public final class SacAPI {
 
     public String getSacVersion() {
         return externalAPI.getSacVersion();
+    }
+
+    public long getUptime() {
+        return System.currentTimeMillis() - startTime;
+    }
+
+    public long getStartTime() {
+        return startTime;
     }
 
     public SenderFactory<?> getSenderFactory() {

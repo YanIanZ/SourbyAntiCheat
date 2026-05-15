@@ -14,29 +14,39 @@ public class PacketEventsCheck implements StartableInitable {
 
     @Override
     public void start() {
+        String serverBrand = getServerBrand();
         ServerVersion version = PacketEvents.getAPI().getServerManager().getVersion();
 
-        if (version.isOlderThan(ServerVersion.V_1_8)) {
-            LogUtil.error("SAC requires Minecraft 1.8+. Detected: " + version.getReleaseName());
-        }
-
-        if (version.getProtocolVersion() >= 769) {
-            LogUtil.warn("SAC running on " + version.getReleaseName() + " — untested version, report issues on GitHub.");
-        }
-
-        LogUtil.info("PacketEvents: " + version.getReleaseName() + " (protocol " + version.getProtocolVersion() + ")");
+        LogUtil.info("Server: " + serverBrand + " (PE: " + version.getReleaseName() + " proto " + version.getProtocolVersion() + ")");
         LogUtil.info("ViaVersion: " + (ViaVersionUtil.isAvailable ? "DETECTED" : "not found"));
-        LogUtil.info("GeyserMC/Floodgate: " + (GeyserUtil.isAvailable() ? "DETECTED (Bedrock support active)" : "not found"));
+        LogUtil.info("GeyserMC: " + (GeyserUtil.isAvailable() ? "DETECTED" : "not found"));
 
-        try {
-            var pdm = dev.yanianz.sourbyanticheat.SacAPI.INSTANCE.getPlayerDataManager();
-            LogUtil.info("SAC initialized — platform: " + dev.yanianz.sourbyanticheat.SacAPI.INSTANCE.getPlatform().name());
-        } catch (Exception ignored) {}
+        if (version.isOlderThan(ServerVersion.V_1_8)) {
+            LogUtil.error("SAC requires Minecraft 1.8+. Got " + version.getReleaseName());
+        }
+
+        if (serverBrand.contains("SourbyCraft") || serverBrand.contains("Unknown")) {
+            LogUtil.warn("Custom server software detected (" + serverBrand + ").");
+            LogUtil.warn("PacketEvents compatibility may be limited on non-Paper forks.");
+        }
 
         try {
             Class.forName("dev.yanianz.sourbyanticheat.shaded.google.gson.Gson");
         } catch (ClassNotFoundException e) {
-            LogUtil.error("Gson shading failed — SAC may crash on PacketEvents init. Please rebuild.");
+            LogUtil.error("Gson shading broken — rebuild required.");
+        }
+
+        try {
+            var pdm = dev.yanianz.sourbyanticheat.SacAPI.INSTANCE.getPlayerDataManager();
+            LogUtil.info("SAC initialized — " + dev.yanianz.sourbyanticheat.SacAPI.INSTANCE.getPlatform().name());
+        } catch (Exception ignored) {}
+    }
+
+    private static String getServerBrand() {
+        try {
+            return org.bukkit.Bukkit.getServer().getName() + " " + org.bukkit.Bukkit.getVersion();
+        } catch (Exception e) {
+            return "Unknown";
         }
     }
 }
