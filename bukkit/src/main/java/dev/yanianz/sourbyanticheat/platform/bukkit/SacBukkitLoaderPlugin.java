@@ -13,6 +13,7 @@ import dev.yanianz.sourbyanticheat.manager.init.start.ExemptOnlinePlayersOnReloa
 import dev.yanianz.sourbyanticheat.manager.init.start.StartableInitable;
 import dev.yanianz.sourbyanticheat.api.SacAbstractAPI;
 import dev.yanianz.sourbyanticheat.netty.SacNettyInjector;
+import dev.yanianz.sourbyanticheat.platform.api.proxy.ProxyMessenger;
 import dev.yanianz.sourbyanticheat.platform.bukkit.gui.SacGUI;
 import dev.yanianz.sourbyanticheat.platform.api.Platform;
 import dev.yanianz.sourbyanticheat.platform.api.PlatformLoader;
@@ -135,6 +136,17 @@ public final class SacBukkitLoaderPlugin extends JavaPlugin implements PlatformL
     @Override
     public void onDisable() {
         SacAPI.INSTANCE.stop();
+    }
+
+    @Override
+    public ProxyMessenger getProxyMessenger() {
+        return new ProxyMessenger() {
+            @Override public void sendAlert(java.util.UUID uuid, String json) {
+                ProxyForwarder.sendAlert(uuid, "backend", json);
+            }
+            @Override public void broadcastMessage(byte[] data) {}
+            @Override public void registerAlertHandler(AlertHandler handler) {}
+        };
     }
 
     @Override

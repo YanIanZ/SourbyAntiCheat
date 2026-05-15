@@ -8,6 +8,7 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.spartan.SpartanEventBridge;
 import dev.yanianz.sourbyanticheat.manager.AutoPunishment;
+import dev.yanianz.sourbyanticheat.logging.ViolationLogger;
 import dev.yanianz.sourbyanticheat.utils.reflection.GeyserUtil;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;

@@ -250,8 +250,15 @@ logs:
 
 # --- Auto-Punishment ---
 punishment:
-    command: ""
-    threshold: 100
+    # Warn player in chat when total VL exceeds this threshold
+    warn-threshold: 100
+    warn-message: "&c[SAC] You have been flagged for cheating. VL=%vl%"
+    # Kick player when total VL exceeds (requires kick-command)
+    kick-threshold: 150
+    kick-command: "kick %player% SAC: Suspicious activity detected"
+    # Execute command when total VL exceeds (e.g. ban)
+    ban-threshold: 200
+    ban-command: ""
 
 # --- Global Check Control ---
 # Disable specific checks server-wide by setting to false
