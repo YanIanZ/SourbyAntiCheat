@@ -30,9 +30,8 @@ public class PacketEventsCheck implements StartableInitable {
             LogUtil.error("SAC requires Minecraft 1.8+. Got " + version.getReleaseName());
         }
 
-        if (serverBrand.contains("SourbyCraft") || serverBrand.contains("Unknown")) {
-            LogUtil.warn("Custom server software detected (" + serverBrand + ").");
-            LogUtil.warn("PacketEvents compatibility may be limited on non-Paper forks.");
+        if (!serverBrand.contains("Paper") && !serverBrand.contains("Purpur") && !serverBrand.contains("Folia")) {
+            LogUtil.warn("Non-Paper server: " + serverBrand + " — PacketEvents may have limited support.");
         }
 
         try {
