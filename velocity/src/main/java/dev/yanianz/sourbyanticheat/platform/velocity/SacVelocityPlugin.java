@@ -60,9 +60,16 @@ public class SacVelocityPlugin implements ProxyMessenger, GlobalPlayerStore, Aud
     // ProxyMessenger
     @Override
     public void sendAlert(UUID playerUuid, String alertJson) {
+        logger.info("[SAC] Alert: " + alertJson);
+
+        var msg = net.kyori.adventure.text.Component.text()
+            .append(net.kyori.adventure.text.Component.text("[SAC] ", net.kyori.adventure.text.format.NamedTextColor.RED))
+            .append(net.kyori.adventure.text.Component.text("Cross-server alert received", net.kyori.adventure.text.format.NamedTextColor.GRAY))
+            .build();
+
         proxy.getAllPlayers().stream()
             .filter(p -> p.hasPermission("sac.alerts"))
-            .forEach(p -> p.sendMessage(net.kyori.adventure.text.Component.text(alertJson)));
+            .forEach(p -> p.sendMessage(msg));
     }
 
     @Override
