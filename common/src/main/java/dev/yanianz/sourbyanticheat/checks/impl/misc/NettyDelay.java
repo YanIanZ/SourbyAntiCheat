@@ -7,7 +7,7 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 
-@CheckData(name = "NettyDelay", stableKey = "sac.netty.delay", description = "Detects timer via Netty packet spacing analysis", setback = 15, decay = 0.02)
+@CheckData(name = "NettyDelay", stableKey = "sac.netty.delay", description = "Detects timer via Netty packet spacing analysis", setback = 15, decay = 0.02, experimental = true)
 public class NettyDelay extends Check implements PacketCheck {
 
     private long lastPacketTime = 0;

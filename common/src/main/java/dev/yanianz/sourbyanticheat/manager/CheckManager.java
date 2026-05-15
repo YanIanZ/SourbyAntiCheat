@@ -31,6 +31,7 @@ import dev.yanianz.sourbyanticheat.checks.impl.misc.SpartanSync;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.TransactionOrder;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.NoSlow;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.Speed;
+import dev.yanianz.sourbyanticheat.checks.impl.movement.Spider;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.PredictionRunner;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.SetbackBlocker;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.VehiclePredictionRunner;
@@ -215,6 +216,7 @@ public class CheckManager {
                 .put(BadPacketsX.class, new BadPacketsX(player))
                 .put(NoSlow.class, new NoSlow(player))
                 .put(Speed.class, new Speed(player))
+                .put(Spider.class, new Spider(player))
                 .put(SprintB.class, new SprintB(player))
                 .put(SprintC.class, new SprintC(player))
                 .put(SprintD.class, new SprintD(player))
@@ -254,6 +256,7 @@ public class CheckManager {
                 .put(PacketOrderN.class, new PacketOrderN(player))
                 .put(DuplicateRotPlace.class, new DuplicateRotPlace(player))
                 .put(GhostBlockMitigation.class, new GhostBlockMitigation(player))
+                .put(ScaffoldA.class, new ScaffoldA(player))
                 .build();
 
         prePredictionChecks = new ImmutableClassToInstanceMap.Builder<PacketCheck>()

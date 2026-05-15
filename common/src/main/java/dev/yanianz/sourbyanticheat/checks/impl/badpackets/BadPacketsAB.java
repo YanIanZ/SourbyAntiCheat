@@ -18,13 +18,12 @@ public class BadPacketsAB extends Check implements PacketCheck {
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
         if (event.getPacketType() != PacketType.Play.Client.STEER_VEHICLE) return;
-        if (player.inVehicle()) return;
 
         WrapperPlayClientSteerVehicle steer = new WrapperPlayClientSteerVehicle(event);
         float sideways = steer.getSideways();
         float forward = steer.getForward();
 
-        if (Math.abs(sideways) > 1.01f || Math.abs(forward) > 1.01f || (sideways != 0 || forward != 0)) {
+        if (!player.inVehicle() && (sideways != 0 || forward != 0)) {
             flagAndAlert("side=" + String.format("%.2f", sideways) + " fwd=" + String.format("%.2f", forward));
         }
     }

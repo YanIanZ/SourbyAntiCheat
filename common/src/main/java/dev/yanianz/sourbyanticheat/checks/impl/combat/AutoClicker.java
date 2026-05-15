@@ -18,8 +18,8 @@ import java.util.LinkedList;
 public class AutoClicker extends Check implements PacketCheck {
 
     private static final int WINDOW_SIZE = 20;
-    private static final int MAX_LEGIT_CPS = 22;
-    private static final int MIN_LEGIT_VARIANCE = 5;
+    private static final int MAX_LEGIT_CPS = 25;
+    private static final int MIN_LEGIT_VARIANCE = 2;
 
     private final LinkedList<Long> clickTimestamps = new LinkedList<>();
     private int currentCPS = 0;
@@ -75,7 +75,7 @@ public class AutoClicker extends Check implements PacketCheck {
 
             if (currentCPS > MAX_LEGIT_CPS) {
                 flagAndAlert("cps=" + currentCPS);
-            } else if (currentCPS > 12 && varianceRange < MIN_LEGIT_VARIANCE && sampleSize >= 10) {
+            } else if (currentCPS > 18 && varianceRange < MIN_LEGIT_VARIANCE && sampleSize >= 10) {
                 flagAndAlert("cps=" + currentCPS + " consistent=" + varianceRange + "ms");
             } else {
                 reward();
