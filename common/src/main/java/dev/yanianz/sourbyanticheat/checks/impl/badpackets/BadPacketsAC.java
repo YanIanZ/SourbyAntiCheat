@@ -8,7 +8,7 @@ import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPong;
 
-@CheckData(name = "BadPacketsAC", stableKey = "sac.badpackets.invalid_transaction", description = "Detects spoofed transaction/pong packets", setback = 10, decay = 0.01)
+@CheckData(name = "BadPacketsAC", stableKey = "sac.badpackets.invalid_transaction", description = "Detects spoofed transaction/pong packets", setback = 10, decay = 0.01, experimental = true)
 public class BadPacketsAC extends Check implements PacketCheck {
 
     private int lastPongId = -1;
@@ -40,7 +40,7 @@ public class BadPacketsAC extends Check implements PacketCheck {
             return;
         }
 
-        boolean backward = id < lastId && (lastId - id) > 100;
+        boolean backward = id < lastId && (lastId - id) > 5000;
         if (backward) {
             spoofCount++;
             if (spoofCount > 10) {

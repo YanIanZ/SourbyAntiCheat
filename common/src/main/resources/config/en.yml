@@ -255,7 +255,7 @@ punishment:
     warn-message: "&c[SAC] You have been flagged for cheating. VL=%vl%"
     # Kick player when total VL exceeds (requires kick-command)
     kick-threshold: 150
-    kick-command: "kick %player% SAC: Suspicious activity detected"
+    kick-command: ""
     # Execute command when total VL exceeds (e.g. ban)
     ban-threshold: 200
     ban-command: ""

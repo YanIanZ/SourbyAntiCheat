@@ -16,6 +16,7 @@ public final class AutoPunishment {
     private static int kickThreshold = 150;
     private static int warnThreshold = 100;
     private static boolean enabled;
+    private static final java.util.Set<java.util.UUID> punishedPlayers = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
     public static void init() {
         try {
@@ -34,18 +35,24 @@ public final class AutoPunishment {
 
     public static void checkAndExecute(SacPlayer player, Check check) {
         if (!enabled) return;
+        if (punishedPlayers.contains(player.uuid)) return;
 
         int totalVL = (int) player.checkManager.allChecks.values().stream()
             .mapToDouble(c -> ((Check) c).violations).sum();
 
+        boolean punished = false;
         if (totalVL >= banThreshold && !banCommand.isEmpty()) {
             executeCommand(banCommand, player, check, totalVL);
             WavePunishment.addToWave(player.uuid, player.getName(), check.getCheckName());
+            punished = true;
         } else if (totalVL >= kickThreshold && !kickCommand.isEmpty()) {
             executeCommand(kickCommand, player, check, totalVL);
+            punished = true;
         } else if (totalVL >= warnThreshold && !warnMessage.isEmpty()) {
             warnPlayer(player, check, totalVL);
         }
+
+        if (punished) punishedPlayers.add(player.uuid);
     }
 
     private static void executeCommand(String cmd, SacPlayer player, Check check, int totalVL) {
