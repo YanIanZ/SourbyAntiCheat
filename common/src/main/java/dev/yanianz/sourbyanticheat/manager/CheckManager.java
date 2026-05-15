@@ -6,6 +6,7 @@ import dev.yanianz.sourbyanticheat.checks.impl.aim.AimAssist;
 import dev.yanianz.sourbyanticheat.checks.impl.aim.AimDuplicateLook;
 import dev.yanianz.sourbyanticheat.checks.impl.aim.AimModulo360;
 import dev.yanianz.sourbyanticheat.checks.impl.aim.processor.AimProcessor;
+import dev.yanianz.sourbyanticheat.checks.impl.baritone.Baritone;
 import dev.yanianz.sourbyanticheat.checks.impl.badpackets.*;
 import dev.yanianz.sourbyanticheat.checks.impl.breaking.*;
 import dev.yanianz.sourbyanticheat.checks.impl.chat.ChatA;
