@@ -1,6 +1,7 @@
 package dev.yanianz.sourbyanticheat.checks.impl.scaffolding;
 
 import dev.yanianz.sourbyanticheat.checks.CheckData;
+import dev.yanianz.sourbyanticheat.checks.type.BlockPlaceCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.BlockPlace;
 
