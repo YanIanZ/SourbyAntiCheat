@@ -7,6 +7,7 @@ import ac.grim.grimac.api.event.events.FlagEvent;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.spartan.SpartanEventBridge;
+import dev.yanianz.sourbyanticheat.manager.AutoPunishment;
 import dev.yanianz.sourbyanticheat.utils.reflection.GeyserUtil;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
@@ -120,6 +121,7 @@ public class Check extends SacProcessor implements AbstractCheck {
         lastViolationTime = System.currentTimeMillis();
         violations++;
         SpartanEventBridge.fireViolation(player, checkName, (int) violations, verbose);
+        AutoPunishment.checkAndExecute(player, this);
         return true;
     }
 
