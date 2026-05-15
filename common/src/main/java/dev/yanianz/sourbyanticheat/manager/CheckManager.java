@@ -257,6 +257,7 @@ public class CheckManager {
                 .put(DuplicateRotPlace.class, new DuplicateRotPlace(player))
                 .put(GhostBlockMitigation.class, new GhostBlockMitigation(player))
                 .put(ScaffoldA.class, new ScaffoldA(player))
+                .put(ScaffoldB.class, new ScaffoldB(player))
                 .build();
 
         prePredictionChecks = new ImmutableClassToInstanceMap.Builder<PacketCheck>()
