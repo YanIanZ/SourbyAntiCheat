@@ -3,9 +3,9 @@ package dev.yanianz.sourbyanticheat.command.commands;
 import dev.yanianz.sourbyanticheat.command.BuildableCommand;
 import dev.yanianz.sourbyanticheat.platform.api.manager.cloud.CloudCommandAdapter;
 import dev.yanianz.sourbyanticheat.platform.api.sender.Sender;
+import dev.yanianz.sourbyanticheat.utils.anticheat.SacColors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.description.Description;
@@ -54,15 +54,15 @@ public class SacHelp implements BuildableCommand {
 
     private void handleHelp(@NotNull CommandContext<Sender> context) {
         Sender sender = context.sender();
-        sender.sendMessage(Component.text("=== SAC Commands ===", NamedTextColor.GOLD));
-        sender.sendMessage(Component.text("Use /sac <command> or click below:", NamedTextColor.GRAY));
+        sender.sendMessage(Component.text("=== SAC Commands ===", SacColors.GOLD));
+        sender.sendMessage(Component.text("Use /sac <command> or click below:", SacColors.GRAY));
 
         for (var entry : COMMANDS.entrySet()) {
             sender.sendMessage(Component.text()
-                .append(Component.text("  /sac ", NamedTextColor.GRAY))
-                .append(Component.text(entry.getKey(), NamedTextColor.AQUA)
+                .append(Component.text("  /sac ", SacColors.GRAY))
+                .append(Component.text(entry.getKey(), SacColors.CYAN)
                     .clickEvent(ClickEvent.suggestCommand("/sac " + entry.getKey().split(" ")[0])))
-                .append(Component.text(" — " + entry.getValue(), NamedTextColor.GRAY))
+                .append(Component.text(" — " + entry.getValue(), SacColors.GRAY))
                 .build());
         }
     }

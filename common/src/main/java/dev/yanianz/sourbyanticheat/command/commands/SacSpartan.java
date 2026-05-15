@@ -10,8 +10,8 @@ import dev.yanianz.sourbyanticheat.platform.api.manager.cloud.CloudCommandAdapte
 import dev.yanianz.sourbyanticheat.platform.api.player.PlatformPlayer;
 import dev.yanianz.sourbyanticheat.platform.api.sender.Sender;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
+import dev.yanianz.sourbyanticheat.utils.anticheat.SacColors;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.description.Description;
@@ -42,12 +42,12 @@ public class SacSpartan implements BuildableCommand {
 
         boolean available = SpartanCrossCheck.isAvailable();
 
-        sender.sendMessage(Component.text("--- SAC-Spartan Cross-Check ---", NamedTextColor.GOLD));
-        sender.sendMessage(Component.text("SpartanAPI: " + (available ? "ENABLED" : "DISABLED"), available ? NamedTextColor.GREEN : NamedTextColor.RED));
-        sender.sendMessage(Component.text("Player: " + tp.getName(), NamedTextColor.YELLOW));
-        sender.sendMessage(Component.text("Agreements: " + stats.agreements, NamedTextColor.GREEN));
-        sender.sendMessage(Component.text("Disagreements: " + stats.disagreements, NamedTextColor.RED));
-        sender.sendMessage(Component.text("Agreement Rate: " + String.format("%.1f%%", stats.agreementRate() * 100), NamedTextColor.AQUA));
-        sender.sendMessage(Component.text("Min-VL threshold: " + SpartanCrossCheck.getMinVL(), NamedTextColor.GRAY));
+        sender.sendMessage(Component.text("--- SAC-Spartan Cross-Check ---", SacColors.GOLD));
+        sender.sendMessage(Component.text("SpartanAPI: " + (available ? "ENABLED" : "DISABLED"), available ? SacColors.GREEN : SacColors.RED));
+        sender.sendMessage(Component.text("Player: " + tp.getName(), SacColors.YELLOW));
+        sender.sendMessage(Component.text("Agreements: " + stats.agreements, SacColors.GREEN));
+        sender.sendMessage(Component.text("Disagreements: " + stats.disagreements, SacColors.RED));
+        sender.sendMessage(Component.text("Agreement Rate: " + String.format("%.1f%%", stats.agreementRate() * 100), SacColors.CYAN));
+        sender.sendMessage(Component.text("Min-VL threshold: " + SpartanCrossCheck.getMinVL(), SacColors.GRAY));
     }
 }

@@ -24,7 +24,7 @@ public class SacGUICommand implements BuildableCommand {
     private void handleGUI(@NotNull CommandContext<Sender> context) {
         Sender sender = context.sender();
         if (!sender.isPlayer()) {
-            sender.sendMessage(Component.text("GUI only available to players.", NamedTextColor.RED));
+            sender.sendMessage(Component.text("GUI only available to players.", SacColors.RED));
             return;
         }
         try {
@@ -32,7 +32,7 @@ public class SacGUICommand implements BuildableCommand {
             guiClass.getMethod("openMain", org.bukkit.entity.Player.class)
                 .invoke(null, getBukkitPlayer(sender));
         } catch (Exception e) {
-            sender.sendMessage(Component.text("Failed to open GUI.", NamedTextColor.RED));
+            sender.sendMessage(Component.text("Failed to open GUI.", SacColors.RED));
         }
     }
 

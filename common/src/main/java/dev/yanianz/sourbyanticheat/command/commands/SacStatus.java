@@ -12,7 +12,8 @@ import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.utils.reflection.GeyserUtil;
 import dev.yanianz.sourbyanticheat.utils.viaversion.ViaVersionUtil;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import dev.yanianz.sourbyanticheat.utils.anticheat.SacColors;
+import net.kyori.adventure.text.format.TextColor;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.description.Description;
@@ -38,15 +39,15 @@ public class SacStatus implements BuildableCommand {
         boolean viaversion = ViaVersionUtil.isAvailable;
         boolean spartan = SpartanCrossCheck.isAvailable();
 
-        sender.sendMessage(Component.text("=== SAC Status ===", NamedTextColor.GOLD));
+        sender.sendMessage(Component.text("=== SAC Status ===", SacColors.GOLD));
         sender.sendMessage(line("Version", "1.0.0"));
         sender.sendMessage(line("Uptime", formatUptime(api.getUptime())));
         sender.sendMessage(line("Platform", api.getPlatform().name()));
         sender.sendMessage(line("Tick", String.valueOf(api.getTickManager().currentTick)));
-        sender.sendMessage(line("Netty", nettyFailed ? "FAILED (PacketEvents)" : "ACTIVE", nettyFailed ? NamedTextColor.RED : NamedTextColor.GREEN));
-        sender.sendMessage(line("ViaVersion", viaversion ? "DETECTED" : "NOT FOUND", viaversion ? NamedTextColor.GREEN : NamedTextColor.GRAY));
-        sender.sendMessage(line("GeyserMC", geyser ? "DETECTED" : "NOT FOUND", geyser ? NamedTextColor.GREEN : NamedTextColor.GRAY));
-        sender.sendMessage(line("SpartanAPI", spartan ? "ACTIVE v" + (SpartanCrossCheck.getSpartanVersion() != null ? SpartanCrossCheck.getSpartanVersion() : "?") : "DISABLED", spartan ? NamedTextColor.GREEN : NamedTextColor.GRAY));
+        sender.sendMessage(line("Netty", nettyFailed ? "FAILED (PacketEvents)" : "ACTIVE", nettyFailed ? SacColors.RED : SacColors.GREEN));
+        sender.sendMessage(line("ViaVersion", viaversion ? "DETECTED" : "NOT FOUND", viaversion ? SacColors.GREEN : SacColors.GRAY));
+        sender.sendMessage(line("GeyserMC", geyser ? "DETECTED" : "NOT FOUND", geyser ? SacColors.GREEN : SacColors.GRAY));
+        sender.sendMessage(line("SpartanAPI", spartan ? "ACTIVE v" + (SpartanCrossCheck.getSpartanVersion() != null ? SpartanCrossCheck.getSpartanVersion() : "?") : "DISABLED", spartan ? SacColors.GREEN : SacColors.GRAY));
         if (spartan) {
             sender.sendMessage(line("  Agree", SpartanCrossCheck.getAgreements() + "/" + SpartanCrossCheck.getTotalFlags()
                 + " (" + String.format("%.0f%%", SpartanCrossCheck.getAgreementRate() * 100) + ")"));
@@ -62,12 +63,12 @@ public class SacStatus implements BuildableCommand {
     }
 
     private static Component line(String key, String value) {
-        return line(key, value, NamedTextColor.WHITE);
+        return line(key, value, SacColors.WHITE);
     }
 
-    private static Component line(String key, String value, NamedTextColor color) {
+    private static Component line(String key, String value, TextColor color) {
         return Component.text()
-                .append(Component.text("  " + key + ": ", NamedTextColor.GRAY))
+                .append(Component.text("  " + key + ": ", SacColors.GRAY))
                 .append(Component.text(value, color))
                 .build();
     }
