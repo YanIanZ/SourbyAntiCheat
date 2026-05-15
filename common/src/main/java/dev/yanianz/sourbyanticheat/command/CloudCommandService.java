@@ -65,6 +65,7 @@ public class CloudCommandService implements CommandService {
         new SacToggle().register(commandManager, commandAdapter);
         new SacReset().register(commandManager, commandAdapter);
         new SacGUICommand().register(commandManager, commandAdapter);
+        new SacSummary().register(commandManager, commandAdapter);
 
         final RequirementPostprocessor<Sender, SenderRequirement>
                 senderRequirementPostprocessor = RequirementPostprocessor.of(
