@@ -109,10 +109,10 @@ public final class SacBukkitLoaderPlugin extends JavaPlugin implements PlatformL
     @Override
     public void onEnable() {
         SacAPI.INSTANCE.start();
-        getServer().getMessenger().registerOutgoingPluginChannel(
-            SacBukkitLoaderPlugin.LOADER, "sac:main");
+        getServer().getMessenger().registerOutgoingPluginChannel(SacBukkitLoaderPlugin.LOADER, "sac:main");
         getServer().getPluginManager().registerEvents(new NettyInjectListener(), this);
         getServer().getPluginManager().registerEvents(new SacGUI(), this);
+        LogUtil.info("SAC ready — use /sac help for commands");
     }
 
     private class NettyInjectListener implements Listener {
@@ -139,15 +139,6 @@ public final class SacBukkitLoaderPlugin extends JavaPlugin implements PlatformL
                 LogUtil.info("Loaded " + enabled + "/" + total + " checks for " + event.getPlayer().getName());
             }
         }
-    }
-
-    @Override
-    public void onEnable() {
-        SacAPI.INSTANCE.start();
-        getServer().getMessenger().registerOutgoingPluginChannel(SacBukkitLoaderPlugin.LOADER, "sac:main");
-        getServer().getPluginManager().registerEvents(new NettyInjectListener(), this);
-        getServer().getPluginManager().registerEvents(new SacGUI(), this);
-        LogUtil.info("SAC ready — use /sac help for commands");
     }
 
     @Override
