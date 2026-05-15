@@ -1,13 +1,12 @@
 package dev.yanianz.sourbyanticheat.checks.impl.scaffolding;
 
-import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.BlockPlaceCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.BlockPlace;
 
 @CheckData(name = "ScaffoldA", stableKey = "sac.scaffolding.downward_bridge", description = "Detects scaffold bridging patterns", setback = 10, decay = 0.02)
-public class ScaffoldA extends Check implements BlockPlaceCheck {
+public class ScaffoldA extends BlockPlaceCheck {
 
     private int placeStreak = 0;
     private double lastPlaceX, lastPlaceZ;
