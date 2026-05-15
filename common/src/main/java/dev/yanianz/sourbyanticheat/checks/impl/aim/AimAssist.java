@@ -31,6 +31,7 @@ public class AimAssist extends Check implements RotationCheck {
     @Override
     public void process(RotationUpdate rotationUpdate) {
         if (player.packetStateData.lastPacketWasTeleport || player.vehicleData.wasVehicleSwitch) return;
+        if (rotationUpdate.isCinematic()) return;
 
         float deltaYaw = rotationUpdate.getDeltaXRotABS();
         float deltaPitch = rotationUpdate.getDeltaYRotABS();

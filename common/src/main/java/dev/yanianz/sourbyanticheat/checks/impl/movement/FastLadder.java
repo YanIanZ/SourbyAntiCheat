@@ -10,7 +10,7 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPl
 @CheckData(name = "FastLadder", stableKey = "sac.movement.fastladder", description = "Detects fast ladder climbing", setback = 10, decay = 0.02)
 public class FastLadder extends Check implements PacketCheck {
 
-    private static final double MAX_LADDER_SPEED = 0.15;
+    private static final double MAX_LADDER_SPEED = 0.20;
     private double ladderBuffer = 0;
 
     public FastLadder(SacPlayer player) {

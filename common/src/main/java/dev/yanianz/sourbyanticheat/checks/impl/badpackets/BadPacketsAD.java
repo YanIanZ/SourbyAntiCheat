@@ -8,7 +8,7 @@ import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 
-@CheckData(name = "BadPacketsAD", stableKey = "sac.badpackets.arm_animation_order", description = "Detects invalid arm animation packet order", setback = 5)
+@CheckData(name = "BadPacketsAD", stableKey = "sac.badpackets.arm_animation_order", description = "Detects invalid arm animation packet order", setback = 5, experimental = true)
 public class BadPacketsAD extends Check implements PacketCheck {
 
     private boolean sentAnimation = false;
