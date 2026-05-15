@@ -17,7 +17,12 @@ public class PacketEventsCheck implements StartableInitable {
         String serverBrand = getServerBrand();
         ServerVersion version = PacketEvents.getAPI().getServerManager().getVersion();
 
-        LogUtil.info("Server: " + serverBrand + " (PE: " + version.getReleaseName() + " proto " + version.getProtocolVersion() + ")");
+        LogUtil.info("========================================");
+        LogUtil.info("  SourbyAntiCheat v" + dev.yanianz.sourbyanticheat.SacAPI.INSTANCE.getSacVersion());
+        LogUtil.info("  Author: YanIanZ  |  License: GPLv3");
+        LogUtil.info("========================================");
+        LogUtil.info("Server: " + serverBrand);
+        LogUtil.info("PE Version: " + version.getReleaseName() + " (proto " + version.getProtocolVersion() + ")");
         LogUtil.info("ViaVersion: " + (ViaVersionUtil.isAvailable ? "DETECTED" : "not found"));
         LogUtil.info("GeyserMC: " + (GeyserUtil.isAvailable() ? "DETECTED" : "not found"));
 

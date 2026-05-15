@@ -282,6 +282,30 @@ PayloadCheck:
     setbackvl: 10
     decay: 0.01
 
+BadPacketsAA:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsAB:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsAC:
+    setbackvl: 10
+    decay: 0.005
+
+NettyDelay:
+    setbackvl: 15
+    decay: 0.02
+
+SpartanDivergence:
+    setbackvl: 25
+    decay: 0.01
+
+APIBypass:
+    setbackvl: 0
+    decay: 0.001
+
 reset-item-usage-on-item-update: true
 reset-item-usage-on-attack: true
 reset-item-usage-on-slot-change: true
