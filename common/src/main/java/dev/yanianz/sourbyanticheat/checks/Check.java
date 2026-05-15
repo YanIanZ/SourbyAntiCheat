@@ -171,9 +171,14 @@ public class Check extends SacProcessor implements AbstractCheck {
 
     public boolean alert(String verbose) {
         try {
-            String json = "{\"player\":\"" + player.uuid + "\",\"check\":\"" + checkName
-                + "\",\"vl\":" + String.format("%.1f", violations)
-                + ",\"verbose\":\"" + (verbose + spartanSuffix).replace("\"", "'") + "\"}";
+            String json = "{\"ts\":" + System.currentTimeMillis()
+                + ",\"player\":\"" + player.getName() + "\""
+                + ",\"uuid\":\"" + player.uuid + "\""
+                + ",\"check\":\"" + checkName + "\""
+                + ",\"vl\":" + String.format("%.1f", violations)
+                + ",\"ping\":" + player.getTransactionPing()
+                + ",\"verbose\":\"" + (verbose + spartanSuffix).replace("\"", "'") + "\""
+                + "}";
             SacAPI.INSTANCE.getProxyMessenger().sendAlert(player.uuid, json);
         } catch (Exception ignored) {}
         return player.punishmentManager.handleAlert(player, verbose + spartanSuffix, this);

@@ -108,6 +108,8 @@ public final class SacBukkitLoaderPlugin extends JavaPlugin implements PlatformL
     @Override
     public void onEnable() {
         SacAPI.INSTANCE.start();
+        getServer().getMessenger().registerOutgoingPluginChannel(
+            (org.bukkit.plugin.Plugin) SacAPI.INSTANCE.getSacPlugin(), "sac:main");
         getServer().getPluginManager().registerEvents(new NettyInjectListener(), this);
         getServer().getPluginManager().registerEvents(new SacGUI(), this);
     }
