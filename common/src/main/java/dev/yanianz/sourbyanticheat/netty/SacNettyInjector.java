@@ -20,7 +20,7 @@ public class SacNettyInjector {
             pipeline.addAfter("packet_handler", HANDLER_NAME, new SacNettyChannelHandler(playerName));
             successCount++;
             return true;
-        } catch (NoClassDefFoundError | ClassNotFoundException e) {
+        } catch (NoClassDefFoundError e) {
             injectionFailed = true;
             return false;
         } catch (Exception e) {
