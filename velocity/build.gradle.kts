@@ -3,6 +3,8 @@ plugins {
     id("sac.shadow-conventions")
 }
 
+version = rootProject.version
+
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
