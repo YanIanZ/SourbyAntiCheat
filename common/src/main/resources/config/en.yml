@@ -263,6 +263,18 @@ checks:
         Speed: true
         FlightA: true
 
+NettyFlood:
+    setbackvl: 15
+    decay: 0.01
+
+SpartanSync:
+    setbackvl: 20
+    decay: 0.005
+
+PayloadCheck:
+    setbackvl: 10
+    decay: 0.01
+
 reset-item-usage-on-item-update: true
 reset-item-usage-on-attack: true
 reset-item-usage-on-slot-change: true
