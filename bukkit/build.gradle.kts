@@ -43,7 +43,7 @@ dependencies {
 bukkit {
     name = "SourbyAntiCheat"
     main = "dev.yanianz.sourbyanticheat.platform.bukkit.SacBukkitLoaderPlugin"
-    version = project.version as String
+    version = rootProject.version.toString()
     apiVersion = "1.21"
     foliaSupported = true
     authors = listOf("YanIanZ")
