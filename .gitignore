@@ -76,3 +76,4 @@ fabric/run/
 
 .ignored/
 /workspace.gradle.kts
+libs/spartan-api.jar
