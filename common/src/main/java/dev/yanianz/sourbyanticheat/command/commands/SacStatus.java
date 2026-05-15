@@ -44,7 +44,7 @@ public class SacStatus implements BuildableCommand {
         sender.sendMessage(line("Uptime", formatUptime(api.getUptime())));
         sender.sendMessage(line("Platform", api.getPlatform().name()));
         sender.sendMessage(line("Tick", String.valueOf(api.getTickManager().currentTick)));
-        sender.sendMessage(line("Netty", nettyFailed ? "FAILED (PacketEvents)" : "ACTIVE", nettyFailed ? SacColors.RED : SacColors.GREEN));
+        sender.sendMessage(line("Netty", nettyFailed ? "FAILED (PacketEvents)" : "ACTIVE (" + dev.yanianz.sourbyanticheat.netty.SacNettyInjector.getSuccessCount() + " ok / " + dev.yanianz.sourbyanticheat.netty.SacNettyInjector.getFailCount() + " fail)", nettyFailed ? SacColors.RED : SacColors.GREEN));
         sender.sendMessage(line("ViaVersion", viaversion ? "DETECTED" : "NOT FOUND", viaversion ? SacColors.GREEN : SacColors.GRAY));
         sender.sendMessage(line("GeyserMC", geyser ? "DETECTED" : "NOT FOUND", geyser ? SacColors.GREEN : SacColors.GRAY));
         sender.sendMessage(line("SpartanAPI", spartan ? "ACTIVE v" + (SpartanCrossCheck.getSpartanVersion() != null ? SpartanCrossCheck.getSpartanVersion() : "?") : "DISABLED", spartan ? SacColors.GREEN : SacColors.GRAY));

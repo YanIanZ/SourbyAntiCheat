@@ -7,6 +7,8 @@ public class SacNettyInjector {
 
     private static final String HANDLER_NAME = "sac_netty_handler";
     private static boolean injectionFailed = false;
+    private static int successCount = 0;
+    private static int failCount = 0;
 
     public static boolean inject(String playerName, Channel channel) {
         if (injectionFailed) return false;
@@ -16,9 +18,13 @@ public class SacNettyInjector {
                 pipeline.remove(HANDLER_NAME);
             }
             pipeline.addAfter("packet_handler", HANDLER_NAME, new SacNettyChannelHandler(playerName));
+            successCount++;
             return true;
-        } catch (Exception e) {
+        } catch (NoClassDefFoundError | ClassNotFoundException e) {
             injectionFailed = true;
+            return false;
+        } catch (Exception e) {
+            failCount++;
             return false;
         }
     }
@@ -34,4 +40,6 @@ public class SacNettyInjector {
 
     public static boolean isInjectionFailed() { return injectionFailed; }
     public static void markInjectionFailed() { injectionFailed = true; }
+    public static int getSuccessCount() { return successCount; }
+    public static int getFailCount() { return failCount; }
 }
