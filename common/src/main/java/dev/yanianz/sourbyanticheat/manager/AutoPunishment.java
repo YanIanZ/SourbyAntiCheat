@@ -56,7 +56,7 @@ public final class AutoPunishment {
             .replace("%vl%", String.valueOf(totalVL));
 
         LogUtil.info("Auto-punishment executing: " + formatted);
-        var plugin = (org.bukkit.plugin.Plugin) SacAPI.INSTANCE.getSacPlugin();
+        var plugin = org.bukkit.Bukkit.getPluginManager().getPlugin("SourbyAntiCheat");
         Bukkit.getScheduler().runTask(plugin,
             () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), formatted));
     }

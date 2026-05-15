@@ -1,6 +1,5 @@
 package dev.yanianz.sourbyanticheat.platform.bukkit;
 
-import dev.yanianz.sourbyanticheat.SacAPI;
 import dev.yanianz.sourbyanticheat.utils.anticheat.LogUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -29,7 +28,7 @@ public final class ProxyForwarder {
             Player sender = findOnlinePlayer();
             if (sender != null) {
                 sender.sendPluginMessage(
-                    (org.bukkit.plugin.Plugin) SacAPI.INSTANCE.getSacPlugin(),
+                    SacBukkitLoaderPlugin.LOADER,
                     CHANNEL, bytes.toByteArray()
                 );
             }

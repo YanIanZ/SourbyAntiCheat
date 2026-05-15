@@ -39,7 +39,7 @@ public final class WavePunishment {
     }
 
     private static void startWave() {
-        var plugin = (org.bukkit.plugin.Plugin) SacAPI.INSTANCE.getSacPlugin();
+        var plugin = org.bukkit.Bukkit.getPluginManager().getPlugin("SourbyAntiCheat");
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if (queue.isEmpty()) return;
             PunishEntry entry = queue.poll();
