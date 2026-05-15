@@ -68,6 +68,17 @@ public class Check extends SacProcessor implements AbstractCheck {
         }
 
         reload();
+        applyGlobalConfig();
+    }
+
+    private void applyGlobalConfig() {
+        try {
+            var cfg = SacAPI.INSTANCE.getConfigManager().getConfig();
+            String key = "checks.enabled." + checkName;
+            if (cfg.contains(key)) {
+                isEnabled = cfg.getBooleanElse(key, true);
+            }
+        } catch (Exception ignored) {}
     }
 
     public boolean shouldModifyPackets() {
