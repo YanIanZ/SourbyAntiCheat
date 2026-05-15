@@ -12,7 +12,6 @@ import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.description.Description;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
