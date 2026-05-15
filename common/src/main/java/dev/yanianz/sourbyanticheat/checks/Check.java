@@ -8,6 +8,7 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.spartan.SpartanEventBridge;
 import dev.yanianz.sourbyanticheat.manager.AutoPunishment;
+import dev.yanianz.sourbyanticheat.manager.CheckPerformance;
 import dev.yanianz.sourbyanticheat.utils.reflection.GeyserUtil;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
@@ -111,13 +112,17 @@ public class Check extends SacProcessor implements AbstractCheck {
     }
 
     public final boolean flag(String verbose) {
+        long start = System.nanoTime();
         if (player.disableGrim || (experimental && !player.isExperimentalChecks()) || exemptPermission)
             return false; // Avoid calling event if disabled
 
         if (skipForBedrock && GeyserUtil.isBedrockPlayer(player.uuid))
             return false; // §I.7 Bedrock players skip movement/combat checks
 
-        if (FLAG_CHANNEL.fire(player, this, verbose)) return false;
+        if (FLAG_CHANNEL.fire(player, this, verbose)) {
+            CheckPerformance.record(checkName, System.nanoTime() - start);
+            return false;
+        }
 
         var spartan = violations >= SpartanCrossCheck.getMinVL()
             ? SpartanCrossCheck.checkSpartan(player.uuid, checkName)
@@ -130,6 +135,7 @@ public class Check extends SacProcessor implements AbstractCheck {
         violations++;
         SpartanEventBridge.fireViolation(player, checkName, (int) violations, verbose);
         AutoPunishment.checkAndExecute(player, this);
+        CheckPerformance.record(checkName, System.nanoTime() - start);
         return true;
     }
 
