@@ -40,6 +40,7 @@ public final class AutoPunishment {
 
         if (totalVL >= banThreshold && !banCommand.isEmpty()) {
             executeCommand(banCommand, player, check, totalVL);
+            WavePunishment.addToWave(player.uuid, player.getName(), check.getCheckName());
         } else if (totalVL >= kickThreshold && !kickCommand.isEmpty()) {
             executeCommand(kickCommand, player, check, totalVL);
         } else if (totalVL >= warnThreshold && !warnMessage.isEmpty()) {

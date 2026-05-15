@@ -15,6 +15,7 @@ import ac.grim.grimac.internal.storage.backend.sqlite.SqliteBackendProvider;
 import dev.yanianz.sourbyanticheat.manager.AlertManagerImpl;
 import dev.yanianz.sourbyanticheat.manager.AutoPunishment;
 import dev.yanianz.sourbyanticheat.manager.DiscordManager;
+import dev.yanianz.sourbyanticheat.manager.WavePunishment;
 import dev.yanianz.sourbyanticheat.manager.InitManager;
 import dev.yanianz.sourbyanticheat.manager.SpectateManager;
 import dev.yanianz.sourbyanticheat.manager.TickManager;
@@ -118,6 +119,7 @@ public final class SacAPI {
             SpartanCrossCheck.init(true);
         }
         AutoPunishment.init();
+        WavePunishment.init();
         initManager.start();
     }
 

@@ -259,6 +259,10 @@ punishment:
     # Execute command when total VL exceeds (e.g. ban)
     ban-threshold: 200
     ban-command: ""
+    # Wave punishment: queue bans and execute in batches
+    # Prevents cheat devs from knowing which check triggered the ban
+    wave-command: ""
+    wave-interval: 60
 
 # --- Global Check Control ---
 # Disable specific checks server-wide by setting to false
