@@ -310,6 +310,78 @@ APIBypass:
     setbackvl: 0
     decay: 0.001
 
+Spider:
+    setbackvl: 10
+    decay: 0.02
+
+Jesus:
+    setbackvl: 10
+    decay: 0.02
+
+FastLadder:
+    setbackvl: 10
+    decay: 0.02
+
+NoWeb:
+    setbackvl: 10
+    decay: 0.02
+
+Step:
+    setbackvl: 10
+    decay: 0.02
+
+EntitySpeed:
+    setbackvl: 10
+    decay: 0.02
+
+SafeWalk:
+    setbackvl: 5
+    decay: 0.02
+
+Blink:
+    setbackvl: 15
+    decay: 0.02
+
+ScaffoldA:
+    setbackvl: 10
+    decay: 0.02
+
+ScaffoldB:
+    setbackvl: 10
+    decay: 0.02
+
+Criticals:
+    setbackvl: 5
+    decay: 0.02
+
+FastBow:
+    setbackvl: 5
+    decay: 0.02
+
+FastEat:
+    setbackvl: 5
+    decay: 0.02
+
+AutoArmor:
+    setbackvl: 5
+    decay: 0.02
+
+FastSwitch:
+    setbackvl: 5
+    decay: 0.02
+
+BadPacketsAD:
+    setbackvl: 5
+    decay: 0.01
+
+BadPacketsAE:
+    setbackvl: 5
+    decay: 0.01
+
+BadPacketsAF:
+    setbackvl: 10
+    decay: 0.005
+
 reset-item-usage-on-item-update: true
 reset-item-usage-on-attack: true
 reset-item-usage-on-slot-change: true
