@@ -197,6 +197,9 @@ exploit:
 debug-pipeline-on-join: false
 
 # Enables experimental checks
+# Enables experimental checks globally (may have false positives)
+# Set to true to enable all checks marked 'experimental = true'
+# Individual experimental checks can be toggled via checks.enabled.<CheckName>
 experimental-checks: false
 
 # --- Netty Layer 1 Packet Inspection ---
