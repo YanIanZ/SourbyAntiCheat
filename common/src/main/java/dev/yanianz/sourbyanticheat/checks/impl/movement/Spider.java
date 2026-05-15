@@ -22,7 +22,7 @@ public class Spider extends Check implements PostPredictionCheck {
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
-        if (player.packetStateData.lastPacketWasTeleport) return;
+        if (player.packetStateData.lastPacketWasTeleport || player.packetStateData.lastPacketWasOnePointSeventeenDuplicate) return;
         if (player.canFly || player.isFlying || player.isGliding || player.inVehicle()) {
             climbTicks = 0;
             return;
@@ -31,11 +31,6 @@ public class Spider extends Check implements PostPredictionCheck {
         WrapperPlayClientPlayerFlying flying = new WrapperPlayClientPlayerFlying(event);
         double deltaY = player.y - player.lastY;
 
-        if (deltaY < 0.01 && deltaY > -0.01) {
-            climbTicks = Math.max(0, climbTicks - 1);
-            return;
-        }
-
         if (flying.isOnGround()) {
             climbTicks = 0;
             wasOnGround = true;
@@ -43,21 +38,20 @@ public class Spider extends Check implements PostPredictionCheck {
             return;
         }
 
-        if (deltaY > 0.1 && !wasOnGround && climbTicks > 3) {
+        if (!wasOnGround && deltaY > 0.1) {
             climbTicks++;
             if (climbTicks > 4) {
                 flagAndAlert("dY=" + String.format("%.3f", deltaY) + " ticks=" + climbTicks);
             }
-        } else if (deltaY > 0) {
+        } else if (deltaY > 0.0) {
             climbTicks++;
         } else {
             climbTicks = Math.max(0, climbTicks - 2);
             if (climbTicks < 1) reward();
         }
 
+        wasOnGround = false;
         lastDeltaY = deltaY;
-        if (flying.isOnGround()) wasOnGround = true;
-        else if (!wasOnGround && deltaY < -0.01) wasOnGround = false;
     }
 
     @Override

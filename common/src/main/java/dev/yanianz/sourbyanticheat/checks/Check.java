@@ -10,13 +10,6 @@ import dev.yanianz.sourbyanticheat.spartan.SpartanEventBridge;
 import dev.yanianz.sourbyanticheat.manager.AutoPunishment;
 import dev.yanianz.sourbyanticheat.manager.CheckPerformance;
 import dev.yanianz.sourbyanticheat.utils.reflection.GeyserUtil;
-import com.github.retrooper.packetevents.protocol.packettype.PacketType;
-import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
-import com.github.retrooper.packetevents.protocol.player.ClientVersion;
-import com.github.retrooper.packetevents.protocol.player.DiggingAction;
-import lombok.Getter;
-import lombok.Setter;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -113,8 +106,15 @@ public class Check extends SacProcessor implements AbstractCheck {
 
     public final boolean flag(String verbose) {
         long start = System.nanoTime();
-        if (player.disableGrim || (experimental && !player.isExperimentalChecks()) || exemptPermission)
-            return false; // Avoid calling event if disabled
+        if (player.disableGrim || exemptPermission)
+            return false;
+
+        if (experimental) {
+            try {
+                if (!SacAPI.INSTANCE.getConfigManager().getConfig().getBooleanElse("experimental-checks", true))
+                    return false;
+            } catch (Exception e) { return false; }
+        } // Avoid calling event if disabled
 
         if (skipForBedrock && GeyserUtil.isBedrockPlayer(player.uuid))
             return false; // §I.7 Bedrock players skip movement/combat checks
