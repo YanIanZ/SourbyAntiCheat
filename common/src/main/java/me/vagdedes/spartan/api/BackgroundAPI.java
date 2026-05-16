@@ -98,4 +98,35 @@ public class BackgroundAPI {
     static void setVerbose(Player p, boolean value, int frequency) {}
     static void setNotifications(Player p, int frequency) {}
     static int getViolationDivisor(Player p, HackType hackType) { return 1; }
+    static boolean isCheckEnabled(String checkName) {
+        try {
+            for (HackType ht : HackType.values()) {
+                if (ht.name().equalsIgnoreCase(checkName)) return isEnabled(ht);
+            }
+        } catch (Exception e) {}
+        return true;
+    }
+    static String getPlayerViolationData(Player p) {
+        var s = sp(p);
+        if (s == null) return "";
+        StringBuilder sb = new StringBuilder();
+        s.checkManager.allChecks.values().forEach(c -> {
+            Check ch = (Check) c;
+            if (ch.violations > 0)
+                sb.append(ch.getCheckName()).append(":").append((int) ch.violations).append(",");
+        });
+        String result = sb.toString();
+        return result.endsWith(",") ? result.substring(0, result.length() - 1) : result;
+    }
+    static Player[] getOnlineMonitoredPlayers() {
+        try {
+            var pdm = SacAPI.INSTANCE.getPlayerDataManager();
+            if (pdm == null) return new Player[0];
+            var entries = pdm.getEntries();
+            return entries.stream()
+                .map(sp -> org.bukkit.Bukkit.getPlayer(sp.uuid))
+                .filter(p -> p != null)
+                .toArray(Player[]::new);
+        } catch (Exception e) { return new Player[0]; }
+    }
 }

@@ -348,4 +348,16 @@ public class API {
     public static boolean mayPunishPlayer(Player p, HackType hackType) {
         return BackgroundAPI.mayPunishPlayer(p, hackType);
     }
+
+    public static boolean isCheckEnabled(String checkName) {
+        return BackgroundAPI.isCheckEnabled(checkName);
+    }
+
+    public static String getPlayerViolationData(Player p) {
+        return BackgroundAPI.getPlayerViolationData(p);
+    }
+
+    public static Player[] getOnlineMonitoredPlayers() {
+        return BackgroundAPI.getOnlineMonitoredPlayers();
+    }
 }
