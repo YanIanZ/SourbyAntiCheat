@@ -10,7 +10,7 @@ import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 import com.github.retrooper.packetevents.util.Vector3d;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 
-@CheckData(name = "BadPacketsV", stableKey = "sac.badpackets.slow_move", description = "Did not move far enough", experimental = true)
+@CheckData(name = "BadPacketsV", stableKey = "sac.badpackets.slow_move", description = "Did not move far enough")
 public class BadPacketsV extends Check implements PacketCheck {
     private int noReminderTicks;
 

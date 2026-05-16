@@ -6,7 +6,7 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.BlockPlace;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.RotationUpdate;
 
-@CheckData(name = "DuplicateRotPlace", stableKey = "sac.scaffolding.duplicate_rot_place", experimental = true)
+@CheckData(name = "DuplicateRotPlace", stableKey = "sac.scaffolding.duplicate_rot_place")
 public class DuplicateRotPlace extends BlockPlaceCheck {
 
     private float deltaX, deltaY;

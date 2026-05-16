@@ -9,7 +9,7 @@ import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientEntityAction;
 
-@CheckData(name = "BadPacketsX", stableKey = "sac.badpackets.extra_input_actions", experimental = true)
+@CheckData(name = "BadPacketsX", stableKey = "sac.badpackets.extra_input_actions")
 public class BadPacketsX extends Check implements PostPredictionCheck {
     private boolean sprint;
     private boolean sneak;

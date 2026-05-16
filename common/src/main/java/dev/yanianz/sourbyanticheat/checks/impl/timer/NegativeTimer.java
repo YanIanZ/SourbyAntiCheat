@@ -7,7 +7,7 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 
-@CheckData(name = "NegativeTimer", stableKey = "sac.timer.negative", setback = -1, experimental = true)
+@CheckData(name = "NegativeTimer", stableKey = "sac.timer.negative", setback = -1)
 public class NegativeTimer extends Timer implements PostPredictionCheck {
 
     public NegativeTimer(SacPlayer player) {

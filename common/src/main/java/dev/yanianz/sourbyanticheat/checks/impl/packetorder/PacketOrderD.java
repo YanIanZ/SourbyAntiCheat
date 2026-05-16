@@ -11,7 +11,7 @@ import com.github.retrooper.packetevents.protocol.player.InteractionHand;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientInteractEntity;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientInteractEntity.InteractAction;
 
-@CheckData(name = "PacketOrderD", stableKey = "sac.packetorder.interact_hand_order", experimental = true)
+@CheckData(name = "PacketOrderD", stableKey = "sac.packetorder.interact_hand_order")
 public class PacketOrderD extends Check implements PacketCheck {
     public PacketOrderD(final SacPlayer player) {
         super(player);

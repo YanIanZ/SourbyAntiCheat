@@ -8,7 +8,7 @@ import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 
-@CheckData(name = "PacketOrderJ", stableKey = "sac.packetorder.attack_interact_use_order", experimental = true)
+@CheckData(name = "PacketOrderJ", stableKey = "sac.packetorder.attack_interact_use_order")
 public class PacketOrderJ extends Check implements PostPredictionCheck {
     public PacketOrderJ(final SacPlayer player) {
         super(player);

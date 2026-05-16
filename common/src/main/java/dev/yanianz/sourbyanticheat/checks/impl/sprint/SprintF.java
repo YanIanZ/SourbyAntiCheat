@@ -7,7 +7,7 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 
-@CheckData(name = "SprintF", stableKey = "sac.sprint.gliding", description = "Sprinting while gliding", experimental = true)
+@CheckData(name = "SprintF", stableKey = "sac.sprint.gliding", description = "Sprinting while gliding")
 public class SprintF extends Check implements PostPredictionCheck {
     public SprintF(SacPlayer player) {
         super(player);

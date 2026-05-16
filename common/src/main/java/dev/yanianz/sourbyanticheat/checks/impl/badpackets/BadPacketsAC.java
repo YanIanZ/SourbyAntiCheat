@@ -8,7 +8,7 @@ import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPong;
 
-@CheckData(name = "BadPacketsAC", stableKey = "sac.badpackets.invalid_transaction", description = "Detects spoofed transaction/pong packets", setback = 10, decay = 0.01, experimental = true)
+@CheckData(name = "BadPacketsAC", stableKey = "sac.badpackets.invalid_transaction", description = "Detects spoofed transaction/pong packets", setback = 10, decay = 0.01)
 public class BadPacketsAC extends Check implements PacketCheck {
 
     private int lastPongId = -1;

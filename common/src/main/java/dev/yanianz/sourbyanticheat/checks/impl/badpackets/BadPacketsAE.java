@@ -7,7 +7,7 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 
-@CheckData(name = "BadPacketsAE", stableKey = "sac.badpackets.invalid_entity_interact", description = "Detects interacting with non-existent entities", setback = 5, decay = 0.01, experimental = true)
+@CheckData(name = "BadPacketsAE", stableKey = "sac.badpackets.invalid_entity_interact", description = "Detects interacting with non-existent entities", setback = 5, decay = 0.01)
 public class BadPacketsAE extends Check implements PacketCheck {
 
     private int invalidCount = 0;

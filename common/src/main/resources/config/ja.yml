@@ -206,7 +206,6 @@ exploit:
 debug-pipeline-on-join: false
 
 # 実験的なチェックを有効にします
-experimental-checks: false
 
 reset-item-usage-on-item-update: true
 reset-item-usage-on-attack: true

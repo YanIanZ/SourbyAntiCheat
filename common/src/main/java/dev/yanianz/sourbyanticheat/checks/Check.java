@@ -19,6 +19,7 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+import java.util.Set;
 
 import static com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying.isFlying;
 
@@ -40,8 +41,11 @@ public class Check extends SacProcessor implements AbstractCheck {
     private String description;
     private String stableKey = "";
 
-    @Getter private boolean experimental;
     private @Setter boolean isEnabled;
+
+    public boolean isExperimental() {
+        return false;
+    }
 
     private boolean exemptPermission;
     private boolean noSetbackPermission;
@@ -62,7 +66,7 @@ public class Check extends SacProcessor implements AbstractCheck {
             this.decay = checkData.decay();
             this.setbackVL = checkData.setback();
             this.alternativeName = checkData.alternativeName();
-            this.experimental = checkData.experimental();
+            this.alternativeName = checkData.alternativeName();
             this.description = checkData.description();
             this.stableKey = checkData.stableKey();
             this.displayName = this.checkName;
@@ -72,10 +76,16 @@ public class Check extends SacProcessor implements AbstractCheck {
         applyGlobalConfig();
     }
 
+    private static final Set<String> DISABLED_BY_DEFAULT = Set.of(
+        "AimSuspicion", "AutoArmor", "Blink", "SafeWalk",
+        "BadPacketsAE", "BadPacketsW", "NettyDelay", "NettyFlood"
+    );
+
     private void applyGlobalConfig() {
         try {
             var cfg = SacAPI.INSTANCE.getConfigManager().getConfig();
-            isEnabled = cfg.getBooleanElse("checks.enabled." + checkName, isEnabled);
+            boolean defaultEnabled = !DISABLED_BY_DEFAULT.contains(checkName);
+            isEnabled = cfg.getBooleanElse("checks.enabled." + checkName, defaultEnabled);
         } catch (Exception ignored) {}
     }
 
@@ -115,9 +125,6 @@ public class Check extends SacProcessor implements AbstractCheck {
         long start = System.nanoTime();
         if (player.disableGrim || exemptPermission)
             return false;
-
-        if (experimental && !player.isExperimentalChecks())
-            return false; // Avoid calling event if disabled
 
         if (skipForBedrock && GeyserUtil.isBedrockPlayer(player.uuid))
             return false; // §I.7 Bedrock players skip movement/combat checks

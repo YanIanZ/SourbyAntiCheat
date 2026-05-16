@@ -10,7 +10,7 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientEn
 
 import static com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying.isFlying;
 
-@CheckData(name = "PacketOrderO", stableKey = "sac.packetorder.tick_end_order", experimental = true)
+@CheckData(name = "PacketOrderO", stableKey = "sac.packetorder.tick_end_order")
 public class PacketOrderO extends Check implements PacketCheck {
     public PacketOrderO(final SacPlayer player) {
         super(player);

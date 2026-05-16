@@ -15,7 +15,7 @@ import com.github.retrooper.packetevents.util.Vector3i;
 import java.util.ArrayList;
 import java.util.List;
 
-@CheckData(name = "MultiBreak", stableKey = "sac.breaking.multi_break", experimental = true)
+@CheckData(name = "MultiBreak", stableKey = "sac.breaking.multi_break")
 public class MultiBreak extends Check implements BlockBreakCheck {
     private final List<String> flags = new ArrayList<>();
     private boolean hasBroken;

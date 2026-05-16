@@ -11,7 +11,7 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientCl
 
 import java.util.ArrayDeque;
 
-@CheckData(name = "PacketOrderK", stableKey = "sac.packetorder.inventory_open_order", experimental = true)
+@CheckData(name = "PacketOrderK", stableKey = "sac.packetorder.inventory_open_order")
 public class PacketOrderK extends Check implements PostPredictionCheck {
     public PacketOrderK(final SacPlayer player) {
         super(player);

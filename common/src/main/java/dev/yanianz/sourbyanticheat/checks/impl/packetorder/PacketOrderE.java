@@ -10,7 +10,7 @@ import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 
 import java.util.ArrayDeque;
 
-@CheckData(name = "PacketOrderE", stableKey = "sac.packetorder.slot_order", experimental = true)
+@CheckData(name = "PacketOrderE", stableKey = "sac.packetorder.slot_order")
 public class PacketOrderE extends Check implements PostPredictionCheck {
     public PacketOrderE(final SacPlayer player) {
         super(player);

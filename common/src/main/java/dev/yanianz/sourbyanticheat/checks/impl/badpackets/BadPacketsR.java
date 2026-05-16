@@ -7,7 +7,7 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 
-@CheckData(name = "BadPacketsR", stableKey = "sac.badpackets.position_starvation", decay = 0.25, experimental = true)
+@CheckData(name = "BadPacketsR", stableKey = "sac.badpackets.position_starvation", decay = 0.25)
 public class BadPacketsR extends Check implements PacketCheck {
     private int positions = 0;
     private long clock = 0;

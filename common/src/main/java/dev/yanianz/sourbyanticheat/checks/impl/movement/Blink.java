@@ -7,7 +7,7 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 
-@CheckData(name = "Blink", stableKey = "sac.movement.blink", description = "Detects blink/fakelag hacks", setback = 15, decay = 0.02, experimental = true)
+@CheckData(name = "Blink", stableKey = "sac.movement.blink", description = "Detects blink/fakelag hacks", setback = 15, decay = 0.02)
 public class Blink extends Check implements PacketCheck {
 
     private long lastPacketTime = 0;

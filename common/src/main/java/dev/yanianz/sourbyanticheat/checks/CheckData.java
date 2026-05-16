@@ -28,6 +28,4 @@ public @interface CheckData {
 
     double setback() default 25;
 
-    boolean experimental() default false;
-
 }

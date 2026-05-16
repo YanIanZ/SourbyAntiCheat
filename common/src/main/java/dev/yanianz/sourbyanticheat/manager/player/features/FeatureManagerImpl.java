@@ -33,7 +33,6 @@ public class FeatureManagerImpl implements FeatureManager, ConfigReloadObserver 
 
     static {
         FeatureBuilder builder = new FeatureBuilder();
-        builder.register(new ExperimentalChecksFeature());
         builder.register(new ExemptElytraFeature());
         builder.register(new ForceStuckSpeedFeature());
         builder.register(new ForceSlowMovementFeature());

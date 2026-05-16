@@ -7,7 +7,7 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 
-@CheckData(name = "AutoArmor", stableKey = "sac.combat.autoarmor", description = "Detects automatic armor equipping", setback = 5, decay = 0.02, experimental = true)
+@CheckData(name = "AutoArmor", stableKey = "sac.combat.autoarmor", description = "Detects automatic armor equipping", setback = 5, decay = 0.02)
 public class AutoArmor extends Check implements PacketCheck {
 
     private long lastSlotTime = 0;

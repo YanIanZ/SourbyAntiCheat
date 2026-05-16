@@ -10,7 +10,7 @@ import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerBundle;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 
-@CheckData(name = "PacketOrderP", stableKey = "sac.packetorder.transaction_response_order", experimental = true)
+@CheckData(name = "PacketOrderP", stableKey = "sac.packetorder.transaction_response_order")
 public class PacketOrderP extends Check implements PacketCheck {
     public PacketOrderP(final SacPlayer player) {
         super(player);

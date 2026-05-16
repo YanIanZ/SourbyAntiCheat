@@ -10,7 +10,7 @@ import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 
 import java.util.Collections;
 
-@CheckData(name = "SprintB", stableKey = "sac.sprint.sneaking", description = "Sprinting while sneaking or crawling", setback = 5, experimental = true)
+@CheckData(name = "SprintB", stableKey = "sac.sprint.sneaking", description = "Sprinting while sneaking or crawling", setback = 5)
 public class SprintB extends Check implements PostPredictionCheck {
     public SprintB(SacPlayer player) {
         super(player);

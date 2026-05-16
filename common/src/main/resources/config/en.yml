@@ -199,7 +199,6 @@ debug-pipeline-on-join: false
 # Enables experimental checks
 # Enables experimental checks globally (may have false positives)
 # Set to false for production, true for testing
-experimental-checks: true
 
 # --- Netty Layer 1 Packet Inspection ---
 netty:

@@ -217,7 +217,6 @@ exploit:
 debug-pipeline-on-join: false
 
 # 启用实验性检查
-experimental-checks: false
 
 # 取消有问题的格挡
 reset-item-usage-on-item-update: true

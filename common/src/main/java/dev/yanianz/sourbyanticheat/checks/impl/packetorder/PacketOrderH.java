@@ -10,7 +10,7 @@ import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientEntityAction;
 
-@CheckData(name = "PacketOrderH", stableKey = "sac.packetorder.sneak_sprint_order", experimental = true)
+@CheckData(name = "PacketOrderH", stableKey = "sac.packetorder.sneak_sprint_order")
 public class PacketOrderH extends Check implements PostPredictionCheck {
     public PacketOrderH(final SacPlayer player) {
         super(player);

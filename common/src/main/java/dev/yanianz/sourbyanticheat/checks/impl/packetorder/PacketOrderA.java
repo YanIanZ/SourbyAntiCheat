@@ -10,7 +10,7 @@ import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientClickWindow;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientClickWindow.WindowClickType;
 
-@CheckData(name = "PacketOrderA", stableKey = "sac.packetorder.window_click_order", experimental = true)
+@CheckData(name = "PacketOrderA", stableKey = "sac.packetorder.window_click_order")
 public class PacketOrderA extends Check implements PostPredictionCheck {
     public PacketOrderA(final SacPlayer player) {
         super(player);

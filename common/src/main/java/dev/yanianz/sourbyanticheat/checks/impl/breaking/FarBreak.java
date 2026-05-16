@@ -11,7 +11,7 @@ import dev.yanianz.sourbyanticheat.utils.math.VectorUtils;
 import com.github.retrooper.packetevents.protocol.attribute.Attributes;
 import com.github.retrooper.packetevents.protocol.player.DiggingAction;
 
-@CheckData(name = "FarBreak", stableKey = "sac.breaking.far_break", description = "Breaking blocks too far away", experimental = true)
+@CheckData(name = "FarBreak", stableKey = "sac.breaking.far_break", description = "Breaking blocks too far away")
 public class FarBreak extends Check implements BlockBreakCheck {
     public FarBreak(SacPlayer player) {
         super(player);

@@ -7,7 +7,7 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 
-@CheckData(name = "BadPacketsZ", stableKey = "sac.badpackets.duplicate_player_input", experimental = true)
+@CheckData(name = "BadPacketsZ", stableKey = "sac.badpackets.duplicate_player_input")
 public class BadPacketsZ extends Check implements PacketCheck {
     private boolean sent;
 

@@ -202,7 +202,6 @@ exploit:
 debug-pipeline-on-join: false
 
 # Habilita verificações experimentais.
-experimental-checks: false
 
 reset-item-usage-on-item-update: true
 reset-item-usage-on-attack: true

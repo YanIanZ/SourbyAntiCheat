@@ -175,7 +175,6 @@ exploit:
 debug-pipeline-on-join: false
 
 # Enables experimental checks
-experimental-checks: false
 
 reset-item-usage-on-item-update: true
 reset-item-usage-on-attack: true

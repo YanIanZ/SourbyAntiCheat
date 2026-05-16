@@ -8,7 +8,7 @@ import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientHeldItemChange;
 
-@CheckData(name = "FastSwitch", stableKey = "sac.multiactions.fastswitch", description = "Detects rapid item switching", setback = 5, decay = 0.02, experimental = true)
+@CheckData(name = "FastSwitch", stableKey = "sac.multiactions.fastswitch", description = "Detects rapid item switching", setback = 5, decay = 0.02)
 public class FastSwitch extends Check implements PacketCheck {
 
     private long lastSwitch = 0;

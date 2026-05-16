@@ -10,7 +10,7 @@ import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 import com.github.retrooper.packetevents.protocol.world.BlockFace;
 
-@CheckData(name = "MultiActionsG", stableKey = "sac.multiactions.action_while_rowing", description = "Attacking or using items while rowing a boat", experimental = true)
+@CheckData(name = "MultiActionsG", stableKey = "sac.multiactions.action_while_rowing", description = "Attacking or using items while rowing a boat")
 public class MultiActionsG extends BlockPlaceCheck {
     public MultiActionsG(SacPlayer player) {
         super(player);

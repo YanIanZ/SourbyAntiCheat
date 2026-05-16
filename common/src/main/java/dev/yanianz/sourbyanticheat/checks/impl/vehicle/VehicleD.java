@@ -10,7 +10,7 @@ import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientEntityAction;
 
-@CheckData(name = "VehicleD", stableKey = "sac.vehicle.spoofed_jump", experimental = true, description = "Jumped in a vehicle that cannot jump")
+@CheckData(name = "VehicleD", stableKey = "sac.vehicle.spoofed_jump", description = "Jumped in a vehicle that cannot jump")
 public class VehicleD extends Check implements PacketCheck {
     public VehicleD(SacPlayer player) {
         super(player);

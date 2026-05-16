@@ -254,7 +254,6 @@ public class SacPlayer implements GrimUser {
     private int spamThreshold = 100;
     private int maxTransactionTime = 60;
     @Getter private boolean ignoreDuplicatePacketRotation = false;
-    @Getter @Setter private boolean experimentalChecks = true;
     @Getter private boolean cancelDuplicatePacket = true;
     @Getter @Setter private boolean exemptElytra = false;
     @Getter @Setter private boolean forceStuckSpeed = true;

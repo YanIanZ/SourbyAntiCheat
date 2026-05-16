@@ -10,7 +10,7 @@ import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.world.BlockFace;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerBlockPlacement;
 
-@CheckData(name = "PacketOrderN", stableKey = "sac.packetorder.place_use_order", experimental = true)
+@CheckData(name = "PacketOrderN", stableKey = "sac.packetorder.place_use_order")
 public class PacketOrderN extends BlockPlaceCheck {
     public PacketOrderN(final SacPlayer player) {
         super(player);

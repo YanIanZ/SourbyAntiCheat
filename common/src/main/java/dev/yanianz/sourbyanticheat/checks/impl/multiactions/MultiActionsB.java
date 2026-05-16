@@ -8,7 +8,7 @@ import dev.yanianz.sourbyanticheat.utils.anticheat.update.BlockBreak;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 import com.github.retrooper.packetevents.protocol.player.InteractionHand;
 
-@CheckData(name = "MultiActionsB", stableKey = "sac.multiactions.break_while_using", description = "Breaking blocks while using an item", experimental = true)
+@CheckData(name = "MultiActionsB", stableKey = "sac.multiactions.break_while_using", description = "Breaking blocks while using an item")
 public class MultiActionsB extends Check implements BlockBreakCheck {
     public MultiActionsB(SacPlayer player) {
         super(player);

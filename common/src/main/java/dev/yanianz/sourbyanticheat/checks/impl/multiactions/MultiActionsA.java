@@ -11,7 +11,7 @@ import com.github.retrooper.packetevents.protocol.player.InteractionHand;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientInteractEntity;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerDigging;
 
-@CheckData(name = "MultiActionsA", stableKey = "sac.multiactions.attack_while_using", description = "Attacked while using an item", experimental = true)
+@CheckData(name = "MultiActionsA", stableKey = "sac.multiactions.attack_while_using", description = "Attacked while using an item")
 public class MultiActionsA extends Check implements PacketCheck {
     public MultiActionsA(SacPlayer player) {
         super(player);

@@ -7,7 +7,7 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 
-@CheckData(name = "SprintC", stableKey = "sac.sprint.using_item", description = "Sprinting while using an item", setback = 5, experimental = true)
+@CheckData(name = "SprintC", stableKey = "sac.sprint.using_item", description = "Sprinting while using an item", setback = 5)
 public class SprintC extends Check implements PostPredictionCheck {
     private boolean flaggedLastTick = false;
 

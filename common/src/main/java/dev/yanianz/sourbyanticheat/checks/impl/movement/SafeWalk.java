@@ -7,7 +7,7 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 
-@CheckData(name = "SafeWalk", stableKey = "sac.movement.safewalk", description = "Detects SafeWalk / edge walk hacks", setback = 5, decay = 0.02, experimental = true)
+@CheckData(name = "SafeWalk", stableKey = "sac.movement.safewalk", description = "Detects SafeWalk / edge walk hacks", setback = 5, decay = 0.02)
 public class SafeWalk extends Check implements PacketCheck {
 
     private int stopTicks = 0;

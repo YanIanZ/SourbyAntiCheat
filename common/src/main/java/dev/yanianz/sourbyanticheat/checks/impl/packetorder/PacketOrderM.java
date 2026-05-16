@@ -11,7 +11,7 @@ import com.github.retrooper.packetevents.protocol.world.BlockFace;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientInteractEntity;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerBlockPlacement;
 
-@CheckData(name = "PacketOrderM", stableKey = "sac.packetorder.interact_use_order", experimental = true)
+@CheckData(name = "PacketOrderM", stableKey = "sac.packetorder.interact_use_order")
 public class PacketOrderM extends Check implements PostPredictionCheck {
     public PacketOrderM(final SacPlayer player) {
         super(player);

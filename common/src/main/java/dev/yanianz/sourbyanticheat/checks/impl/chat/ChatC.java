@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
-@CheckData(name = "ChatC", stableKey = "sac.chat.moving_while_chatting", description = "Moving while chatting", experimental = true)
+@CheckData(name = "ChatC", stableKey = "sac.chat.moving_while_chatting", description = "Moving while chatting")
 public class ChatC extends Check implements PacketCheck {
     public ChatC(SacPlayer player) {
         super(player);

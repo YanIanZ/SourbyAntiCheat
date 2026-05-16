@@ -8,7 +8,7 @@ import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 
-@CheckData(name = "SprintG", stableKey = "sac.sprint.water", description = "Sprinting while in water", experimental = true)
+@CheckData(name = "SprintG", stableKey = "sac.sprint.water", description = "Sprinting while in water")
 public class SprintG extends Check implements PostPredictionCheck {
     public SprintG(SacPlayer player) {
         super(player);

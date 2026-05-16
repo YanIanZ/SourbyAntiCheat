@@ -13,7 +13,7 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPl
 
 import java.util.ArrayDeque;
 
-@CheckData(name = "PacketOrderG", stableKey = "sac.packetorder.hotbar_inventory_manage_order", experimental = true)
+@CheckData(name = "PacketOrderG", stableKey = "sac.packetorder.hotbar_inventory_manage_order")
 public class PacketOrderG extends Check implements PostPredictionCheck {
     public PacketOrderG(SacPlayer player) {
         super(player);

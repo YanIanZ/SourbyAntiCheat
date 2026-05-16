@@ -18,6 +18,7 @@ import dev.yanianz.sourbyanticheat.checks.impl.crash.*;
 import dev.yanianz.sourbyanticheat.checks.impl.elytra.*;
 import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitA;
 import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitB;
+import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitC;
 import dev.yanianz.sourbyanticheat.checks.impl.flight.FlightA;
 import dev.yanianz.sourbyanticheat.checks.impl.groundspoof.NoFall;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.APIBypass;
@@ -37,6 +38,9 @@ import dev.yanianz.sourbyanticheat.checks.impl.movement.Step;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.EntitySpeed;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.SafeWalk;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.Blink;
+import dev.yanianz.sourbyanticheat.checks.impl.movement.InventoryMove;
+import dev.yanianz.sourbyanticheat.checks.impl.movement.Tower;
+import dev.yanianz.sourbyanticheat.checks.impl.movement.NoRotate;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.NoSlow;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.Speed;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.Spider;
@@ -179,6 +183,17 @@ public class CheckManager {
                 .put(AutoArmor.class, new AutoArmor(player))
                 .put(AntiVelocity.class, new AntiVelocity(player))
                 .put(FastSwitch.class, new FastSwitch(player))
+                .put(NoSwingAttack.class, new NoSwingAttack(player))
+                .put(MultiAttack.class, new MultiAttack(player))
+                .put(AttackFrequency.class, new AttackFrequency(player))
+                .put(InventoryMove.class, new InventoryMove(player))
+                .put(BadPacketsAI.class, new BadPacketsAI(player))
+                .put(BadPacketsAJ.class, new BadPacketsAJ(player))
+                .put(AimSnap.class, new AimSnap(player))
+                .put(AimSuspicion.class, new AimSuspicion(player))
+                .put(Tower.class, new Tower(player))
+                .put(NoRotate.class, new NoRotate(player))
+                .put(ExploitC.class, new ExploitC(player))
                 .put(FlightA.class, new FlightA(player))
                 .put(MultiActionsA.class, new MultiActionsA(player))
                 .put(MultiActionsC.class, new MultiActionsC(player))

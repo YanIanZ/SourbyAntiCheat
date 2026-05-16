@@ -7,7 +7,7 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 
-@CheckData(name = "NettyFlood", stableKey = "sac.netty.flood", description = "Detects packet flooding via cancelled packet rate", setback = 15, experimental = true)
+@CheckData(name = "NettyFlood", stableKey = "sac.netty.flood", description = "Detects packet flooding via cancelled packet rate", setback = 15)
 public class NettyFlood extends Check implements PacketCheck {
 
     private static final int MAX_CANCELLED_PER_TICK = 10;
