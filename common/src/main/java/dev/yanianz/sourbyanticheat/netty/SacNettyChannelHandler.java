@@ -1,5 +1,8 @@
 package dev.yanianz.sourbyanticheat.netty;
 
+import dev.yanianz.sourbyanticheat.SacAPI;
+import dev.yanianz.sourbyanticheat.checks.crossapi.CrossValidationData;
+import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -58,6 +61,9 @@ public class SacNettyChannelHandler extends ChannelDuplexHandler {
             LOGGER.fine("[SAC-Netty] Delay: " + playerName + " " + elapsed + "ms");
         }
         lastReadTime = now;
+
+        updateCrossValidationData(now);
+
         super.channelRead(ctx, msg);
     }
 
@@ -93,6 +99,27 @@ public class SacNettyChannelHandler extends ChannelDuplexHandler {
         }
         LOGGER.warning("[SAC-Netty] Error: " + playerName + " " + cause.getMessage());
         ctx.close();
+    }
+
+    private void updateCrossValidationData(long now) {
+        try {
+            var pdm = SacAPI.INSTANCE.getPlayerDataManager();
+            if (pdm == null) return;
+            for (SacPlayer sp : pdm.getEntries()) {
+                if (sp != null && sp.getName() != null && sp.getName().equals(playerName)) {
+                    CrossValidationData data = sp.crossValidationData;
+                    long elapsed = now - floodResetTime;
+                    if (elapsed > 0) {
+                        data.nettyPacketRatePerSec = (packetCount * 1000.0) / elapsed;
+                    }
+                    data.nettyAvgReadBytesPerPacket = packetCount > 0 ? (double) totalBytesRead / packetCount : 0;
+                    data.nettyAvgDelayBetweenPacketsMs = packetCount > 1
+                        ? (double) elapsed / (packetCount - 1)
+                        : 0;
+                    break;
+                }
+            }
+        } catch (Exception ignored) {}
     }
 
     public double getPacketRatePerSecond() {

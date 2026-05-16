@@ -753,6 +753,14 @@ public class CheckManagerListener extends PacketListenerAbstract {
                 player.z = clampVector.getZ();
 
                 player.checkManager.onPositionUpdate(update);
+
+                // Update CrossValidationData
+                player.crossValidationData.peFlyingPacketsPerTick++;
+                player.crossValidationData.pePositionDeltaX = player.x - player.lastX;
+                player.crossValidationData.pePositionDeltaY = player.y - player.lastY;
+                player.crossValidationData.pePositionDeltaZ = player.z - player.lastZ;
+                player.crossValidationData.peRotationDeltaYaw = player.yaw - player.lastYaw;
+                player.crossValidationData.peRotationDeltaPitch = player.pitch - player.lastPitch;
             } else if (update.isTeleport()) { // Mojang doesn't use their own exit vehicle field to leave vehicles, manually call the setback handler
                 player.getSetbackTeleportUtil().onPredictionComplete(new PredictionComplete(0, update, true));
             }

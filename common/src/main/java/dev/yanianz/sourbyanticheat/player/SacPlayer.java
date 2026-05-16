@@ -11,6 +11,7 @@ import dev.yanianz.sourbyanticheat.checks.impl.aim.processor.AimProcessor;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.ClientBrand;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.TransactionOrder;
 import dev.yanianz.sourbyanticheat.checks.impl.packetorder.PacketOrderProcessor;
+import dev.yanianz.sourbyanticheat.checks.crossapi.CrossValidationData;
 import dev.yanianz.sourbyanticheat.events.packets.CheckManagerListener;
 import dev.yanianz.sourbyanticheat.manager.*;
 import dev.yanianz.sourbyanticheat.manager.player.features.FeatureManagerImpl;
@@ -209,6 +210,7 @@ public class SacPlayer implements GrimUser {
     public boolean skippedTickInActualMovement = false;
     // You cannot initialize everything here for some reason
     public final LastInstanceManager lastInstanceManager;
+    public final CrossValidationData crossValidationData = new CrossValidationData();
     public final CompensatedFireworks fireworks;
     public final CompensatedWorld compensatedWorld;
     public final CompensatedEntities compensatedEntities;

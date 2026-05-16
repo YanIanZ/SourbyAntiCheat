@@ -15,6 +15,10 @@ import dev.yanianz.sourbyanticheat.checks.impl.chat.ChatC;
 import dev.yanianz.sourbyanticheat.checks.impl.chat.ChatD;
 import dev.yanianz.sourbyanticheat.checks.impl.combat.*;
 import dev.yanianz.sourbyanticheat.checks.impl.crash.*;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossSpeed;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossAntiKB;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossPhase;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossTimer;
 import dev.yanianz.sourbyanticheat.checks.impl.elytra.*;
 import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitA;
 import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitB;
@@ -127,6 +131,8 @@ public class CheckManager {
                 .put(ClientBrand.class, new ClientBrand(player))
                 .put(NettyFlood.class, new NettyFlood(player))
                 .put(NettyDelay.class, new NettyDelay(player))
+                .put(CrossPhase.class, new CrossPhase(player))
+                .put(CrossTimer.class, new CrossTimer(player))
                 .put(PayloadCheck.class, new PayloadCheck(player))
                 .put(SpartanSync.class, new SpartanSync(player))
                 .put(SpartanDivergence.class, new SpartanDivergence(player))
@@ -276,6 +282,8 @@ public class CheckManager {
                 .put(ElytraG.class, new ElytraG(player))
                 .put(ElytraH.class, new ElytraH(player))
                 .put(ElytraI.class, new ElytraI(player))
+                .put(CrossSpeed.class, new CrossSpeed(player))
+                .put(CrossAntiKB.class, new CrossAntiKB(player))
                 .put(SetbackTeleportUtil.class, new SetbackTeleportUtil(player)) // Avoid teleporting to new position, update safe pos last
                 .put(CompensatedFireworks.class, player.fireworks)
                 .put(SneakingEstimator.class, new SneakingEstimator(player))
