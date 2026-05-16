@@ -10,32 +10,34 @@ import java.util.logging.Logger;
 
 @UtilityClass
 public class LogUtil {
+    private static final String PREFIX = "[SAC] ";
+
     public void info(final String info) {
-        getLogger().info(info);
+        getLogger().info(PREFIX + info);
     }
 
     public void warn(final String warn) {
-        getLogger().warning(warn);
+        getLogger().warning(PREFIX + warn);
     }
 
     public void warn(final String description, final Throwable throwable) {
         Logger logger = getLogger();
         if (logger != null) {
-            logger.warning(description + ": " + getStackTrace(throwable));
+            logger.warning(PREFIX + description + ": " + getStackTrace(throwable));
         } else {
             throwable.printStackTrace();
         }
     }
 
     public void error(final String error) {
-        getLogger().severe(error);
+        getLogger().severe(PREFIX + error);
     }
 
     @SuppressWarnings("CallToPrintStackTrace")
     public void error(final String description, final Throwable throwable) {
         Logger logger = getLogger();
         if (logger != null) {
-            logger.severe(description + ": " + getStackTrace(throwable));
+            logger.severe(PREFIX + description + ": " + getStackTrace(throwable));
         } else {
             throwable.printStackTrace();
         }
@@ -45,7 +47,7 @@ public class LogUtil {
     public void error(final Throwable throwable) {
         Logger logger = getLogger();
         if (logger != null) {
-            logger.severe(getStackTrace(throwable));
+            logger.severe(PREFIX + getStackTrace(throwable));
         } else {
             throwable.printStackTrace();
         }

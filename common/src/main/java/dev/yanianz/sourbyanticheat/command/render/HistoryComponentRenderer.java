@@ -120,7 +120,7 @@ public final class HistoryComponentRenderer {
                 .append(Component.text(s.sessionId().toString(), NamedTextColor.GRAY))
                 .append(Component.newline())
                 .append(Component.text("Click (when supported) or run ", NamedTextColor.GRAY))
-                .append(Component.text("/grim history " + shortName(s.playerUuid()) + " session " + s.sessionOrdinal(),
+                .append(Component.text("/sac history " + shortName(s.playerUuid()) + " session " + s.sessionOrdinal(),
                         NamedTextColor.YELLOW))
                 .append(Component.newline())
                 .append(Component.text("to view session details.", NamedTextColor.GRAY))

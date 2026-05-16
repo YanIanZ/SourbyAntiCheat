@@ -117,7 +117,7 @@ public class DiscordManager implements StartableInitable, ReloadableInitable {
             // mainly for just for allowing more customization
             embedImageUrl = validatedConfigURL("embed-image-url", null);
             embedThumbnailUrl = validatedConfigURL("embed-thumbnail-url", "https://crafthead.net/helm/%uuid%");
-            embedFooterUrl = validatedConfigURL("embed-footer-url", "https://grim.ac/images/grim.png");
+            embedFooterUrl = validatedConfigURL("embed-footer-url", "https://sourby.dev/images/sac.png");
             embedFooterText = config.getStringElse("embed-footer-text", "v%sac_version%");
             embedTitle = config.getStringElse("embed-title", "**SAC Alert**");
 

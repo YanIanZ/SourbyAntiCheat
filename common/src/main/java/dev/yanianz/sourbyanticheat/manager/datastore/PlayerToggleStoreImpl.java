@@ -97,7 +97,7 @@ public final class PlayerToggleStoreImpl implements PlayerToggleStore {
 
     private static ScheduledExecutorService defaultScheduler() {
         return Executors.newSingleThreadScheduledExecutor(r -> {
-            Thread t = new Thread(r, "grim-toggle-flush");
+            Thread t = new Thread(r, "sac-toggle-flush");
             t.setDaemon(true);
             return t;
         });
@@ -116,7 +116,7 @@ public final class PlayerToggleStoreImpl implements PlayerToggleStore {
                         new Queries.GetSetting(SettingScope.PLAYER, uuid.toString(), key))
                 .whenComplete((page, err) -> {
                     if (err != null) {
-                        logger.log(Level.FINE, "[grim-toggle] prefetch " + key + " failed for " + uuid, err);
+                        logger.log(Level.FINE, "[SAC-Toggle] prefetch " + key + " failed for " + uuid, err);
                         return;
                     }
                     Boolean value = decodeBool(page);

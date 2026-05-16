@@ -50,7 +50,7 @@ bukkit {
 
     softDepend = listOf("ProtocolLib", "Essentials", "ViaVersion", "ViaBackwards",
         "Geyser-Spigot", "floodgate", "PlaceholderAPI", "Spartan", "FastLogin",
-        "driverholder-mysql", "driverholder-postgresql", "driverholder-mongodb")
+        "driverholder-mysql", "driverholder-postgresql", "driverholder-mongodb", "SourbyCraft")
 
     permissions {
         register("sac.alerts") { description = "Receive SAC alerts"; default = Permission.Default.OP }

@@ -50,7 +50,7 @@ public class SacSpectate implements BuildableCommand {
 
         // hide player from tab list
         if (SacAPI.INSTANCE.getSpectateManager().enable(platformPlayer)) {
-            sender.sendMessage(MessageUtil.getParsedComponent(sender, "spectate-return", "<click:run_command:/grim stopspectating><hover:show_text:\"/grim stopspectating\">\n%prefix% &fClick here to return to previous location\n</hover></click>"));
+            sender.sendMessage(MessageUtil.getParsedComponent(sender, "spectate-return", "<click:run_command:/sac stopspectating><hover:show_text:\"/sac stopspectating\">\n%prefix% &fClick here to return to previous location\n</hover></click>"));
         }
 
         platformPlayer.setGameMode(GameMode.SPECTATOR);

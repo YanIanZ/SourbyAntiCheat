@@ -16,12 +16,13 @@ public class PacketEventsCheck implements StartableInitable {
     public void start() {
         String serverBrand = getServerBrand();
         ServerVersion version = PacketEvents.getAPI().getServerManager().getVersion();
+        boolean isSourbyCraft = serverBrand.contains("SourbyCraft");
 
         LogUtil.info("========================================");
         LogUtil.info("  SourbyAntiCheat v" + dev.yanianz.sourbyanticheat.SacAPI.INSTANCE.getSacVersion());
         LogUtil.info("  Author: YanIanZ  |  License: GPLv3");
         LogUtil.info("========================================");
-        LogUtil.info("Server: " + serverBrand);
+        LogUtil.info("Server: " + serverBrand + (isSourbyCraft ? " [SourbyCraft supported]" : ""));
         LogUtil.info("PE Version: " + version.getReleaseName() + " (proto " + version.getProtocolVersion() + ")");
         LogUtil.info("ViaVersion: " + (ViaVersionUtil.isAvailable ? "DETECTED" : "not found"));
         LogUtil.info("GeyserMC: " + (GeyserUtil.isAvailable() ? "DETECTED" : "not found"));
@@ -30,7 +31,9 @@ public class PacketEventsCheck implements StartableInitable {
             LogUtil.error("SAC requires Minecraft 1.8+. Got " + version.getReleaseName());
         }
 
-        if (!serverBrand.contains("Paper") && !serverBrand.contains("Purpur") && !serverBrand.contains("Folia")) {
+        if (isSourbyCraft) {
+            LogUtil.info("SourbyCraft fork detected — native support enabled.");
+        } else if (!serverBrand.contains("Paper") && !serverBrand.contains("Purpur") && !serverBrand.contains("Folia")) {
             LogUtil.warn("Non-Paper server: " + serverBrand + " — PacketEvents may have limited support.");
         }
 

@@ -59,7 +59,7 @@ public class SacDump implements BuildableCommand {
         // versions
         JsonObject versions = new JsonObject();
         base.add("versions", versions);
-        versions.addProperty("grim", SacAPI.INSTANCE.getExternalAPI().getSacVersion());
+        versions.addProperty("sac", SacAPI.INSTANCE.getExternalAPI().getSacVersion());
         versions.addProperty("packetevents", PacketEvents.getAPI().getVersion().toString());
         versions.addProperty("server", PacketEvents.getAPI().getServerManager().getVersion().getReleaseName());
         versions.addProperty("implementation", SacAPI.INSTANCE.getPlatformServer().getPlatformImplementationString());
@@ -98,7 +98,7 @@ public class SacDump implements BuildableCommand {
     private static JsonObject getBuildInfo() {
         JsonObject object = new JsonObject();
         try {
-            Properties properties = PropertiesUtil.readProperties(SacAPI.INSTANCE.getClass(), "grimac.properties");
+            Properties properties = PropertiesUtil.readProperties(SacAPI.INSTANCE.getClass(), "sac.properties");
             for (Map.Entry<Object, Object> entry : properties.entrySet()) {
                 object.addProperty(entry.getKey().toString(), entry.getValue().toString());
             }

@@ -126,7 +126,7 @@ public class SacHistoryMigrate implements BuildableCommand {
                 new LegacyMigrator(
                         reader, v1, registry,
                         ClientVersionResolver::legacyStringToPvn,
-                        gapMs, Logger.getLogger("grim-history-migrate"));
+                        gapMs, Logger.getLogger("SAC-History-Migrate"));
         return migrator.run(count -> {
             if (count > 0 && count % 5000 == 0) {
                 logBoth(sender, Component.text("… " + count + " violations migrated so far", NamedTextColor.GRAY));

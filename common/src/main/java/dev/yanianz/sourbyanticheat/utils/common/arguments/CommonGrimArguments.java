@@ -6,14 +6,14 @@ import static dev.yanianz.sourbyanticheat.utils.common.arguments.ArgumentUtils.*
 
 public class CommonGrimArguments {
 
-    private final static SystemArgumentFactory FACTORY = SystemArgumentFactory.Builder.of("Grim")
-            .optionModifier(builder -> builder.key("Grim" + builder.options().getKey()))
+    private final static SystemArgumentFactory FACTORY = SystemArgumentFactory.Builder.of("SAC")
+            .optionModifier(builder -> builder.key("SAC" + builder.options().getKey()))
             .supportEnv()
             .build();
 
     public final static SystemArgument<Boolean> KICK_ON_TRANSACTION_ERRORS = FACTORY.create(string("KickOnTransactionTaskErrors", false));
-    public final static SystemArgument<String> API_URL = FACTORY.create(string("APIUrl", "https://api.grim.ac/v1/server/"));
-    public final static SystemArgument<String> PASTE_URL = FACTORY.create(string("PasteUrl", "https://paste.grim.ac/"));
+    public final static SystemArgument<String> API_URL = FACTORY.create(string("APIUrl", "https://api.sourbyanticheat.com/v1/server/"));
+    public final static SystemArgument<String> PASTE_URL = FACTORY.create(string("PasteUrl", "https://paste.sourbyanticheat.com/"));
     public final static SystemArgument<Platform> PLATFORM_OVERRIDE = FACTORY.create(platform("PlatformOverride"));
     public final static SystemArgument<Integer> URL_TIMEOUT = FACTORY.create(range("UrlTimeout", 10000, 1000, 60000));
 

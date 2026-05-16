@@ -35,7 +35,7 @@ public class ConfigManagerFileImpl implements ConfigManager, BasicReloadable {
     static final List<String> BACKEND_IDS = List.of("sqlite", "mysql", "postgres", "mongo", "redis");
 
     private void runConfigUpdates() {
-        Logger logger = Logger.getLogger("grim-config");
+        Logger logger = Logger.getLogger("SAC-Config");
         ConfigUpdater updater = new ConfigUpdater(SacAPI.class, logger);
         // Use the multi-file API so cross-file migrations (e.g. config.yml
         // v9 → v10 lifting history.database.* into database.yml + the

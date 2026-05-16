@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.spartan;
 
+import dev.yanianz.sourbyanticheat.SacAPI;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.anticheat.LogUtil;
 import me.vagdedes.spartan.api.PlayerViolationEvent;
@@ -7,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class SpartanEventBridge {
@@ -38,22 +40,26 @@ public final class SpartanEventBridge {
         }
         lastFireTime.put(dedupKey, now);
 
+        UUID uuid = sacPlayer.uuid;
+        if (Bukkit.isPrimaryThread()) {
+            callEventSync(uuid, checkName, violations, verbose);
+        } else {
+            SacAPI.INSTANCE.getScheduler().getGlobalRegionScheduler().execute(
+                SacAPI.INSTANCE.getGrimPlugin(),
+                () -> callEventSync(uuid, checkName, violations, verbose)
+            );
+        }
+    }
+
+    private static void callEventSync(UUID uuid, String checkName, int violations, String verbose) {
         try {
-            Player player = getBukkitPlayer(sacPlayer);
-            if (player == null) return;
+            Player player = Bukkit.getPlayer(uuid);
+            if (player == null || !player.isOnline()) return;
 
             PlayerViolationEvent event = new PlayerViolationEvent(player, checkName, violations, verbose);
             Bukkit.getPluginManager().callEvent(event);
         } catch (Exception e) {
-            LogUtil.warn("Failed to fire Spartan PlayerViolationEvent: " + e.getMessage());
-        }
-    }
-
-    private static Player getBukkitPlayer(SacPlayer sp) {
-        try {
-            return Bukkit.getPlayer(sp.uuid);
-        } catch (Exception e) {
-            return null;
+            LogUtil.warn("[SAC] Failed to fire Spartan PlayerViolationEvent: " + e.getMessage());
         }
     }
 

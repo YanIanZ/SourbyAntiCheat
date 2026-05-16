@@ -76,7 +76,7 @@ public final class DataStoreLifecycle implements StartableInitable, StoppableIni
     public DataStoreLifecycle(@NotNull GrimPlugin plugin, @NotNull BackendRegistry backendRegistry) {
         this.plugin = Objects.requireNonNull(plugin, "plugin");
         this.backendRegistry = Objects.requireNonNull(backendRegistry, "backendRegistry");
-        this.logger = Logger.getLogger("grim-datastore");
+        this.logger = Logger.getLogger("SAC-DataStore");
     }
 
     @Override
@@ -94,14 +94,14 @@ public final class DataStoreLifecycle implements StartableInitable, StoppableIni
                 SacAPI.INSTANCE.getConfigManager().getConfig());
 
         if (!builder.enabled()) {
-            logger.info("[grim-datastore] disabled in database.yml — skipping storage init");
+            logger.info("[SAC-DataStore] disabled in database.yml — skipping storage init");
             this.enabled = false;
             return;
         }
         try {
             this.config = builder.build();
         } catch (RuntimeException e) {
-            logger.log(Level.SEVERE, "[grim-datastore] database.yml rejected — storage disabled", e);
+            logger.log(Level.SEVERE, "[SAC-DataStore] database.yml rejected — storage disabled", e);
             this.enabled = false;
             return;
         }
@@ -110,7 +110,7 @@ public final class DataStoreLifecycle implements StartableInitable, StoppableIni
             buildAndStart(dataFolder);
             this.loaded = true;
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "[grim-datastore] failed to initialise storage — falling back to disabled", e);
+            logger.log(Level.SEVERE, "[SAC-DataStore] failed to initialise storage — falling back to disabled", e);
             this.enabled = false;
             try { teardown(); } catch (Exception ignore) {}
         }
@@ -183,13 +183,13 @@ public final class DataStoreLifecycle implements StartableInitable, StoppableIni
             try {
                 long affected = b.markCrashedSessions();
                 if (affected > 0) {
-                    logger.info("[grim-datastore] marked " + affected
+                    logger.info("[SAC-DataStore] marked " + affected
                             + " open session(s) on backend '" + b.id()
                             + "' as crashed (server didn't shut down cleanly last run)");
                 }
             } catch (Exception e) {
                 logger.log(Level.WARNING,
-                        "[grim-datastore] markCrashedSessions failed on backend '"
+                        "[SAC-DataStore] markCrashedSessions failed on backend '"
                                 + b.id() + "' — sessions may show as ongoing forever", e);
             }
         }
@@ -217,7 +217,7 @@ public final class DataStoreLifecycle implements StartableInitable, StoppableIni
             switch (id) {
                 case "local-cache" -> links.add(new LocalCacheLink(store));
                 case "offline-mode-uuid" -> links.add(new OfflineModeUuidLink());
-                default -> logger.warning("[grim-datastore] unknown name-resolver link: " + id);
+                default -> logger.warning("[SAC-DataStore] unknown name-resolver link: " + id);
             }
         }
         return new NameResolverChain(links);
@@ -229,7 +229,7 @@ public final class DataStoreLifecycle implements StartableInitable, StoppableIni
         // place to migrate into — skip.
         if (sqliteBackend == null) return;
         if (config.migration().skip()) {
-            logger.info("[grim-datastore] migration.skip=true; leaving legacy v0 un-migrated");
+            logger.info("[SAC-DataStore] migration.skip=true; leaving legacy v0 un-migrated");
             return;
         }
         V0Sources.V0Source source = V0Sources.detect(
@@ -237,10 +237,10 @@ public final class DataStoreLifecycle implements StartableInitable, StoppableIni
                 SacAPI.INSTANCE.getConfigManager().getConfig());
         // No legacy store on disk — fresh install or migration already done.
         if (source == null) {
-            logger.info("[grim-datastore] no legacy v0 store detected; nothing to migrate");
+            logger.info("[SAC-DataStore] no legacy v0 store detected; nothing to migrate");
             return;
         }
-        logger.info("[grim-datastore] legacy v0 source: " + source.summary());
+        logger.info("[SAC-DataStore] legacy v0 source: " + source.summary());
         V0Reader reader = new V0Reader(source.jdbcUrl(), source.username(), source.password());
         LegacyMigrator migrator = new LegacyMigrator(
                 reader, sqliteBackend, checkRegistry,
@@ -249,14 +249,14 @@ public final class DataStoreLifecycle implements StartableInitable, StoppableIni
         long startMs = System.currentTimeMillis();
         try {
             LegacyMigrator.Result result = migrator.run(count -> {
-                if (count % 5000 == 0) logger.info("[grim-datastore] migrated " + count + " violations so far");
+                if (count % 5000 == 0) logger.info("[SAC-DataStore] migrated " + count + " violations so far");
             });
             long elapsed = System.currentTimeMillis() - startMs;
-            logger.info("[grim-datastore] legacy migration: " + result.sessionsWritten() + " sessions, "
+            logger.info("[SAC-DataStore] legacy migration: " + result.sessionsWritten() + " sessions, "
                     + result.violationsWritten() + " violations, " + elapsed + "ms"
                     + (result.resumed() ? " (resumed)" : ""));
         } catch (BackendException e) {
-            logger.log(Level.SEVERE, "[grim-datastore] legacy migration failed", e);
+            logger.log(Level.SEVERE, "[SAC-DataStore] legacy migration failed", e);
         }
     }
 
@@ -286,7 +286,7 @@ public final class DataStoreLifecycle implements StartableInitable, StoppableIni
      * lookups via {@link #liveWriteHooks()} resolve to the new instance.
      */
     public synchronized void reload() {
-        logger.info("[grim-datastore] /grim reload: tearing down datastore...");
+        logger.info("[SAC-DataStore] /grim reload: tearing down datastore...");
         teardown();
         start();
     }
