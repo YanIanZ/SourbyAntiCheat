@@ -6,23 +6,19 @@ import me.vagdedes.spartan.api.PlayerViolationEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-/**
- * Bridges SAC violations to SpartanAPI events.
- * Plugins listening for me.vagdedes.spartan.api.PlayerViolationEvent
- * will receive them from SAC.
- *
- * Uses the built-in PlayerViolationEvent class directly instead of
- * reflection, since it's compiled into the SAC jar.
- */
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 public final class SpartanEventBridge {
 
-    // Always available since PlayerViolationEvent is built into the jar
     private static final boolean EVENTS_AVAILABLE;
+
+    private static final Map<String, Long> lastFireTime = new ConcurrentHashMap<>();
+    private static final long DEDUP_WINDOW_MS = 500;
 
     static {
         boolean available;
         try {
-            // Touch the class to verify it's loadable
             Class<?> cls = PlayerViolationEvent.class;
             available = (cls != null);
         } catch (NoClassDefFoundError | Exception e) {
@@ -33,6 +29,15 @@ public final class SpartanEventBridge {
 
     public static void fireViolation(SacPlayer sacPlayer, String checkName, int violations, String verbose) {
         if (!EVENTS_AVAILABLE) return;
+
+        String dedupKey = sacPlayer.uuid + ":" + checkName;
+        long now = System.currentTimeMillis();
+        Long lastTime = lastFireTime.get(dedupKey);
+        if (lastTime != null && now - lastTime < DEDUP_WINDOW_MS) {
+            return;
+        }
+        lastFireTime.put(dedupKey, now);
+
         try {
             Player player = getBukkitPlayer(sacPlayer);
             if (player == null) return;
@@ -46,8 +51,7 @@ public final class SpartanEventBridge {
 
     private static Player getBukkitPlayer(SacPlayer sp) {
         try {
-            if (sp.platformPlayer == null) return null;
-            return (Player) sp.platformPlayer.getClass().getMethod("getPlayer").invoke(sp.platformPlayer);
+            return Bukkit.getPlayer(sp.uuid);
         } catch (Exception e) {
             return null;
         }

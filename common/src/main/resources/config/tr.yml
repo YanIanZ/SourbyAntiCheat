@@ -228,3 +228,15 @@ max-ping-firework-boost: 1000
 #                   updater tarafından otomatik taşınır.
 config-flavor: V2
 config-version: 10
+
+# SpartanAPI configuration
+spartanapi:
+  enabled: true
+  bundle-mode: standalone
+  cross-check:
+    enabled: true
+    min-vl: 3
+    min-agreement-rate: 0.6
+  event-bridge:
+    enabled: true
+    deduplication-window-ms: 500

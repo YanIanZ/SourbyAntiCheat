@@ -3,7 +3,6 @@ package dev.yanianz.sourbyanticheat.checks.impl.packetorder;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
-import dev.yanianz.sourbyanticheat.SacAPI;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 import dev.yanianz.sourbyanticheat.utils.nmsutil.BlockBreakSpeed;

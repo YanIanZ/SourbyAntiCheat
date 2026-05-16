@@ -7,39 +7,28 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Spartan AntiCheat cross-check integration.
- * Uses the built-in SpartanAPI classes (me.vagdedes.spartan.api.*)
- * which are compiled directly into the SAC jar.
- *
- * The built-in API delegates to SAC's own violation data, so cross-check
- * works without requiring an external Spartan plugin. When the real
- * Spartan plugin is present, it will shadow our built-in classes and
- * provide its own data instead.
- *
- * @author YanIanZ
- */
 public class SpartanCrossCheck {
 
     private static final Map<UUID, CrossCheckStats> stats = new ConcurrentHashMap<>();
     private static boolean spartanAvailable = false;
     private static boolean crossCheckEnabled = false;
     private static int minVL = 3;
+    private static double minAgreementRate = 0.6;
     private static String spartanVersion = null;
     private static long startTime = System.currentTimeMillis();
     private static long totalFlags = 0;
     private static long spartanAgreements = 0;
 
+    private static final Map<UUID, Map<String, CachedVL>> vlCache = new ConcurrentHashMap<>();
+    private static final long CACHE_TTL_MS = 5000;
+
+    private record CachedVL(int vl, long timestamp) {}
+
     public static void init(boolean enabled) {
         crossCheckEnabled = enabled;
         startTime = System.currentTimeMillis();
 
-        // The SpartanAPI classes are built-in (me.vagdedes.spartan.api.*),
-        // so they are always available. We verify with a direct reference
-        // rather than Class.forName() which would fail if the classes
-        // were not properly compiled into the jar.
         try {
-            // Touch the class to ensure it's loadable
             Class<?> eventClass = me.vagdedes.spartan.api.PlayerViolationEvent.class;
             spartanAvailable = (eventClass != null);
             try {
@@ -50,7 +39,8 @@ public class SpartanCrossCheck {
         }
 
         if (spartanAvailable && SacAPI.INSTANCE.getConfigManager() != null) {
-            minVL = SacAPI.INSTANCE.getConfigManager().getConfig().getIntElse("spartanapi.min-vl", 3);
+            minVL = SacAPI.INSTANCE.getConfigManager().getConfig().getIntElse("spartanapi.cross-check.min-vl", 3);
+            minAgreementRate = SacAPI.INSTANCE.getConfigManager().getConfig().getDoubleElse("spartanapi.cross-check.min-agreement-rate", 0.6);
         }
     }
 
@@ -78,29 +68,46 @@ public class SpartanCrossCheck {
 
     public static int getSpartanPerCheckVL(UUID playerUuid, String checkType) {
         if (!spartanAvailable) return 0;
+
+        int cached = getCachedVL(playerUuid, checkType);
+        if (cached >= 0) return cached;
+
         try {
             Object player = getBukkitPlayer(playerUuid);
             if (player == null) return 0;
 
-            // Try to match the check type to a HackType enum
             for (me.vagdedes.spartan.system.Enums.HackType hackType : me.vagdedes.spartan.system.Enums.HackType.values()) {
                 if (hackType.name().equalsIgnoreCase(checkType)) {
-                    return API.getVL((org.bukkit.entity.Player) player, hackType);
+                    int vl = API.getVL((org.bukkit.entity.Player) player, hackType);
+                    updateCache(playerUuid, checkType, vl);
+                    return vl;
                 }
             }
-            // Fallback to total VL
-            return API.getVL((org.bukkit.entity.Player) player);
+            int totalVL = API.getVL((org.bukkit.entity.Player) player);
+            updateCache(playerUuid, checkType, totalVL);
+            return totalVL;
         } catch (Exception e) {
             return 0;
         }
     }
 
+    private static int getCachedVL(UUID uuid, String checkType) {
+        Map<String, CachedVL> playerCache = vlCache.computeIfAbsent(uuid, k -> new ConcurrentHashMap<>());
+        CachedVL cached = playerCache.get(checkType);
+        if (cached != null && System.currentTimeMillis() - cached.timestamp() < CACHE_TTL_MS) {
+            return cached.vl();
+        }
+        return -1;
+    }
+
+    private static void updateCache(UUID uuid, String checkType, int vl) {
+        Map<String, CachedVL> playerCache = vlCache.computeIfAbsent(uuid, k -> new ConcurrentHashMap<>());
+        playerCache.put(checkType, new CachedVL(vl, System.currentTimeMillis()));
+    }
+
     private static Object getBukkitPlayer(UUID uuid) {
         try {
-            var pdm = SacAPI.INSTANCE.getPlayerDataManager();
-            var sp = pdm.getPlayer(uuid);
-            if (sp == null || sp.platformPlayer == null) return null;
-            return sp.platformPlayer.getClass().getMethod("getPlayer").invoke(sp.platformPlayer);
+            return org.bukkit.Bukkit.getPlayer(uuid);
         } catch (Exception e) {
             return null;
         }

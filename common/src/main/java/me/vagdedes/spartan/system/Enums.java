@@ -8,7 +8,11 @@ public class Enums {
         Scaffold, Phase, Jesus, Step, ElytraMove, BoatMove,
         ImpossibleActions, Exploits, XRay, GhostHand, FastEat,
         FastHeal, FastBow, Criticals, AimBot, NoSwing,
-        MorePackets, BlockReach, IrregularMovements
+        MorePackets, BlockReach, IrregularMovements,
+        Aim, Blink, InventoryMove, NoRotate, SafeWalk, Tower,
+        AutoArmor, Sprint, AntiVelocity, MultiAttack, MultiInteract,
+        AttackFrequency, BadPackets, PacketOrder, Crash, Chat,
+        Baritone, TimerSpeed, CrossSpeed, CrossAntiKB, CrossPhase, CrossTimer
     }
 
     public enum Permission {
