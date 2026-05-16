@@ -5,16 +5,16 @@ import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 
+import java.io.IOException;
+import java.net.SocketException;
 import java.util.logging.Logger;
 
 public class SacNettyChannelHandler extends ChannelDuplexHandler {
 
     private static final Logger LOGGER = Logger.getLogger("SAC-Netty");
-    private static final int FLOOD_THRESHOLD = 500;
+    private static final int FLOOD_THRESHOLD = 200;
     private static final long HIGH_DELAY_MS = 250;
     private static final int MAX_PACKET_SIZE = 2_097_152;
-
-    private enum ProtocolState { HANDSHAKE, LOGIN, PLAY, UNKNOWN }
 
     private final String playerName;
     private long packetCount = 0;
@@ -24,7 +24,6 @@ public class SacNettyChannelHandler extends ChannelDuplexHandler {
     private int floodWarnCount = 0;
     private long totalBytesRead = 0;
     private long totalBytesWritten = 0;
-    private ProtocolState state = ProtocolState.UNKNOWN;
 
     public SacNettyChannelHandler(String playerName) {
         this.playerName = playerName;
@@ -52,7 +51,6 @@ public class SacNettyChannelHandler extends ChannelDuplexHandler {
             if (size > MAX_PACKET_SIZE) {
                 LOGGER.warning("[SAC-Netty] Oversized packet: " + playerName + " " + size + " bytes");
             }
-            detectProtocolState(buf);
         }
 
         long elapsed = now - lastReadTime;
@@ -72,20 +70,6 @@ public class SacNettyChannelHandler extends ChannelDuplexHandler {
         super.write(ctx, msg, promise);
     }
 
-    private void detectProtocolState(ByteBuf buf) {
-        if (buf.readableBytes() < 1) return;
-        int packetId = buf.getByte(buf.readerIndex());
-        int secondByte = buf.readableBytes() > 1 ? buf.getByte(buf.readerIndex() + 1) : -1;
-
-        if (packetId == 0x00 && secondByte == 0x00 && state == ProtocolState.UNKNOWN) {
-            state = ProtocolState.HANDSHAKE;
-        } else if (packetId == 0x00 && state == ProtocolState.HANDSHAKE) {
-            state = ProtocolState.LOGIN;
-        } else if (state == ProtocolState.LOGIN || state == ProtocolState.HANDSHAKE) {
-            state = ProtocolState.PLAY;
-        }
-    }
-
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         LOGGER.fine("[SAC-Netty] Active: " + playerName);
@@ -103,7 +87,25 @@ public class SacNettyChannelHandler extends ChannelDuplexHandler {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        if (cause instanceof IOException || cause instanceof SocketException
+                || cause instanceof java.nio.channels.ClosedChannelException) {
+            return;
+        }
         LOGGER.warning("[SAC-Netty] Error: " + playerName + " " + cause.getMessage());
         ctx.close();
+    }
+
+    public double getPacketRatePerSecond() {
+        long elapsed = System.currentTimeMillis() - floodResetTime;
+        if (elapsed <= 0) return 0;
+        return (packetCount * 1000.0) / elapsed;
+    }
+
+    public double getAvgReadBytesPerPacket() {
+        return packetCount > 0 ? (double) totalBytesRead / packetCount : 0;
+    }
+
+    public double getAvgDelayBetweenPacketsMs() {
+        return packetCount > 1 ? (double) (System.currentTimeMillis() - floodResetTime) / (packetCount - 1) : 0;
     }
 }

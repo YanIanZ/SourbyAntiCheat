@@ -35,7 +35,6 @@ public class PacketOrderP extends Check implements PacketCheck {
     public void onPacketSend(PacketSendEvent event) {
         if (event.getPacketType() == PacketType.Play.Server.CHUNK_BATCH_END) {
             boolean sendingBundlePacket = player.packetStateData.sendingBundlePacket;
-            if (!sendingBundlePacket) player.user.sendPacket(new WrapperPlayServerBundle());
 
             player.sendTransaction();
             int transaction = player.getLastTransactionSent();

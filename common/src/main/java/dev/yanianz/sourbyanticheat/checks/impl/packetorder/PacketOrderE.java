@@ -39,10 +39,9 @@ public class PacketOrderE extends Check implements PostPredictionCheck {
                         + ", sneaking=" + player.packetOrderProcessor.isSneaking()
                         + ", sprinting=" + player.packetOrderProcessor.isSprinting()
                         + ", bed=" + player.packetOrderProcessor.isLeavingBed()
-                        + ", sprinting=" + player.packetOrderProcessor.isSprinting()
                         + ", gliding=" + player.packetOrderProcessor.isStartingToGlide()
                         + ", mountJumping=" + player.packetOrderProcessor.isJumpingWithMount();
-                if (player.canSkipTicks() && flags.add(verbose) || flagAndAlert(verbose)) {
+                if ((player.canSkipTicks() && flags.add(verbose)) || flagAndAlert(verbose)) {
                     if (player.packetOrderProcessor.isUsing()) {
                         setback = true;
                     }

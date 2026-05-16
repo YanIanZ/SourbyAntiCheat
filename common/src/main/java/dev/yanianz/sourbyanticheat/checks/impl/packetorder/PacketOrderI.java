@@ -1,9 +1,9 @@
 package dev.yanianz.sourbyanticheat.checks.impl.packetorder;
 
-import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
+import dev.yanianz.sourbyanticheat.SacAPI;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 import dev.yanianz.sourbyanticheat.utils.nmsutil.BlockBreakSpeed;
@@ -146,7 +146,7 @@ public class PacketOrderI extends Check implements PostPredictionCheck {
     }
 
     @Override
-    public void onReload(ConfigManager config) {
+    public void onReload(ac.grim.grimac.api.config.ConfigManager config) {
         exemptPlacingWhileDigging = config.getBooleanElse(getConfigName() + ".exempt-placing-while-digging", false);
     }
 }

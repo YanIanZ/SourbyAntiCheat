@@ -6,6 +6,7 @@ import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientInteractEntity;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 
 @CheckData(name = "BadPacketsAD", stableKey = "sac.badpackets.arm_animation_order", description = "Detects invalid arm animation packet order", setback = 5)
@@ -26,9 +27,13 @@ public class BadPacketsAD extends Check implements PacketCheck {
         if (type == PacketType.Play.Client.ANIMATION) {
             sentAnimation = true;
         } else if (type == PacketType.Play.Client.USE_ITEM
-                || type == PacketType.Play.Client.PLAYER_BLOCK_PLACEMENT
-                || type == PacketType.Play.Client.INTERACT_ENTITY) {
+                || type == PacketType.Play.Client.PLAYER_BLOCK_PLACEMENT) {
             sentUse = true;
+        } else if (type == PacketType.Play.Client.INTERACT_ENTITY) {
+            WrapperPlayClientInteractEntity interact = new WrapperPlayClientInteractEntity(event);
+            if (interact.getAction() != WrapperPlayClientInteractEntity.InteractAction.ATTACK) {
+                sentUse = true;
+            }
         }
 
         if (WrapperPlayClientPlayerFlying.isFlying(type)) {

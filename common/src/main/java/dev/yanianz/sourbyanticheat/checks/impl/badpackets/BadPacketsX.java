@@ -46,6 +46,15 @@ public class BadPacketsX extends Check implements PostPredictionCheck {
             return;
         }
 
+        // Reset state on vehicle change
+        if (event.getPacketType() == PacketType.Play.Client.VEHICLE_MOVE
+                || event.getPacketType() == PacketType.Play.Client.STEER_VEHICLE) {
+            if (!player.inVehicle()) {
+                sprint = sneak = false;
+                return;
+            }
+        }
+
         if (event.getPacketType() == PacketType.Play.Client.ENTITY_ACTION) {
             switch (new WrapperPlayClientEntityAction(event).getAction()) {
                 case START_SNEAKING, STOP_SNEAKING -> {

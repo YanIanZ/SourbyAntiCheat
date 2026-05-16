@@ -41,10 +41,12 @@ public class BadPacketsAC extends Check implements PacketCheck {
         }
 
         boolean backward = id < lastId && (lastId - id) > 5000;
-        if (backward) {
+        boolean forwardSpoof = id > lastId && (id - lastId) > 5000;
+        if (backward || forwardSpoof) {
+            int diff = backward ? (lastId - id) : (id - lastId);
             spoofCount++;
             if (spoofCount > 10) {
-                flagAndAlert("type=" + (isPong ? "pong" : "window") + " id=" + id + " last=" + lastId);
+                flagAndAlert("type=" + (isPong ? "pong" : "window") + " id=" + id + " last=" + lastId + " diff=" + diff + " dir=" + (backward ? "backward" : "forward"));
             }
         } else {
             spoofCount = Math.max(0, spoofCount - 1);

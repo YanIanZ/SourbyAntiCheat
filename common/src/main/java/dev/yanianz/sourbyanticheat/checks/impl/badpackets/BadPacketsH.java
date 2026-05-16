@@ -55,10 +55,13 @@ public class BadPacketsH extends BlockPlaceCheck {
 
     public boolean shouldCancel(int sequence) {
         int expected = lastSequence + 1;
-        lastSequence = sequence;
-        return isSupportedVersion && sequence != expected
-                && flagAndAlert("expected=" + expected + ", id=" + sequence)
-                && shouldModifyPackets();
+        boolean invalid = sequence != expected && isSupportedVersion;
+        if (invalid) {
+            flagAndAlert("expected=" + expected + ", id=" + sequence);
+        } else {
+            lastSequence = sequence;
+        }
+        return invalid && shouldModifyPackets();
     }
 
     public void onWorldChange() {
