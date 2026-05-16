@@ -387,6 +387,17 @@ public class CheckManagerListener extends PacketListenerAbstract {
         SacPlayer player = SacAPI.INSTANCE.getPlayerDataManager().getPlayer(event.getUser());
         if (player == null) return;
 
+        if (event.getPacketType() == PacketType.Play.Client.INTERACT_ENTITY) {
+            WrapperPlayClientInteractEntity interact = new WrapperPlayClientInteractEntity(event);
+            if (interact.getAction() == WrapperPlayClientInteractEntity.InteractAction.ATTACK) {
+                long now = System.currentTimeMillis();
+                if (player.lastAttackTime > 0) {
+                    player.crossValidationData.peAttackIntervalMs = now - player.lastAttackTime;
+                }
+                player.lastAttackTime = now;
+            }
+        }
+
         if (event.getConnectionState() != ConnectionState.PLAY) {
             // Allow checks to listen to configuration packets
             if (event.getConnectionState() != ConnectionState.CONFIGURATION) return;
@@ -761,6 +772,8 @@ public class CheckManagerListener extends PacketListenerAbstract {
                 player.crossValidationData.pePositionDeltaZ = player.z - player.lastZ;
                 player.crossValidationData.peRotationDeltaYaw = player.yaw - player.lastYaw;
                 player.crossValidationData.peRotationDeltaPitch = player.pitch - player.lastPitch;
+                player.crossValidationData.peOnGround = onGround;
+                player.crossValidationData.peGliding = player.isGliding;
             } else if (update.isTeleport()) { // Mojang doesn't use their own exit vehicle field to leave vehicles, manually call the setback handler
                 player.getSetbackTeleportUtil().onPredictionComplete(new PredictionComplete(0, update, true));
             }

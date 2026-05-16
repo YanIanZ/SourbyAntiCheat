@@ -10,12 +10,13 @@ import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.utils.collisions.datatypes.SimpleCollisionBox;
 import dev.yanianz.sourbyanticheat.utils.nmsutil.Collisions;
 
-@CheckData(name = "CrossPhase", configName = "crossphase", decay = 0.05, setback = 10, stableKey = "cross.phase")
+@CheckData(name = "CrossPhase", configName = "crossphase", decay = 0.05, setback = 5, stableKey = "cross.phase")
 public class CrossPhase extends Check implements PacketCheck {
 
     private int phaseBuffer;
     private long lastPacketTime;
-    private static final long GAP_THRESHOLD_MS = 500;
+    private static final long GAP_THRESHOLD_MS = 1000;
+    private static final double OFFSET_THRESHOLD = 0.5;
 
     public CrossPhase(SacPlayer player) {
         super(player);
@@ -38,8 +39,9 @@ public class CrossPhase extends Check implements PacketCheck {
 
         boolean gapFlag = gap > GAP_THRESHOLD_MS;
 
-        SimpleCollisionBox playerBox = player.boundingBox.copy().expand(0.1);
-        boolean insideBlock = !Collisions.isEmpty(player, playerBox);
+        SimpleCollisionBox playerBox = player.boundingBox.copy().expand(0.05);
+        boolean insideBlock = !Collisions.isEmpty(player, playerBox)
+            && player.crossValidationData.offsetFromPrediction > OFFSET_THRESHOLD;
 
         if (!gapFlag && !insideBlock) {
             phaseBuffer = Math.max(0, phaseBuffer - 1);
@@ -47,7 +49,7 @@ public class CrossPhase extends Check implements PacketCheck {
             return;
         }
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec < 15.0
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec < 12.0
             || gap > GAP_THRESHOLD_MS * 2;
 
         SpartanCrossCheck.CrossCheckResult spartanResult =
@@ -56,7 +58,8 @@ public class CrossPhase extends Check implements PacketCheck {
 
         String verbose;
         if (insideBlock) {
-            verbose = String.format("inside-block netty=%.1f/s spartan=%s",
+            verbose = String.format("inside-block off=%.3f netty=%.1f/s spartan=%s",
+                player.crossValidationData.offsetFromPrediction,
                 player.crossValidationData.nettyPacketRatePerSec, spartanResult.type());
         } else {
             verbose = String.format("gap=%dms netty=%.1f/s spartan=%s",
@@ -69,7 +72,7 @@ public class CrossPhase extends Check implements PacketCheck {
             phaseBuffer += 1;
         }
 
-        if (phaseBuffer > 3) {
+        if (phaseBuffer > 5) {
             flagAndAlertWithSetback(verbose);
         }
     }

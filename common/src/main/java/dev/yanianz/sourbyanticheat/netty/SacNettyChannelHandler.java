@@ -27,6 +27,9 @@ public class SacNettyChannelHandler extends ChannelDuplexHandler {
     private int floodWarnCount = 0;
     private long totalBytesRead = 0;
     private long totalBytesWritten = 0;
+    private long lastIntervalMs = -1;
+    private long intervalVarianceAccum = 0;
+    private int intervalSampleCount = 0;
 
     public SacNettyChannelHandler(String playerName) {
         this.playerName = playerName;
@@ -40,6 +43,14 @@ public class SacNettyChannelHandler extends ChannelDuplexHandler {
             floodResetTime = now;
         }
         packetCount++;
+
+        if (lastIntervalMs >= 0) {
+            long interval = now - lastReadTime;
+            long delta = Math.abs(interval - lastIntervalMs);
+            intervalVarianceAccum += delta;
+            intervalSampleCount++;
+        }
+        lastIntervalMs = now - lastReadTime;
 
         if (packetCount > FLOOD_THRESHOLD) {
             floodWarnCount++;
@@ -115,6 +126,9 @@ public class SacNettyChannelHandler extends ChannelDuplexHandler {
                     data.nettyAvgReadBytesPerPacket = packetCount > 0 ? (double) totalBytesRead / packetCount : 0;
                     data.nettyAvgDelayBetweenPacketsMs = packetCount > 1
                         ? (double) elapsed / (packetCount - 1)
+                        : 0;
+                    data.nettyIntervalVariance = intervalSampleCount > 0
+                        ? (double) intervalVarianceAccum / intervalSampleCount
                         : 0;
                     break;
                 }

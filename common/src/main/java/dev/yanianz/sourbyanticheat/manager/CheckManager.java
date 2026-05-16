@@ -19,6 +19,13 @@ import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossSpeed;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossAntiKB;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossPhase;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossTimer;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFlight;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossJesus;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossStep;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossSpider;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossNoFall;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossElytraMove;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossKillAura;
 import dev.yanianz.sourbyanticheat.checks.impl.elytra.*;
 import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitA;
 import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitB;
@@ -133,6 +140,10 @@ public class CheckManager {
                 .put(NettyDelay.class, new NettyDelay(player))
                 .put(CrossPhase.class, new CrossPhase(player))
                 .put(CrossTimer.class, new CrossTimer(player))
+                .put(CrossStep.class, new CrossStep(player))
+                .put(CrossSpider.class, new CrossSpider(player))
+                .put(CrossElytraMove.class, new CrossElytraMove(player))
+                .put(CrossKillAura.class, new CrossKillAura(player))
                 .put(PayloadCheck.class, new PayloadCheck(player))
                 .put(SpartanSync.class, new SpartanSync(player))
                 .put(SpartanDivergence.class, new SpartanDivergence(player))
@@ -284,6 +295,9 @@ public class CheckManager {
                 .put(ElytraI.class, new ElytraI(player))
                 .put(CrossSpeed.class, new CrossSpeed(player))
                 .put(CrossAntiKB.class, new CrossAntiKB(player))
+                .put(CrossFlight.class, new CrossFlight(player))
+                .put(CrossJesus.class, new CrossJesus(player))
+                .put(CrossNoFall.class, new CrossNoFall(player))
                 .put(SetbackTeleportUtil.class, new SetbackTeleportUtil(player)) // Avoid teleporting to new position, update safe pos last
                 .put(CompensatedFireworks.class, player.fireworks)
                 .put(SneakingEstimator.class, new SneakingEstimator(player))

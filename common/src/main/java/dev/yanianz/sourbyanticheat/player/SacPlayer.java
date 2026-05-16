@@ -172,6 +172,7 @@ public class SacPlayer implements GrimUser {
     public boolean wasSwimming;
     public boolean isClimbing;
     public boolean isGliding;
+    public long lastAttackTime = 0;
     public boolean wasGliding;
     public boolean isRiptidePose = false;
     public double fallDistance;

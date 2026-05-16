@@ -83,9 +83,12 @@ public class Check extends SacProcessor implements AbstractCheck {
 
     private void applyGlobalConfig() {
         try {
+            if (DISABLED_BY_DEFAULT.contains(checkName)) {
+                isEnabled = false;
+                return;
+            }
             var cfg = SacAPI.INSTANCE.getConfigManager().getConfig();
-            boolean defaultEnabled = !DISABLED_BY_DEFAULT.contains(checkName);
-            isEnabled = cfg.getBooleanElse("checks.enabled." + checkName, defaultEnabled);
+            isEnabled = cfg.getBooleanElse("checks.enabled." + checkName, true);
         } catch (Exception ignored) {}
     }
 

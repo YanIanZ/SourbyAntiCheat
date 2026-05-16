@@ -13,11 +13,15 @@ public class CrossValidationData {
     public double peRotationDeltaPitch;
     public long pePacketIntervalMs;
     public int peFlyingPacketsPerTick;
+    public boolean peOnGround;
+    public boolean peGliding;
+    public double peAttackIntervalMs;
 
     // Netty layer
     public double nettyPacketRatePerSec;
     public double nettyAvgReadBytesPerPacket;
     public double nettyAvgDelayBetweenPacketsMs;
+    public double nettyIntervalVariance;
 
     // Spartan layer
     public int spartanVL;
