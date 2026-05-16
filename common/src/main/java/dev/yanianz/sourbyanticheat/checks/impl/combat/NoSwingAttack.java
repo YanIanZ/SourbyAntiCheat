@@ -12,11 +12,6 @@ import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientInteractEntity;
 
-/**
- * KillAura (NoSwing) detection — detects attacking entities without sending an arm swing packet.
- * Vanilla clients ALWAYS send ANIMATION before or on the same tick as INTERACT_ENTITY(ATTACK).
- * Most KillAura/killaura modules skip the swing packet or send it after the attack.
- */
 @CheckData(name = "NoSwing", stableKey = "sac.combat.noswing", description = "Detects attacks without arm animation", setback = 10, decay = 0.02)
 public class NoSwingAttack extends Check implements PacketCheck {
 
@@ -35,14 +30,21 @@ public class NoSwingAttack extends Check implements PacketCheck {
             lastSwingTime = System.currentTimeMillis();
         }
 
-        if (event.getPacketType() == PacketType.Play.Client.INTERACT_ENTITY) {
+        boolean isAttack = false;
+        if (event.getPacketType() == PacketType.Play.Client.ATTACK) {
+            isAttack = true;
+        } else if (event.getPacketType() == PacketType.Play.Client.INTERACT_ENTITY) {
             WrapperPlayClientInteractEntity packet = new WrapperPlayClientInteractEntity(event);
-            if (packet.getAction() != WrapperPlayClientInteractEntity.InteractAction.ATTACK) return;
+            if (packet.getAction() == WrapperPlayClientInteractEntity.InteractAction.ATTACK) {
+                isAttack = true;
+            }
+        }
+
+        if (isAttack) {
             if (player.inVehicle() || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
 
             long now = System.currentTimeMillis();
 
-            // A valid swing must come within 50ms before the attack (same tick or just before)
             if (!sentSwing || (now - lastSwingTime) > 50) {
                 buffer++;
                 if (buffer > 3) {
@@ -56,7 +58,6 @@ public class NoSwingAttack extends Check implements PacketCheck {
             sentSwing = false;
         }
 
-        // Reset swing on tick
         if (com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) {
             sentSwing = false;
         }

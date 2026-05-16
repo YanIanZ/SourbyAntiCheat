@@ -32,14 +32,13 @@ public class NoRotate extends Check implements PacketCheck {
     public void onPacketReceive(PacketReceiveEvent event) {
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
         if (player.packetStateData.lastPacketWasTeleport) return;
-        if (player.inVehicle() || player.isGliding) return;
+        if (player.inVehicle() || player.isGliding || player.canFly || player.isFlying) return;
 
         WrapperPlayClientPlayerFlying flying = new WrapperPlayClientPlayerFlying(event);
         boolean hasPosition = flying.hasPositionChanged();
         boolean hasRotation = flying.hasRotationChanged();
 
         if (!hasPosition) {
-            // Idle packet, skip
             return;
         }
 
@@ -47,8 +46,8 @@ public class NoRotate extends Check implements PacketCheck {
         double deltaZ = Math.abs(player.z - player.lastZ);
         double horizontalDist = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
 
-        // Only care about significant movement
-        if (horizontalDist < 0.1) {
+        // Only care about significant movement (0.3 blocks/tick = sprint speed)
+        if (horizontalDist < 0.3) {
             return;
         }
 

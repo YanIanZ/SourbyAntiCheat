@@ -19,6 +19,14 @@ public class MultiInteractB extends Check implements PostPredictionCheck {
     private Vector3d lastPos;
     private boolean hasInteracted;
 
+    private static final double EPSILON = 0.001;
+
+    private static boolean positionEquals(Vector3d a, Vector3d b) {
+        return Math.abs(a.x - b.x) < EPSILON
+            && Math.abs(a.y - b.y) < EPSILON
+            && Math.abs(a.z - b.z) < EPSILON;
+    }
+
     public MultiInteractB(final SacPlayer player) {
         super(player);
     }
@@ -32,7 +40,7 @@ public class MultiInteractB extends Check implements PostPredictionCheck {
             Vector3d pos = packet.getLocation();
             if (pos == null) return; // shouldn't ever happen, but whatever
 
-            if (hasInteracted && !pos.equals(lastPos)) {
+            if (hasInteracted && !positionEquals(pos, lastPos)) {
                 String verbose = "pos=" + MessageUtil.toUnlabledString(pos) + ", lastPos=" + MessageUtil.toUnlabledString(lastPos);
                 if (!player.canSkipTicks()) {
                     if (flagAndAlert(verbose) && shouldModifyPackets()) {

@@ -14,14 +14,6 @@ import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityVelocity;
 
-/**
- * Improved AntiVelocity detection using PacketEvents' entity velocity packets.
- * <p>
- * Tracks outgoing velocity packets from the server (entity_velocity for the player's
- * entity ID) and then monitors subsequent movement packets to verify that the player
- * actually moved in response to the velocity. If velocity was applied but the player
- * shows zero or reversed movement for multiple ticks, flags.
- */
 @CheckData(name = "AntiVelocity", stableKey = "sac.combat.antivelocity", description = "Detects anti-knockback via velocity packet tracking", setback = 15, decay = 0.01)
 public class AntiVelocity extends Check implements PacketCheck {
 
@@ -30,11 +22,13 @@ public class AntiVelocity extends Check implements PacketCheck {
     private boolean velocityPending = false;
     private int ticksSinceVelocity = 0;
     private int buffer = 0;
+    private double[] ratioSamples = new double[3];
+    private int sampleIndex = 0;
 
-    // How many ticks to wait for the player to respond to velocity
     private static final int VELOCITY_RESPONSE_TICKS = 5;
-    // Minimum velocity magnitude to track (ignore tiny knockbacks)
     private static final double MIN_VELOCITY = 0.1;
+    private static final double HORIZONTAL_FRICTION_GROUND = 0.91;
+    private static final double HORIZONTAL_FRICTION_AIR = 0.98;
 
     public AntiVelocity(SacPlayer player) {
         super(player);
@@ -45,7 +39,6 @@ public class AntiVelocity extends Check implements PacketCheck {
         if (event.getPacketType() != PacketType.Play.Server.ENTITY_VELOCITY) return;
 
         WrapperPlayServerEntityVelocity velocity = new WrapperPlayServerEntityVelocity(event);
-        // Only track velocity packets sent to this player (their own entity ID)
         if (velocity.getEntityId() != player.entityID) return;
 
         double vx = velocity.getVelocity().getX();
@@ -53,12 +46,12 @@ public class AntiVelocity extends Check implements PacketCheck {
         double magnitude = Math.sqrt(vx * vx + vz * vz);
 
         if (magnitude > MIN_VELOCITY) {
-            // Use latency util to set this when the player receives it
             player.latencyUtils.addRealTimeTask(player.lastTransactionSent.get(), () -> {
                 pendingVelocityX = vx;
                 pendingVelocityZ = vz;
                 velocityPending = true;
                 ticksSinceVelocity = 0;
+                sampleIndex = 0;
             });
         }
     }
@@ -69,24 +62,43 @@ public class AntiVelocity extends Check implements PacketCheck {
         if (player.packetStateData.lastPacketWasTeleport) return;
         if (player.inVehicle() || player.isFlying || player.canFly || player.isGliding) return;
 
+        // Reset on death/respawn
+        if (player.packetStateData.lastPacketWasOnePointSeventeenDuplicate) {
+            velocityPending = false;
+            return;
+        }
+
         if (!velocityPending) return;
 
         ticksSinceVelocity++;
 
-        if (ticksSinceVelocity > VELOCITY_RESPONSE_TICKS) {
-            // Check if the player moved in the direction of the velocity
+        if (ticksSinceVelocity >= 2 && ticksSinceVelocity <= VELOCITY_RESPONSE_TICKS + 2) {
             double deltaX = player.x - player.lastX;
             double deltaZ = player.z - player.lastZ;
             double horizontalDelta = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
 
-            // If velocity was significant but player barely moved horizontally
-            double expectedMagnitude = Math.sqrt(pendingVelocityX * pendingVelocityX + pendingVelocityZ * pendingVelocityZ);
-            double ratio = horizontalDelta / Math.max(expectedMagnitude, 0.001);
+            double friction = player.onGround ? HORIZONTAL_FRICTION_GROUND : HORIZONTAL_FRICTION_AIR;
+            double expectedAfterFriction = Math.sqrt(pendingVelocityX * pendingVelocityX + pendingVelocityZ * pendingVelocityZ) * friction;
+            double ratio = horizontalDelta / Math.max(expectedAfterFriction, 0.001);
 
-            if (ratio < 0.1 && horizontalDelta < 0.05) {
+            if (sampleIndex < ratioSamples.length) {
+                ratioSamples[sampleIndex++] = ratio;
+            }
+        }
+
+        if (ticksSinceVelocity > VELOCITY_RESPONSE_TICKS + 2) {
+            double avgRatio = 0;
+            int validSamples = 0;
+            for (int i = 0; i < sampleIndex; i++) {
+                avgRatio += ratioSamples[i];
+                validSamples++;
+            }
+            if (validSamples > 0) avgRatio /= validSamples;
+
+            if (avgRatio < 0.1 && validSamples >= 2) {
                 buffer++;
-                if (buffer > 3) {
-                    flagAndAlert("ratio=" + String.format("%.3f", ratio) + " expected=" + String.format("%.3f", expectedMagnitude) + " buffer=" + buffer);
+                if (buffer > 2) {
+                    flagAndAlert("ratio=" + String.format("%.3f", avgRatio) + " samples=" + validSamples);
                 }
             } else {
                 buffer = Math.max(0, buffer - 1);

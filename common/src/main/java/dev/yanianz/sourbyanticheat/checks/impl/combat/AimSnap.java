@@ -27,6 +27,11 @@ public class AimSnap extends Check implements PacketCheck {
     private float preAttackPitch = 0;
     private boolean hadAttack = false;
     private int buffer = 0;
+    private int flyingPacketsSinceAttack = 0;
+    private static final int MAX_SNAP_BACK_PACKETS = 3;
+    private static final float SNAP_THRESHOLD = 30f;
+    private static final float RETURN_THRESHOLD = 25f;
+    private static final float DIFF_THRESHOLD = 15f;
 
     public AimSnap(SacPlayer player) {
         super(player);
@@ -47,36 +52,48 @@ public class AimSnap extends Check implements PacketCheck {
             preAttackYaw = player.yaw;
             preAttackPitch = player.pitch;
             hadAttack = true;
+            flyingPacketsSinceAttack = 0;
             return;
         }
 
+        if (player.packetStateData.lastPacketWasTeleport) return;
+        if (player.inVehicle()) return;
+
         // On next movement packet, check if the aim snapped back
         if (WrapperPlayClientPlayerFlying.isFlying(event.getPacketType()) && hadAttack) {
-            hadAttack = false;
+            flyingPacketsSinceAttack++;
+            if (flyingPacketsSinceAttack > MAX_SNAP_BACK_PACKETS) {
+                hadAttack = false;
+                return;
+            }
 
             WrapperPlayClientPlayerFlying flying = new WrapperPlayClientPlayerFlying(event);
-            if (!flying.hasRotationChanged()) return;
+            if (!flying.hasRotationChanged()) {
+                if (flyingPacketsSinceAttack >= MAX_SNAP_BACK_PACKETS) {
+                    hadAttack = false;
+                }
+                return;
+            }
 
             float postYaw = flying.getLocation().getYaw();
             float postPitch = flying.getLocation().getPitch();
 
-            // Calculate how far the aim snapped during attack
             float snapYaw = Math.abs(preAttackYaw - player.lastYaw);
             if (snapYaw > 180) snapYaw = 360 - snapYaw;
 
-            // Then how far it snapped back after
             float returnYaw = Math.abs(postYaw - preAttackYaw);
             if (returnYaw > 180) returnYaw = 360 - returnYaw;
 
-            // Both a large snap TO the target and a large snap BACK is highly suspicious
-            if (snapYaw > 30 && returnYaw > 25 && Math.abs(snapYaw - returnYaw) < 15) {
+            if (snapYaw > SNAP_THRESHOLD && returnYaw > RETURN_THRESHOLD && Math.abs(snapYaw - returnYaw) < DIFF_THRESHOLD) {
                 buffer++;
                 if (buffer > 3) {
                     flagAndAlert("snap=" + String.format("%.1f", snapYaw) + " return=" + String.format("%.1f", returnYaw));
                 }
-            } else {
+                hadAttack = false;
+            } else if (flyingPacketsSinceAttack >= MAX_SNAP_BACK_PACKETS) {
                 buffer = Math.max(0, buffer - 1);
                 if (buffer < 2) reward();
+                hadAttack = false;
             }
         }
     }

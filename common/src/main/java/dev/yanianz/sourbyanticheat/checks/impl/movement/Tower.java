@@ -9,6 +9,7 @@ import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
+import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 
 /**
@@ -41,6 +42,10 @@ public class Tower extends Check implements PacketCheck {
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
         if (player.packetStateData.lastPacketWasTeleport) return;
         if (player.inVehicle() || player.isFlying || player.canFly || player.isGliding) return;
+
+        // Exempt if player has effects that modify jump height
+        if (player.compensatedEntities.self.hasPotionEffect(PotionTypes.JUMP_BOOST)
+                || player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)) return;
 
         double yDelta = player.y - player.lastY;
         long now = System.currentTimeMillis();
