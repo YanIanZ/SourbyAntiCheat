@@ -12,11 +12,11 @@ import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 public class IrregularMovements extends Check implements PacketCheck {
 
     private int buffer;
-    private double lastAccelX, lastAccelZ;
+    private double lastDeltaX, lastDeltaZ;
     private double lastSpeed;
-    private int patternFlags;
-    private static final double ACCEL_THRESHOLD = 0.5;
-    private static final double SPEED_BURST_THRESHOLD = 0.8;
+    private double lastY;
+    private static final double DIRECTION_CHANGE_MIN_SPEED = 0.3;
+    private static final double DIRECTION_CHANGE_THRESHOLD = 0.95;
     private static final double NETTY_RATE_THRESHOLD = 20.0;
 
     public IrregularMovements(SacPlayer player) {
@@ -31,39 +31,40 @@ public class IrregularMovements extends Check implements PacketCheck {
 
         if (player.packetStateData.lastPacketWasTeleport
                 || player.inVehicle() || player.canFly || player.isGliding
-                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE) {
-            patternFlags = 0;
-            return;
-        }
+                || player.wasTouchingWater || player.compensatedEntities.self.isDead
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
 
+        double deltaY = player.y - player.lastY;
+        boolean jumpingOrFalling = Math.abs(deltaY) > 0.1 || lastY != player.y;
         double deltaX = player.x - player.lastX;
         double deltaZ = player.z - player.lastZ;
         double speed = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
 
-        if (speed < 0.01) return;
-
-        double accelX = deltaX - lastAccelX;
-        double accelZ = deltaZ - lastAccelZ;
-        double accelChange = Math.sqrt(accelX * accelX + accelZ * accelZ);
-
-        boolean suddenAccel = accelChange > ACCEL_THRESHOLD && lastSpeed > 0.05;
-        boolean speedBurst = speed > SPEED_BURST_THRESHOLD && lastSpeed < 0.2;
-        boolean pattern = suddenAccel || speedBurst;
-
-        lastAccelX = deltaX;
-        lastAccelZ = deltaZ;
-        lastSpeed = speed;
-
-        if (pattern) {
-            patternFlags++;
-        } else {
-            patternFlags = Math.max(0, patternFlags - 1);
+        if (speed < DIRECTION_CHANGE_MIN_SPEED || jumpingOrFalling) {
             buffer = Math.max(0, buffer - 1);
+            lastDeltaX = deltaX;
+            lastDeltaZ = deltaZ;
+            lastSpeed = speed;
+            lastY = player.y;
             reward();
             return;
         }
 
-        if (patternFlags < 2) return;
+        double prevSpeed = lastSpeed > 0.001 ? lastSpeed : 0.001;
+        double dot = (deltaX * lastDeltaX + deltaZ * lastDeltaZ) / (speed * prevSpeed);
+        boolean directionReversed = dot < -DIRECTION_CHANGE_THRESHOLD && speed > DIRECTION_CHANGE_MIN_SPEED;
+
+        lastDeltaX = deltaX;
+        lastDeltaZ = deltaZ;
+        lastSpeed = speed;
+        lastY = player.y;
+
+        if (!directionReversed) {
+            buffer = Math.max(0, buffer - 1);
+            reward();
+            return;
+        }
 
         boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
 
@@ -78,8 +79,8 @@ public class IrregularMovements extends Check implements PacketCheck {
         }
 
         if (buffer > 4) {
-            flagAndAlert(String.format("accel=%.2f speed=%.2f netty=%.1f/s spartan=%s",
-                accelChange, speed,
+            flagAndAlert(String.format("dot=%.3f speed=%.2f netty=%.1f/s spartan=%s",
+                dot, speed,
                 player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
         }
     }
