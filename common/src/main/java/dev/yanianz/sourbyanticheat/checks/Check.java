@@ -78,7 +78,7 @@ public class Check extends SacProcessor implements AbstractCheck {
     }
 
     private static final Set<String> DISABLED_BY_DEFAULT = Set.of(
-        "AimSuspicion", "AutoArmor", "Blink", "SafeWalk",
+        "AimSuspicion", "AutoArmor", "SafeWalk",
         "BadPacketsAE", "BadPacketsW", "NettyDelay", "NettyFlood"
     );
 

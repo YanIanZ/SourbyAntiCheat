@@ -11,6 +11,7 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPl
 public class Blink extends Check implements PacketCheck {
 
     private long lastPacketTime = 0;
+    private double lastX, lastY, lastZ;
     private int blinkCount = 0;
 
     public Blink(SacPlayer player) {
@@ -20,15 +21,28 @@ public class Blink extends Check implements PacketCheck {
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
-        if (player.packetStateData.lastPacketWasTeleport) return;
+
+        if (player.packetStateData.lastPacketWasTeleport
+                || player.inVehicle() || player.canFly || player.isGliding
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) {
+            blinkCount = 0;
+            return;
+        }
 
         long now = System.currentTimeMillis();
         if (lastPacketTime > 0) {
             long gap = now - lastPacketTime;
-            if (gap > 500) {
+            double moved = Math.sqrt(
+                Math.pow(player.x - lastX, 2)
+                + Math.pow(player.y - lastY, 2)
+                + Math.pow(player.z - lastZ, 2)
+            );
+
+            if (gap > 2000 && moved > 3.0) {
                 blinkCount++;
-                if (blinkCount > 5) {
-                    flagAndAlert("gap=" + gap + "ms count=" + blinkCount);
+                if (blinkCount > 3) {
+                    flagAndAlert("gap=" + gap + "ms moved=" + String.format("%.1f", moved) + " count=" + blinkCount);
                 }
             } else {
                 blinkCount = Math.max(0, blinkCount - 1);
@@ -36,5 +50,8 @@ public class Blink extends Check implements PacketCheck {
             }
         }
         lastPacketTime = now;
+        lastX = player.x;
+        lastY = player.y;
+        lastZ = player.z;
     }
 }
