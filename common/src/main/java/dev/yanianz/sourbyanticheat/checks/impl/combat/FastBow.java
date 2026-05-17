@@ -35,7 +35,16 @@ public class FastBow extends Check implements PacketCheck {
 
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
-        // Detect bow draw start (right-click with bow held)
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR
+                || player.inVehicle()) return;
+
+        if (player.packetStateData.lastPacketWasTeleport) {
+            isDrawing = false;
+            flags = Math.max(0, flags - 1);
+            return;
+        }
+
         if (event.getPacketType() == PacketType.Play.Client.PLAYER_BLOCK_PLACEMENT
                 || event.getPacketType() == PacketType.Play.Client.USE_ITEM) {
             var mainHand = player.inventory.getHeldItem();

@@ -6,6 +6,8 @@ import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.protocol.player.GameMode;
+import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientInteractEntity;
 
 @CheckData(name = "Criticals", stableKey = "sac.combat.criticals", description = "Detects critical hit manipulation", setback = 5, decay = 0.02)
@@ -21,16 +23,21 @@ public class Criticals extends Check implements PacketCheck {
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
         if (event.getPacketType() != PacketType.Play.Client.INTERACT_ENTITY) return;
+        if (player.gamemode == GameMode.CREATIVE || player.gamemode == GameMode.SPECTATOR) return;
 
         WrapperPlayClientInteractEntity packet = new WrapperPlayClientInteractEntity(event);
         if (packet.getAction() != WrapperPlayClientInteractEntity.InteractAction.ATTACK) return;
 
-        double deltaY = player.y - player.lastY;
-        boolean wasFalling = lastDeltaY < -0.01;
+        if (player.wasTouchingWater || player.inVehicle() || player.isGliding
+                || player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)
+                || player.compensatedEntities.self.hasPotionEffect(PotionTypes.SLOW_FALLING)) return;
 
-        if (deltaY > -0.01 && wasFalling && !player.isGliding && !player.inVehicle()) {
+        double deltaY = player.y - player.lastY;
+        boolean wasFalling = lastDeltaY < -0.05;
+
+        if (deltaY > -0.01 && wasFalling) {
             critFlags++;
-            if (critFlags > 5) {
+            if (critFlags > 8) {
                 flagAndAlert("dY=" + String.format("%.3f", deltaY) + " flags=" + critFlags);
             }
         } else {
