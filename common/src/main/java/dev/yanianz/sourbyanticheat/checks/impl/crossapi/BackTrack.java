@@ -53,8 +53,8 @@ public class BackTrack extends Check implements PostPredictionCheck {
         if (player.compensatedEntities.self.isDead) return;
 
         // Vehicle / gliding / elytra / teleport exemption — position claims unreliable in these states
-        if (player.inVehicle() || player.isGliding) return;
-        if (player.packetStateData.lastPacketWasTeleport) return;
+        if (player.inVehicle() || player.isGliding) { reward(); return; }
+        if (player.packetStateData.lastPacketWasTeleport) { reward(); return; }
 
         if (player.packetStateData.lastClaimedPosition == null) return;
 

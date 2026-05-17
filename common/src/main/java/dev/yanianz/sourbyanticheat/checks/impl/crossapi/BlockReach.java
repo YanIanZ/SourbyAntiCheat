@@ -56,6 +56,7 @@ public class BlockReach extends BlockPlaceCheck {
         if (buffer > 3) {
             flagAndAlert(String.format("dist=%.2f netty=%.1f/s spartan=%s",
                 dist, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
+            return;
         }
     }
 }

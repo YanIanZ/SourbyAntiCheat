@@ -52,6 +52,7 @@ public class CrossCriticals extends Check implements PostPredictionCheck {
         // Wind-burst exemption — explosion-type velocity (incl. wind charges in 1.21+) can launch a player
         // upward; criticals check would falsely fire since the player is airborne and moving up.
         if (player.firstBreadExplosion != null || player.likelyExplosions != null) {
+            buffer = Math.max(0, buffer - 1);
             reward();
             return;
         }
