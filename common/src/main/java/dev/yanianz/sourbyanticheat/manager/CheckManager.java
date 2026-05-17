@@ -15,38 +15,45 @@ import dev.yanianz.sourbyanticheat.checks.impl.chat.ChatC;
 import dev.yanianz.sourbyanticheat.checks.impl.chat.ChatD;
 import dev.yanianz.sourbyanticheat.checks.impl.combat.*;
 import dev.yanianz.sourbyanticheat.checks.impl.crash.*;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossSpeed;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.BackTrack;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossAntiKB;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossPhase;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossTimer;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFlight;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossJesus;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossStep;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossSpider;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossNoFall;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossAutoClicker;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossCriticals;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossElytraMove;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossEntitySpeed;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastBow;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastBreak;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastEat;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastLadder;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFlight;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFoodSprint;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFreecam;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossJesus;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossJump;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossKillAura;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossNoFall;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossNoSlowdown;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossNoSwing;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossPhase;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossReach;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossScaffold;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossSpeed;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossSpider;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossStep;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossTeleport;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossTimer;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossVehicle;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.DerpHead;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.FastFall;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.FightBot;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.ForceField;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.Freecam;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.NoClip;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.GhostHand;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.IrregularMovements;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.MorePackets;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossNoSlowdown;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossScaffold;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastBreak;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossVehicle;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossEntitySpeed;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossAutoClicker;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.PingSpoof;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.NoClip;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.Nuker;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFreecam;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastLadder;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.FastFall;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossJump;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossTeleport;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.DerpHead;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastEat;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFoodSprint;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.PingSpoof;
 import dev.yanianz.sourbyanticheat.checks.impl.elytra.*;
 import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitA;
 import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitB;
@@ -174,6 +181,10 @@ public class CheckManager {
                 .put(PayloadCheck.class, new PayloadCheck(player))
                 .put(SpartanSync.class, new SpartanSync(player))
                 .put(SpartanDivergence.class, new SpartanDivergence(player))
+                .put(CrossReach.class, new CrossReach(player))
+                .put(CrossFastBow.class, new CrossFastBow(player))
+                .put(ForceField.class, new ForceField(player))
+                .put(CrossNoSwing.class, new CrossNoSwing(player))
                 .put(APIBypass.class, new APIBypass(player))
                 .put(Jesus.class, new Jesus(player))
                 .put(FastLadder.class, new FastLadder(player))
@@ -333,6 +344,9 @@ public class CheckManager {
                 .put(CrossTeleport.class, new CrossTeleport(player))
                 .put(CrossFastEat.class, new CrossFastEat(player))
                 .put(CrossFoodSprint.class, new CrossFoodSprint(player))
+                .put(CrossCriticals.class, new CrossCriticals(player))
+                .put(FightBot.class, new FightBot(player))
+                .put(BackTrack.class, new BackTrack(player))
                 .put(Freecam.class, new Freecam(player))
                 .put(NoClip.class, new NoClip(player))
                 .put(IrregularMovements.class, new IrregularMovements(player))
