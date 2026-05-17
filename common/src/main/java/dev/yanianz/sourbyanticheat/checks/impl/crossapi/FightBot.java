@@ -43,6 +43,7 @@ public class FightBot extends Check implements PostPredictionCheck {
         }
 
         if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR
                 || player.inVehicle() || player.compensatedEntities.self.isDead) {
             attackedEntity = -1;
             return;

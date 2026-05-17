@@ -26,6 +26,9 @@ public class CrossStep extends Check implements PacketCheck {
         if (player.compensatedEntities.self.hasPotionEffect(PotionTypes.JUMP_BOOST)
             || player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)) return;
         if (player.disableGrim) return;
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
+        if (player.inVehicle() || player.compensatedEntities.self.isDead) return;
 
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
 

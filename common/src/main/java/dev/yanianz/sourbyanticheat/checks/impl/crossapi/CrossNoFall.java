@@ -21,6 +21,10 @@ public class CrossNoFall extends Check implements PostPredictionCheck {
     @Override
     public void onPredictionComplete(PredictionComplete complete) {
         if (player.disableGrim) return;
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
+        if (player.inVehicle() || player.compensatedEntities.self.isDead) return;
+        if (player.packetStateData.lastPacketWasTeleport) return;
 
         if (player.wasTouchingWater
                 || player.compensatedEntities.self.hasPotionEffect(com.github.retrooper.packetevents.protocol.potion.PotionTypes.LEVITATION)

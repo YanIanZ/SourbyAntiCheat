@@ -19,8 +19,11 @@ public class Liquids extends Check implements PostPredictionCheck {
     @Override
     public void onPredictionComplete(PredictionComplete complete) {
         if (player.disableGrim) return;
-        if (player.inVehicle() || player.canFly || player.isGliding
-                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE) return;
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
+        if (player.compensatedEntities.self.isDead) return;
+        if (player.packetStateData.lastPacketWasTeleport) return;
+        if (player.inVehicle() || player.canFly || player.isGliding) return;
 
         double offset = player.crossValidationData.offsetFromPrediction;
         boolean liquidWalk = player.wasTouchingWater && player.crossValidationData.pePositionDeltaY >= -0.01 && offset > OFFSET_THRESHOLD;

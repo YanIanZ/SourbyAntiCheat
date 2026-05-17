@@ -23,6 +23,9 @@ public class CrossFlight extends Check implements PostPredictionCheck {
     public void onPredictionComplete(PredictionComplete complete) {
         if (player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)) return;
         if (player.disableGrim) return;
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
+        if (player.inVehicle() || player.compensatedEntities.self.isDead) return;
 
         double offset = player.crossValidationData.offsetFromPrediction;
         boolean notFalling = player.crossValidationData.pePositionDeltaY >= 0;

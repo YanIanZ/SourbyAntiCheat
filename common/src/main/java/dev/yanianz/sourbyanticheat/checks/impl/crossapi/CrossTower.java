@@ -20,10 +20,13 @@ public class CrossTower extends Check implements PostPredictionCheck {
     @Override
     public void onPredictionComplete(PredictionComplete complete) {
         if (player.disableGrim) return;
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
+        if (player.compensatedEntities.self.isDead) return;
+        if (player.packetStateData.lastPacketWasTeleport) return;
         if (player.inVehicle() || player.canFly || player.isGliding
                 || player.compensatedEntities.self.hasPotionEffect(PotionTypes.JUMP_BOOST)
-                || player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)
-                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE) return;
+                || player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)) return;
 
         double deltaY = player.crossValidationData.pePositionDeltaY;
 

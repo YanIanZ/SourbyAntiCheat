@@ -24,8 +24,8 @@ public class AutoLoot extends Check implements PacketCheck {
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
         if (player.disableGrim) return;
-
-        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE) return;
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
 
         long now = System.currentTimeMillis();
         if (now - lastReset > 1000) { pickupCount = 0; lastReset = now; }

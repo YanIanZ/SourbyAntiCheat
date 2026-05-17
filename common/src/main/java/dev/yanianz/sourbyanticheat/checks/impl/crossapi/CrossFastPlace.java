@@ -22,11 +22,15 @@ public class CrossFastPlace extends BlockPlaceCheck {
 
     @Override
     public void onBlockPlace(BlockPlace place) {
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
+        if (player.compensatedEntities.self.isDead) return;
+
         long now = System.currentTimeMillis();
         if (now - lastReset > 1000) { placeCount = 0; lastReset = now; }
         placeCount++;
 
-        if (placeCount < PLACE_THRESHOLD) return;
+        if (placeCount < PLACE_THRESHOLD) { reward(); return; }
 
         boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "FastPlace");

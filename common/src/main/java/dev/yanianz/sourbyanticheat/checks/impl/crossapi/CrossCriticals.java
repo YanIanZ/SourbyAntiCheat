@@ -46,7 +46,8 @@ public class CrossCriticals extends Check implements PostPredictionCheck {
                 || player.wasTouchingWater || player.compensatedEntities.self.isDead
                 || player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)
                 || player.compensatedEntities.self.hasPotionEffect(PotionTypes.SLOW_FALLING)
-                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE) return;
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
 
         double deltaY = player.crossValidationData.pePositionDeltaY;
         boolean notFalling = deltaY > -0.01;

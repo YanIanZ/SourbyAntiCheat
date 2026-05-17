@@ -40,9 +40,11 @@ public class CrossFoodSprint extends Check implements PostPredictionCheck {
     @Override
     public void onPredictionComplete(PredictionComplete complete) {
         if (player.disableGrim) return;
-
-        if (player.inVehicle() || player.canFly || player.isGliding
-                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE) return;
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
+        if (player.compensatedEntities.self.isDead) return;
+        if (player.packetStateData.lastPacketWasTeleport) return;
+        if (player.inVehicle() || player.canFly || player.isGliding) return;
 
         if (!isUsingItem || !player.isSprinting) {
             buffer = Math.max(0, buffer - 0.02);

@@ -23,13 +23,17 @@ public class BedFucker extends Check implements BlockBreakCheck {
 
     @Override
     public void onBlockBreak(BlockBreak blockBreak) {
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
+        if (player.compensatedEntities.self.isDead) return;
+
         long now = System.currentTimeMillis();
         if (now - lastReset > 1000) { bedBreakCount = 0; lastReset = now; }
 
         if (!Materials.isBed(blockBreak.block.getType())) return;
 
         bedBreakCount++;
-        if (bedBreakCount < BED_THRESHOLD) return;
+        if (bedBreakCount < BED_THRESHOLD) { reward(); return; }
 
         boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > 15.0;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "FastBreak");

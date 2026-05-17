@@ -35,7 +35,7 @@ public class FastHeal extends Check implements PacketCheck {
             healCount++;
         }
 
-        if (healCount < HEAL_THRESHOLD) return;
+        if (healCount < HEAL_THRESHOLD) { reward(); return; }
 
         boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > 15.0;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "FastHeal");

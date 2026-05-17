@@ -23,6 +23,7 @@ public class DerpHead extends Check implements RotationCheck {
 
         if (player.inVehicle() || player.compensatedEntities.self.isDead
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
                 || rotationUpdate.isCinematic()) return;
 
         float pitch = player.pitch;

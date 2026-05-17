@@ -19,6 +19,8 @@ public class AutoRespawn extends Check implements PacketCheck {
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
         if (player.disableGrim) return;
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
 
         if (event.getPacketType() == PacketType.Play.Client.CLIENT_STATUS) {
             var status = new com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientClientStatus(event);

@@ -19,10 +19,13 @@ public class CrossFlightB extends Check implements PostPredictionCheck {
     @Override
     public void onPredictionComplete(PredictionComplete complete) {
         if (player.disableGrim) return;
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
+        if (player.compensatedEntities.self.isDead) return;
+        if (player.packetStateData.lastPacketWasTeleport) return;
         if (player.compensatedEntities.self.hasPotionEffect(com.github.retrooper.packetevents.protocol.potion.PotionTypes.LEVITATION)
                 || player.compensatedEntities.self.hasPotionEffect(com.github.retrooper.packetevents.protocol.potion.PotionTypes.SLOW_FALLING)
-                || player.inVehicle() || player.isGliding || player.canFly || player.wasTouchingWater
-                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE) return;
+                || player.inVehicle() || player.isGliding || player.canFly || player.wasTouchingWater) return;
 
         double deltaY = player.crossValidationData.pePositionDeltaY;
         boolean onGround = player.crossValidationData.peOnGround;

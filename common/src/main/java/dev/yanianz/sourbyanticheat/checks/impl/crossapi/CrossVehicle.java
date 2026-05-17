@@ -21,7 +21,11 @@ public class CrossVehicle extends Check implements PostPredictionCheck {
 
     @Override
     public void onPredictionComplete(PredictionComplete complete) {
-        if (player.disableGrim || !player.inVehicle()) {
+        if (player.disableGrim) return;
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
+        if (player.compensatedEntities.self.isDead) return;
+        if (!player.inVehicle()) {
             reward();
             return;
         }

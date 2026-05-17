@@ -23,6 +23,10 @@ public class CrossJesus extends Check implements PostPredictionCheck {
     public void onPredictionComplete(PredictionComplete complete) {
         if (player.compensatedEntities.self.hasPotionEffect(PotionTypes.DOLPHINS_GRACE)) return;
         if (player.disableGrim) return;
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
+        if (player.inVehicle() || player.compensatedEntities.self.isDead) return;
+        if (player.packetStateData.lastPacketWasTeleport) return;
 
         boolean onWaterSurface = player.wasTouchingWater;
         double offset = player.crossValidationData.offsetFromPrediction;

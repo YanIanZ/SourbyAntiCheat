@@ -20,6 +20,9 @@ public class CrossAntiKB extends Check implements PostPredictionCheck {
     @Override
     public void onPredictionComplete(PredictionComplete complete) {
         if (player.disableGrim) return;
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
+        if (player.compensatedEntities.self.isDead) return;
 
         boolean hasVelocity = player.likelyKB != null || player.firstBreadKB != null;
         if (!hasVelocity) {

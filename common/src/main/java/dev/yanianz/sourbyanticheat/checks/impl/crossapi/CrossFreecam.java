@@ -31,6 +31,9 @@ public class CrossFreecam extends Check implements PostPredictionCheck {
     @Override
     public void onPredictionComplete(PredictionComplete complete) {
         if (player.disableGrim) return;
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
+        if (player.inVehicle() || player.compensatedEntities.self.isDead) return;
 
         double offset = player.crossValidationData.offsetFromPrediction;
         long chunkGap = System.currentTimeMillis() - lastChunkAck;

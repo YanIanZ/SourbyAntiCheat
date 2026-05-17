@@ -25,6 +25,8 @@ public class CrossSpider extends Check implements PacketCheck {
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
         if (player.disableGrim) return;
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
 
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
 

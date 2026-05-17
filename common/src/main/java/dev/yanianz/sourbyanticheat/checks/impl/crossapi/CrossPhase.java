@@ -31,7 +31,8 @@ public class CrossPhase extends Check implements PacketCheck {
 
         if (player.packetStateData.lastPacketWasTeleport
                 || player.compensatedEntities.self.isDead
-                || player.gamemode == GameMode.SPECTATOR) {
+                || player.gamemode == GameMode.SPECTATOR
+                || player.gamemode == GameMode.CREATIVE) {
             phaseBuffer = 0;
             return;
         }

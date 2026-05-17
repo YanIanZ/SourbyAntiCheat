@@ -42,10 +42,8 @@ public class CrossFastEat extends Check implements PostPredictionCheck {
     @Override
     public void onPredictionComplete(PredictionComplete complete) {
         if (player.disableGrim) return;
-
         if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
-                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR
-                || player.inVehicle()) return;
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
 
         if (!isUsing || useStartTime == 0) {
             buffer = Math.max(0, buffer - 0.02);

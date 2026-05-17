@@ -30,6 +30,8 @@ public class PortalInventory extends Check implements PostPredictionCheck {
     @Override
     public void onPredictionComplete(PredictionComplete complete) {
         if (player.disableGrim) return;
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
 
         double deltaY = player.crossValidationData.pePositionDeltaY;
         inPortal = Math.abs(deltaY) < 0.01 && !player.crossValidationData.peOnGround;

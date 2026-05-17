@@ -23,6 +23,10 @@ public class CrossFastBreak extends Check implements BlockBreakCheck {
 
     @Override
     public void onBlockBreak(BlockBreak blockBreak) {
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
+        if (player.compensatedEntities.self.isDead) return;
+
         long now = System.currentTimeMillis();
         if (now - lastReset > 1000) {
             breakCount = 0;
@@ -30,7 +34,7 @@ public class CrossFastBreak extends Check implements BlockBreakCheck {
         }
         breakCount++;
 
-        if (breakCount < BREAK_THRESHOLD) return;
+        if (breakCount < BREAK_THRESHOLD) { reward(); return; }
 
         boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
 

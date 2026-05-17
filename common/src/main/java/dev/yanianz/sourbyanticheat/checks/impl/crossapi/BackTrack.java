@@ -40,7 +40,9 @@ public class BackTrack extends Check implements PostPredictionCheck {
         }
         attackedThisTick = false;
 
-        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE) return;
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
+        if (player.compensatedEntities.self.isDead) return;
 
         if (player.packetStateData.lastClaimedPosition == null) return;
 

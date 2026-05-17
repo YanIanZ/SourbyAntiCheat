@@ -20,8 +20,8 @@ public class ExtraInventory extends Check implements PacketCheck {
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
         if (player.disableGrim) return;
-
-        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE) return;
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
 
         if (event.getPacketType() != PacketType.Play.Client.CLICK_WINDOW) return;
 
