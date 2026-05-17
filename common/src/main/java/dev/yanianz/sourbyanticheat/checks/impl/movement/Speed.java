@@ -1,7 +1,3 @@
-// This file is part of SourbyAntiCheat
-// Copyright (C) 2026 YanIanZ
-// Licensed under GPLv3 - see LICENSE file for details
-
 package dev.yanianz.sourbyanticheat.checks.impl.movement;
 
 import dev.yanianz.sourbyanticheat.checks.Check;
@@ -16,11 +12,10 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPl
 public class Speed extends Check implements PostPredictionCheck {
 
     private static final double MAX_WALK_SPEED = 0.217;
-    private static final double MAX_SPRINT_SPEED = 0.281;
-    private static final double MAX_EFFECT_SPEED = 0.45;
+    private static final double MAX_SPRINT_SPEED = 0.33;
+    private static final double MAX_EFFECT_SPEED = 0.65;
     private static final double BUFFER_DECAY = 0.01;
 
-    private double lastDeltaH = 0;
     private double buffer = 0;
 
     public Speed(SacPlayer player) {
@@ -35,7 +30,6 @@ public class Speed extends Check implements PostPredictionCheck {
         double deltaX = player.x - player.lastX;
         double deltaZ = player.z - player.lastZ;
         double deltaH = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
-        double deltaY = Math.abs(player.y - player.lastY);
 
         if (deltaH < 0.001) {
             buffer = Math.max(0, buffer - BUFFER_DECAY);
@@ -54,15 +48,13 @@ public class Speed extends Check implements PostPredictionCheck {
         double excess = deltaH - maxSpeed;
         if (excess > 0.01) {
             buffer += excess;
-            if (buffer > 1.0) {
+            if (buffer > 1.5) {
                 flagAndAlert("h=" + String.format("%.3f", deltaH) + " max=" + String.format("%.3f", maxSpeed) + " buffer=" + String.format("%.3f", buffer));
             }
         } else {
             buffer = Math.max(0, buffer - BUFFER_DECAY);
             reward();
         }
-
-        lastDeltaH = deltaH;
     }
 
     @Override
