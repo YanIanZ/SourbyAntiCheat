@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
@@ -14,13 +15,24 @@ public class CrossFreecam extends Check implements PostPredictionCheck {
 
     private double buffer;
     private long lastChunkAck = System.currentTimeMillis();
-    private static final double OFFSET_THRESHOLD = 0.8;
-    private static final long CHUNK_GAP_THRESHOLD_MS = 1500;
-    private static final double NETTY_RATE_THRESHOLD = 15.0;
-    private static final double NETTY_DELAY_THRESHOLD = 50.0;
+
+    // Config-wired thresholds (defaults equal prior hardcoded values)
+    private double offsetThreshold       = 0.8;
+    private long   chunkGapThresholdMs   = 1500L;
+    private double nettyRateThreshold    = 15.0;
+    private double nettyDelayThreshold   = 50.0;
 
     public CrossFreecam(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        offsetThreshold     = config.getDoubleElse(base + "offset-threshold",        0.8);
+        chunkGapThresholdMs = config.getIntElse(base + "chunk-gap-threshold-ms",     1500);
+        nettyRateThreshold  = config.getDoubleElse(base + "netty-rate-threshold",    15.0);
+        nettyDelayThreshold = config.getDoubleElse(base + "netty-delay-threshold",   50.0);
     }
 
     @Override
@@ -39,7 +51,7 @@ public class CrossFreecam extends Check implements PostPredictionCheck {
 
         double offset = player.crossValidationData.offsetFromPrediction;
         long chunkGap = System.currentTimeMillis() - lastChunkAck;
-        boolean predictionFlag = offset > OFFSET_THRESHOLD && chunkGap > CHUNK_GAP_THRESHOLD_MS;
+        boolean predictionFlag = offset > offsetThreshold && chunkGap > chunkGapThresholdMs;
 
         if (!predictionFlag) {
             buffer = Math.max(0, buffer - 0.05);
@@ -47,8 +59,8 @@ public class CrossFreecam extends Check implements PostPredictionCheck {
             return;
         }
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec < NETTY_RATE_THRESHOLD
-            || player.crossValidationData.nettyAvgDelayBetweenPacketsMs > NETTY_DELAY_THRESHOLD;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec < nettyRateThreshold
+            || player.crossValidationData.nettyAvgDelayBetweenPacketsMs > nettyDelayThreshold;
 
         SpartanCrossCheck.CrossCheckResult spartanResult =
             SpartanCrossCheck.checkSpartan(player.uuid, "Freecam");
@@ -60,15 +72,16 @@ public class CrossFreecam extends Check implements PostPredictionCheck {
                 flagAndAlert(String.format("offset=%.3f chunkGap=%dms netty=%.1f/s spartan=%s",
                     offset, chunkGap,
                     player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
+                return;
             }
         } else {
             buffer += 0.5;
             if (buffer > 5.0) {
                 flagAndAlert(String.format("offset=%.3f chunkGap=%dms (no cross-confirm)",
                     offset, chunkGap));
+                return;
             }
         }
-
-        reward();
+        // reward() only on clean paths — do NOT call here (suspicious tick)
     }
 }

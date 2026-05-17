@@ -15,8 +15,12 @@ public class CrossNoSwing extends Check implements PacketCheck {
     private int buffer;
     private boolean swingSent = false;
 
+    // skipForBedrock defaults to true in Check — Bedrock/Geyser players legitimately suppress
+    // swing animations, so they are exempted via the base class GeyserUtil check automatically.
+
     public CrossNoSwing(SacPlayer player) {
         super(player);
+        // skipForBedrock = true (inherited default) — explicitly noted for clarity
     }
 
     @Override
@@ -55,10 +59,12 @@ public class CrossNoSwing extends Check implements PacketCheck {
             if (buffer > 3) {
                 flagAndAlert(String.format("nettyVar=%.1f spartan=%s",
                     player.crossValidationData.nettyIntervalVariance, spartanResult.type()));
+                return;
             }
         } else {
             buffer = Math.max(0, buffer - 1);
-            if (buffer < 2) reward();
+            // Fixed sparse-reward bug: reward() every clean tick, ungated by buffer < 2
+            reward();
         }
     }
 }

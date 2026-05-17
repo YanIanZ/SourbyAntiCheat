@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
@@ -12,11 +13,20 @@ import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 public class CrossJesus extends Check implements PostPredictionCheck {
 
     private double buffer;
-    private static final double OFFSET_THRESHOLD = 0.15;
-    private static final double NETTY_RATE_THRESHOLD = 18.0;
+
+    // Config-wired thresholds (defaults equal prior hardcoded values)
+    private double offsetThreshold    = 0.15;
+    private double nettyRateThreshold = 18.0;
 
     public CrossJesus(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        offsetThreshold    = config.getDoubleElse(base + "offset-threshold",     0.15);
+        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 18.0);
     }
 
     @Override
@@ -28,9 +38,12 @@ public class CrossJesus extends Check implements PostPredictionCheck {
         if (player.inVehicle() || player.compensatedEntities.self.isDead) return;
         if (player.packetStateData.lastPacketWasTeleport) return;
 
-        boolean onWaterSurface = player.wasTouchingWater;
+        // Require player to be touching water but NOT submerged (eyes above surface).
+        // wasEyeInWater = true means the player is swimming/submerged — normal swimming, not Jesus.
+        // wasSwimming catches active swim-mode. Both cases are legitimate, skip them.
+        boolean aboveWaterSurface = player.wasTouchingWater && !player.wasEyeInWater && !player.wasSwimming;
         double offset = player.crossValidationData.offsetFromPrediction;
-        boolean predictionFlag = onWaterSurface && offset > OFFSET_THRESHOLD;
+        boolean predictionFlag = aboveWaterSurface && offset > offsetThreshold;
 
         if (!predictionFlag) {
             buffer = Math.max(0, buffer - 0.05);
@@ -38,7 +51,7 @@ public class CrossJesus extends Check implements PostPredictionCheck {
             return;
         }
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > nettyRateThreshold;
 
         SpartanCrossCheck.CrossCheckResult spartanResult =
             SpartanCrossCheck.checkSpartan(player.uuid, "Jesus");
@@ -52,14 +65,15 @@ public class CrossJesus extends Check implements PostPredictionCheck {
             if (buffer > 3.0) {
                 flagAndAlert(String.format("offset=%.3f netty=%.1f/s spartan=%s",
                     offset, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
+                return;
             }
         } else {
             buffer += 0.5 * multiplier;
             if (buffer > 5.0) {
                 flagAndAlert(String.format("offset=%.3f (no cross-confirm)", offset));
+                return;
             }
         }
-
-        reward();
+        // reward() only on confirmed-clean paths above — not here (suspicious tick)
     }
 }

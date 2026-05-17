@@ -41,7 +41,6 @@ import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossJump;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossKillAura;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossKillAuraB;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossNoFall;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossNoSlowdown;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossNoSwing;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossPhase;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossPhaseB;
@@ -376,7 +375,7 @@ public class CheckManager {
                 .put(Freecam.class, new Freecam(player))
                 .put(NoClip.class, new NoClip(player))
                 .put(IrregularMovements.class, new IrregularMovements(player))
-                .put(CrossNoSlowdown.class, new CrossNoSlowdown(player))
+                // CrossNoSlowdown (configName "crossnoslowdown") merged into CrossFoodSprint (2026-05-18)
                 .put(CrossVehicle.class, new CrossVehicle(player))
                 .put(CrossEntitySpeed.class, new CrossEntitySpeed(player))
                 .put(SetbackTeleportUtil.class, new SetbackTeleportUtil(player)) // Avoid teleporting to new position, update safe pos last
