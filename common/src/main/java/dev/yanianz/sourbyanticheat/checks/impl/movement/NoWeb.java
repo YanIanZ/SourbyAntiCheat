@@ -4,9 +4,7 @@ import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
-import dev.yanianz.sourbyanticheat.utils.nmsutil.Collisions;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
-import com.github.retrooper.packetevents.protocol.world.states.type.StateTypes;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 
 @CheckData(name = "NoWeb", stableKey = "sac.movement.noweb", description = "Detects ignoring cobweb slowdown", setback = 10, decay = 0.02)
@@ -25,16 +23,6 @@ public class NoWeb extends Check implements PacketCheck {
         if (player.packetStateData.lastPacketWasTeleport) return;
         if (player.canFly || player.isFlying || player.isGliding || player.inVehicle()) return;
 
-        boolean inCobweb = Collisions.hasMaterial(player,
-                player.boundingBox.copy(),
-                data -> data.first().getType() == StateTypes.COBWEB);
-
-        if (!inCobweb) {
-            webBuffer = Math.max(0, webBuffer - 0.02);
-            if (webBuffer < 0.01) reward();
-            return;
-        }
-
         double deltaX = Math.abs(player.x - player.lastX);
         double deltaZ = Math.abs(player.z - player.lastZ);
         double deltaH = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
@@ -45,7 +33,7 @@ public class NoWeb extends Check implements PacketCheck {
                 flagAndAlert("h=" + String.format("%.3f", deltaH) + " buf=" + String.format("%.3f", webBuffer));
             }
         } else {
-            webBuffer = Math.max(0, webBuffer - 0.02);
+            webBuffer = Math.max(0, webBuffer - 0.005);
             if (webBuffer < 0.01) reward();
         }
     }

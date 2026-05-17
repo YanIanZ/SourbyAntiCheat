@@ -11,14 +11,13 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.player.GameMode;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
-import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 
 @CheckData(name = "FlightA", stableKey = "sac.flight.invalid", description = "Detects illegal flight movements", setback = 10)
 public class FlightA extends Check implements PacketCheck {
 
     private static final double MAX_AIR_SPEED = 0.42;
-    private static final int BASE_MAX_AIR_TICKS = 40;
-    private static final int BASE_MIN_FLAG_TICKS = 50;
+    private static final int MAX_AIR_TICKS = 120;
+    private static final int MIN_FLAG_AIR_TICKS = 130;
 
     private int airTicks = 0;
     private boolean wasOnGround = true;
@@ -32,23 +31,14 @@ public class FlightA extends Check implements PacketCheck {
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
         if (player.packetStateData.lastPacketWasTeleport || player.packetStateData.lastPacketWasOnePointSeventeenDuplicate) return;
 
-        if (player.canFly || player.isFlying || player.gamemode == GameMode.CREATIVE || player.gamemode == GameMode.SPECTATOR || player.isGliding
-                || player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)
-                || player.compensatedEntities.self.hasPotionEffect(PotionTypes.SLOW_FALLING)) {
+        if (player.canFly || player.isFlying || player.gamemode == GameMode.CREATIVE || player.gamemode == GameMode.SPECTATOR || player.isGliding) {
             airTicks = 0;
-            return;
-        }
-
-        if (player.wasTouchingWater || player.inVehicle()) {
-            if (airTicks > 0) reward();
-            airTicks = 0;
-            wasOnGround = true;
             return;
         }
 
         WrapperPlayClientPlayerFlying flying = new WrapperPlayClientPlayerFlying(event);
 
-        if (flying.isOnGround()) {
+        if (flying.isOnGround() || player.inVehicle()) {
             if (airTicks > 0) reward();
             airTicks = 0;
             wasOnGround = true;
@@ -62,14 +52,9 @@ public class FlightA extends Check implements PacketCheck {
             airTicks++;
         }
 
-        int ping = player.getTransactionPing();
-        int pingTicks = Math.max(0, ping / 50);
-        int effectiveMaxTicks = BASE_MAX_AIR_TICKS + pingTicks;
-        int effectiveMinFlag = BASE_MIN_FLAG_TICKS + pingTicks;
-
-        if (airTicks > effectiveMaxTicks) {
+        if (airTicks > MAX_AIR_TICKS) {
             double deltaY = player.y - player.lastY;
-            if (deltaY >= 0 && airTicks > effectiveMinFlag) {
+            if (deltaY >= 0 && airTicks > MIN_FLAG_AIR_TICKS) {
                 flagAndAlert("airTicks=" + airTicks + " dY=" + String.format("%.3f", deltaY));
             }
         }

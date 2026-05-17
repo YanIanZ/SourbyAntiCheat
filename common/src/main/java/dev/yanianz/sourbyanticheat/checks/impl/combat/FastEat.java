@@ -37,16 +37,6 @@ public class FastEat extends Check implements PacketCheck {
 
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
-        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
-                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR
-                || player.inVehicle()) return;
-
-        if (player.packetStateData.lastPacketWasTeleport) {
-            isUsing = false;
-            flags = Math.max(0, flags - 1);
-            return;
-        }
-
         if (event.getPacketType() == PacketType.Play.Client.USE_ITEM) {
             var mainHand = player.inventory.getHeldItem();
             var offHand = player.inventory.getOffHand();
@@ -81,25 +71,20 @@ public class FastEat extends Check implements PacketCheck {
 
     private static boolean isConsumable(com.github.retrooper.packetevents.protocol.item.type.ItemType type) {
         if (type == null) return false;
+        // Check for common consumable items
         return type == ItemTypes.POTION || type == ItemTypes.SPLASH_POTION
                 || type == ItemTypes.GOLDEN_APPLE || type == ItemTypes.ENCHANTED_GOLDEN_APPLE
                 || type == ItemTypes.MILK_BUCKET || type == ItemTypes.HONEY_BOTTLE
-                || type == ItemTypes.APPLE || type == ItemTypes.GOLDEN_CARROT
-                || type == ItemTypes.BAKED_POTATO || type == ItemTypes.BREAD
-                || type == ItemTypes.CARROT || type == ItemTypes.COOKIE
-                || type == ItemTypes.MELON_SLICE || type == ItemTypes.COOKED_BEEF
-                || type == ItemTypes.COOKED_PORKCHOP || type == ItemTypes.COOKED_CHICKEN
-                || type == ItemTypes.COOKED_MUTTON || type == ItemTypes.COOKED_COD
-                || type == ItemTypes.COOKED_SALMON || type == ItemTypes.COOKED_RABBIT
-                || type == ItemTypes.BEEF || type == ItemTypes.PORKCHOP
-                || type == ItemTypes.CHICKEN || type == ItemTypes.MUTTON
-                || type == ItemTypes.RABBIT || type == ItemTypes.COD
-                || type == ItemTypes.SALMON || type == ItemTypes.TROPICAL_FISH
-                || type == ItemTypes.PUFFERFISH || type == ItemTypes.CHORUS_FRUIT
-                || type == ItemTypes.DRIED_KELP || type == ItemTypes.PUMPKIN_PIE
                 || type == ItemTypes.MUSHROOM_STEW || type == ItemTypes.RABBIT_STEW
                 || type == ItemTypes.BEETROOT_SOUP || type == ItemTypes.SUSPICIOUS_STEW
-                || type == ItemTypes.ROTTEN_FLESH || type == ItemTypes.SPIDER_EYE
-                || type == ItemTypes.SWEET_BERRIES || type == ItemTypes.GLOW_BERRIES;
+                || type.getName().getKey().contains("cooked_")
+                || type.getName().getKey().contains("_apple")
+                || type.getName().getKey().contains("bread")
+                || type.getName().getKey().contains("_beef")
+                || type.getName().getKey().contains("_pork")
+                || type.getName().getKey().contains("_chicken")
+                || type.getName().getKey().contains("_mutton")
+                || type.getName().getKey().contains("_salmon")
+                || type.getName().getKey().contains("_cod");
     }
 }

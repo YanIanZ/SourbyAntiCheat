@@ -78,7 +78,7 @@ public class Check extends SacProcessor implements AbstractCheck {
     }
 
     private static final Set<String> DISABLED_BY_DEFAULT = Set.of(
-        "AimSuspicion", "AutoArmor", "SafeWalk",
+        "AimSuspicion", "AutoArmor", "Blink", "SafeWalk",
         "BadPacketsAE", "BadPacketsW", "NettyDelay", "NettyFlood"
     );
 
@@ -210,9 +210,7 @@ public class Check extends SacProcessor implements AbstractCheck {
             SacAPI.INSTANCE.getProxyMessenger().sendAlert(player.uuid, json);
             SacAPI.INSTANCE.getAuditLogger().logAction(player.uuid, player.getName(),
                 "VL_CHECK", checkName, verbose, true);
-        } catch (Exception e) {
-            LogUtil.warn(verbose);
-        }
+        } catch (Exception ignored) {}
         return player.punishmentManager.handleAlert(player, verbose + spartanSuffix, this);
     }
 

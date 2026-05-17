@@ -32,11 +32,6 @@ public class OffsetHandler extends Check implements PostPredictionCheck {
     public void onPredictionComplete(final PredictionComplete predictionComplete) {
         if (!predictionComplete.isChecked()) return;
 
-        if (player.wasTouchingWater || player.compensatedEntities.self.isDead) {
-            advantageGained *= setbackDecayMultiplier;
-            return;
-        }
-
         double offset = predictionComplete.getOffset();
 
         if (COMPLETE_CHANNEL.fire(player, this, offset)) return;

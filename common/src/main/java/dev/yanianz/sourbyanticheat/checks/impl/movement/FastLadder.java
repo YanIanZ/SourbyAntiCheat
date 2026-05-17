@@ -4,11 +4,8 @@ import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
-import dev.yanianz.sourbyanticheat.utils.nmsutil.Collisions;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
-import com.github.retrooper.packetevents.protocol.world.states.type.StateTypes;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
-import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 
 @CheckData(name = "FastLadder", stableKey = "sac.movement.fastladder", description = "Detects fast ladder climbing", setback = 10, decay = 0.02)
 public class FastLadder extends Check implements PacketCheck {
@@ -24,19 +21,7 @@ public class FastLadder extends Check implements PacketCheck {
     public void onPacketReceive(PacketReceiveEvent event) {
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
         if (player.packetStateData.lastPacketWasTeleport) return;
-        if (player.canFly || player.isFlying || player.isGliding || player.inVehicle()
-                || player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)) return;
-
-        boolean onLadder = Collisions.hasMaterial(player,
-                player.boundingBox.copy(),
-                data -> data.first().getType() == StateTypes.LADDER
-                    || data.first().getType() == StateTypes.VINE);
-
-        if (!onLadder) {
-            ladderBuffer = Math.max(0, ladderBuffer - 0.02);
-            if (ladderBuffer < 0.01) reward();
-            return;
-        }
+        if (player.canFly || player.isFlying || player.isGliding || player.inVehicle()) return;
 
         double deltaY = player.y - player.lastY;
 
@@ -46,7 +31,7 @@ public class FastLadder extends Check implements PacketCheck {
                 flagAndAlert("dY=" + String.format("%.3f", deltaY) + " buffer=" + String.format("%.3f", ladderBuffer));
             }
         } else {
-            ladderBuffer = Math.max(0, ladderBuffer - 0.02);
+            ladderBuffer = Math.max(0, ladderBuffer - 0.01);
             if (ladderBuffer < 0.01) reward();
         }
     }

@@ -30,10 +30,7 @@ public class MultiAttack extends Check implements PacketCheck {
 
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
-        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
-                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR
-                || player.inVehicle()) return;
-
+        // Reset on movement tick
         if (com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) {
             if (attacksThisTick > 1) {
                 buffer += attacksThisTick - 1;

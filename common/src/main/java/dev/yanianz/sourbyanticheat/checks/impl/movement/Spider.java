@@ -7,7 +7,6 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
-import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 
 @CheckData(name = "Spider", stableKey = "sac.movement.spider", description = "Detects spider/wall climb hacks", setback = 10, decay = 0.02)
 public class Spider extends Check implements PostPredictionCheck {
@@ -24,10 +23,7 @@ public class Spider extends Check implements PostPredictionCheck {
     public void onPacketReceive(PacketReceiveEvent event) {
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
         if (player.packetStateData.lastPacketWasTeleport || player.packetStateData.lastPacketWasOnePointSeventeenDuplicate) return;
-        if (player.canFly || player.isFlying || player.isGliding || player.inVehicle()
-                || player.wasTouchingWater || player.compensatedEntities.self.isDead
-                || player.compensatedEntities.self.hasPotionEffect(PotionTypes.JUMP_BOOST)
-                || player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)) {
+        if (player.canFly || player.isFlying || player.isGliding || player.inVehicle()) {
             climbTicks = 0;
             return;
         }
@@ -42,9 +38,9 @@ public class Spider extends Check implements PostPredictionCheck {
             return;
         }
 
-        if (!wasOnGround && deltaY > 0.15 && player.horizontalCollision) {
+        if (!wasOnGround && deltaY > 0.1) {
             climbTicks++;
-            if (climbTicks > 6) {
+            if (climbTicks > 4) {
                 flagAndAlert("dY=" + String.format("%.3f", deltaY) + " ticks=" + climbTicks);
             }
         } else if (deltaY > 0.0) {

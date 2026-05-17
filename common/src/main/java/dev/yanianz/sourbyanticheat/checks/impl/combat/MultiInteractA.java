@@ -13,7 +13,7 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientSp
 
 import java.util.ArrayList;
 
-@CheckData(name = "MultiInteractA", stableKey = "sac.multiinteract.multiple_targets", description = "Interacted with multiple entities in the same tick", setback = 10, decay = 0.025)
+@CheckData(name = "MultiInteractA", stableKey = "sac.multiinteract.multiple_targets", description = "Interacted with multiple entities in the same tick")
 public class MultiInteractA extends Check implements PostPredictionCheck {
     private final ArrayList<String> flags = new ArrayList<>();
     private int lastEntity;

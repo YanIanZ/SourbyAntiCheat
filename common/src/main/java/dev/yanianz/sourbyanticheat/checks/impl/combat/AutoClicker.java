@@ -41,8 +41,6 @@ public class AutoClicker extends Check implements PacketCheck {
         }
 
         if (!isAttack) return;
-        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
-                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
 
         long now = System.currentTimeMillis();
         cleanupOldTimestamps(now);

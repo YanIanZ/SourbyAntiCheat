@@ -11,8 +11,7 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPl
 public class Blink extends Check implements PacketCheck {
 
     private long lastPacketTime = 0;
-    private double lastX, lastY, lastZ;
-    private int buffer = 0;
+    private int blinkCount = 0;
 
     public Blink(SacPlayer player) {
         super(player);
@@ -21,37 +20,21 @@ public class Blink extends Check implements PacketCheck {
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
-
-        if (player.packetStateData.lastPacketWasTeleport
-                || player.inVehicle() || player.canFly || player.isGliding
-                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
-                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) {
-            buffer = 0;
-            return;
-        }
+        if (player.packetStateData.lastPacketWasTeleport) return;
 
         long now = System.currentTimeMillis();
         if (lastPacketTime > 0) {
             long gap = now - lastPacketTime;
-            double moved = Math.sqrt(
-                Math.pow(player.x - lastX, 2)
-                + Math.pow(player.y - lastY, 2)
-                + Math.pow(player.z - lastZ, 2)
-            );
-
-            if (gap > 2000 && moved > 8.0) {
-                buffer += 3;
-                if (buffer > 4) {
-                    flagAndAlert("gap=" + gap + "ms moved=" + String.format("%.1f", moved));
+            if (gap > 500) {
+                blinkCount++;
+                if (blinkCount > 5) {
+                    flagAndAlert("gap=" + gap + "ms count=" + blinkCount);
                 }
             } else {
-                buffer = Math.max(0, buffer - 1);
-                if (buffer < 2) reward();
+                blinkCount = Math.max(0, blinkCount - 1);
+                if (blinkCount < 2) reward();
             }
         }
         lastPacketTime = now;
-        lastX = player.x;
-        lastY = player.y;
-        lastZ = player.z;
     }
 }
