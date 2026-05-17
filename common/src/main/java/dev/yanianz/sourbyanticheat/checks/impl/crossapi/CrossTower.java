@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
@@ -13,10 +14,19 @@ public class CrossTower extends Check implements PostPredictionCheck {
 
     private double buffer;
     private int consecutiveUpTicks;
-    private static final double TOWER_Y_THRESHOLD = 0.3;
-    private static final double NETTY_RATE_THRESHOLD = 18.0;
+
+    // Config-wired thresholds (defaults equal prior hardcoded values)
+    private double towerYThreshold     = 0.3;
+    private double nettyRateThreshold  = 18.0;
 
     public CrossTower(SacPlayer player) { super(player); }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        towerYThreshold    = config.getDoubleElse(base + "tower-y-threshold",    0.3);
+        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 18.0);
+    }
 
     @Override
     public void onPredictionComplete(PredictionComplete complete) {
@@ -31,18 +41,18 @@ public class CrossTower extends Check implements PostPredictionCheck {
 
         double deltaY = player.crossValidationData.pePositionDeltaY;
 
-        if (deltaY > TOWER_Y_THRESHOLD) {
+        if (deltaY > towerYThreshold) {
             consecutiveUpTicks++;
         } else {
             consecutiveUpTicks = Math.max(0, consecutiveUpTicks - 1);
             buffer = Math.max(0, buffer - 0.02);
-            if (buffer < 0.01) reward();
+            reward();
             return;
         }
 
         if (consecutiveUpTicks < 3) return;
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > nettyRateThreshold;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "Tower");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 

@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientClickWindow;
@@ -13,10 +14,22 @@ import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 public class ExtraInventory extends Check implements PacketCheck {
 
     private int buffer;
-    private static final int MAX_SLOT = 45;
-    private static final double NETTY_RATE_THRESHOLD = 15.0;
+
+    // Config-wired thresholds (defaults equal prior hardcoded values).
+    // Player inventory (window 0) has valid slots 0-45: 0-44 are armour/craft/main/hotbar,
+    // slot 45 is the offhand. Anything above 45 is an invalid slot index — so the highest
+    // legal slot is 45 and the check flags getSlot() > maxSlot.
+    private int maxSlot = 45;
+    private double nettyRateThreshold = 15.0;
 
     public ExtraInventory(SacPlayer player) { super(player); }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        maxSlot            = config.getIntElse(base + "max-slot",               45);
+        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 15.0);
+    }
 
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
@@ -27,8 +40,8 @@ public class ExtraInventory extends Check implements PacketCheck {
         if (event.getPacketType() != PacketType.Play.Client.CLICK_WINDOW) return;
 
         WrapperPlayClientClickWindow click = new WrapperPlayClientClickWindow(event);
-        if (click.getWindowId() == 0 && click.getSlot() > MAX_SLOT) {
-            boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
+        if (click.getWindowId() == 0 && click.getSlot() > maxSlot) {
+            boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > nettyRateThreshold;
             SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "Exploits");
             boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 

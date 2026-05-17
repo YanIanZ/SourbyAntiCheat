@@ -1,5 +1,7 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
+import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
@@ -11,11 +13,20 @@ import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 public class FastFall extends Check implements PostPredictionCheck {
 
     private double buffer;
-    private static final double FALL_THRESHOLD = 0.15;
-    private static final double NETTY_RATE_THRESHOLD = 18.0;
+
+    // Config-wired thresholds (defaults equal prior hardcoded values)
+    private double fallThreshold       = 0.15;
+    private double nettyRateThreshold  = 18.0;
 
     public FastFall(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        fallThreshold      = config.getDoubleElse(base + "fall-threshold",      0.15);
+        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 18.0);
     }
 
     @Override
@@ -26,12 +37,14 @@ public class FastFall extends Check implements PostPredictionCheck {
         if (player.compensatedEntities.self.isDead) return;
         if (player.packetStateData.lastPacketWasTeleport) return;
         if (player.inVehicle() || player.isGliding || player.canFly) return;
+        if (player.wasTouchingLava
+                || player.compensatedEntities.self.hasPotionEffect(PotionTypes.SLOW_FALLING)) return;
 
         double deltaY = player.crossValidationData.pePositionDeltaY;
         double predictedY = player.crossValidationData.predictedDeltaY;
         double fallExcess = Math.abs(deltaY) - Math.abs(predictedY);
 
-        boolean fastFalling = deltaY < -0.1 && fallExcess > FALL_THRESHOLD;
+        boolean fastFalling = deltaY < -0.1 && fallExcess > fallThreshold;
 
         if (!fastFalling) {
             buffer = Math.max(0, buffer - 0.02);
@@ -39,7 +52,7 @@ public class FastFall extends Check implements PostPredictionCheck {
             return;
         }
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > nettyRateThreshold;
 
         SpartanCrossCheck.CrossCheckResult spartanResult =
             SpartanCrossCheck.checkSpartan(player.uuid, "NoFall");

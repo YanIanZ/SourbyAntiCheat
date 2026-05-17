@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientInteractEntity;
@@ -18,12 +19,26 @@ public class FightBot extends Check implements PostPredictionCheck {
     private int perfectAimStreak;
     private int attackedEntity = -1;
 
+    // Config-wired thresholds (defaults equal prior hardcoded values)
+    private double normalizedDeltaThreshold = 2.0;
+    private double peRotationDeltaYawThreshold = 5.0;
+    private int perfectAimStreakThreshold = 5;
+
     public FightBot(SacPlayer player) {
         super(player);
     }
 
     @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        normalizedDeltaThreshold    = config.getDoubleElse(base + "normalized-delta-threshold",     2.0);
+        peRotationDeltaYawThreshold = config.getDoubleElse(base + "pe-rotation-delta-yaw-threshold", 5.0);
+        perfectAimStreakThreshold   = config.getIntElse(base + "perfect-aim-streak-threshold",       5);
+    }
+
+    @Override
     public void onPacketReceive(PacketReceiveEvent event) {
+        if (player.disableGrim) return;
         if (event.getPacketType() != PacketType.Play.Client.INTERACT_ENTITY) return;
         WrapperPlayClientInteractEntity interact = new WrapperPlayClientInteractEntity(event);
         if (interact.getAction() == WrapperPlayClientInteractEntity.InteractAction.ATTACK) {
@@ -54,12 +69,27 @@ public class FightBot extends Check implements PostPredictionCheck {
         if (entity == null || entity.isDead) return;
 
         double ex = entity.trackedServerPosition.getPos().getX();
+        double ey = entity.trackedServerPosition.getPos().getY();
         double ez = entity.trackedServerPosition.getPos().getZ();
-        double angleToEntity = Math.toDegrees(Math.atan2(ex - player.x, ez - player.z));
-        double yawDelta = Math.abs(player.yaw - angleToEntity);
-        double normalizedDelta = yawDelta > 180 ? 360 - yawDelta : yawDelta;
 
-        if (normalizedDelta < 2.0 && Math.abs(player.crossValidationData.peRotationDeltaYaw) > 5.0) {
+        double dx = ex - player.x;
+        double dz = ez - player.z;
+        // Aim target ~1.0 above the entity's feet (upper body of a player-sized entity).
+        double dy = (ey + 1.0) - (player.y + player.getEyeHeight());
+        double horizontalDist = Math.sqrt(dx * dx + dz * dz);
+
+        double yawToEntity = Math.toDegrees(Math.atan2(dx, dz));
+        double yawDelta = Math.abs(player.yaw - yawToEntity);
+        double yawDiff = yawDelta > 180 ? 360 - yawDelta : yawDelta;
+
+        double pitchToEntity = -Math.toDegrees(Math.atan2(dy, horizontalDist));
+        double pitchDiff = Math.abs(player.pitch - pitchToEntity);
+
+        // Combine yaw and pitch error into a single angular delta to the entity.
+        double normalizedDelta = Math.sqrt(yawDiff * yawDiff + pitchDiff * pitchDiff);
+
+        if (normalizedDelta < normalizedDeltaThreshold
+                && Math.abs(player.crossValidationData.peRotationDeltaYaw) > peRotationDeltaYawThreshold) {
             perfectAimStreak++;
         } else {
             perfectAimStreak = Math.max(0, perfectAimStreak - 1);
@@ -68,7 +98,7 @@ public class FightBot extends Check implements PostPredictionCheck {
             return;
         }
 
-        if (perfectAimStreak < 5) return;
+        if (perfectAimStreak < perfectAimStreakThreshold) return;
 
         boolean nettyConfirms = player.crossValidationData.nettyIntervalVariance < 15.0;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "KillAura");
