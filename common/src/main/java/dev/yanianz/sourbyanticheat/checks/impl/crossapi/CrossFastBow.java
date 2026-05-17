@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.item.type.ItemTypes;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
@@ -15,11 +16,17 @@ public class CrossFastBow extends Check implements PacketCheck {
     private int buffer;
     private long drawStart = 0;
     private boolean isDrawing = false;
-    private static final long MIN_CHARGE_TIME = 100;
+
+    private long minChargeTime = 100;
     private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public CrossFastBow(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        this.minChargeTime = config.getIntElse(getConfigName() + ".min-charge-time", 100);
     }
 
     @Override
@@ -45,13 +52,19 @@ public class CrossFastBow extends Check implements PacketCheck {
                 long charge = System.currentTimeMillis() - drawStart;
                 isDrawing = false;
 
-                if (charge < MIN_CHARGE_TIME && charge > 0) {
+                // Subtract player RTT so high-ping players get leniency on their charge window
+                long ping = player.getTransactionPing();
+                long adjustedCharge = charge - ping;
+
+                if (adjustedCharge < minChargeTime && charge > 0) {
                     boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
                     SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "FastBow");
                     boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
                     buffer += (nettyConfirms || spartanConfirms) ? 2 : 1;
                     if (buffer > 3) {
-                        flagAndAlert(String.format("charge=%dms netty=%.1f/s spartan=%s", charge, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
+                        flagAndAlert(String.format("charge=%dms adj=%dms ping=%dms netty=%.1f/s spartan=%s",
+                            charge, adjustedCharge, ping,
+                            player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
                     }
                 } else {
                     buffer = Math.max(0, buffer - 1);

@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.BlockBreakCheck;
@@ -13,9 +14,21 @@ public class CrossFastBreakB extends Check implements BlockBreakCheck {
     private int buffer;
     private long lastBreakTime = 0;
     private long consistentIntervals;
-    private static final long CONSISTENCY_THRESHOLD_MS = 10;
+
+    // Gates variance (ms), not a raw timestamp — renamed from CONSISTENCY_THRESHOLD_MS
+    private double intervalVarianceThreshold = 10.0;
+    private long intervalMin = 20;
+    private long intervalMax = 200;
 
     public CrossFastBreakB(SacPlayer player) { super(player); }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        this.intervalVarianceThreshold = config.getDoubleElse(base + "interval-variance-threshold", 10.0);
+        this.intervalMin               = config.getIntElse(base + "interval-min-ms", 20);
+        this.intervalMax               = config.getIntElse(base + "interval-max-ms", 200);
+    }
 
     @Override
     public void onBlockBreak(BlockBreak blockBreak) {
@@ -26,7 +39,7 @@ public class CrossFastBreakB extends Check implements BlockBreakCheck {
         long now = System.currentTimeMillis();
         if (lastBreakTime > 0) {
             long interval = now - lastBreakTime;
-            if (interval > 20 && interval < 200) {
+            if (interval > intervalMin && interval < intervalMax) {
                 consistentIntervals++;
             } else {
                 consistentIntervals = Math.max(0, consistentIntervals - 1);
@@ -36,7 +49,7 @@ public class CrossFastBreakB extends Check implements BlockBreakCheck {
 
         if (consistentIntervals < 8) { buffer = Math.max(0, buffer - 1); reward(); return; }
 
-        boolean nettyConfirms = player.crossValidationData.nettyIntervalVariance < CONSISTENCY_THRESHOLD_MS;
+        boolean nettyConfirms = player.crossValidationData.nettyIntervalVariance < intervalVarianceThreshold;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "FastBreak");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 

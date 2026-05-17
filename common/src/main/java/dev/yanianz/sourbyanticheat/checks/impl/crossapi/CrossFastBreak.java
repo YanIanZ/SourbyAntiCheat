@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.BlockBreakCheck;
@@ -13,12 +14,20 @@ public class CrossFastBreak extends Check implements BlockBreakCheck {
     private int breakCount;
     private long lastReset;
     private int buffer;
-    private static final int BREAK_THRESHOLD = 8;
-    private static final double NETTY_RATE_THRESHOLD = 18.0;
+
+    private int breakThreshold = 8;
+    private double nettyRateThreshold = 18.0;
 
     public CrossFastBreak(SacPlayer player) {
         super(player);
         lastReset = System.currentTimeMillis();
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        this.breakThreshold      = config.getIntElse(base + "break-threshold",       8);
+        this.nettyRateThreshold  = config.getDoubleElse(base + "netty-rate-threshold", 18.0);
     }
 
     @Override
@@ -34,9 +43,12 @@ public class CrossFastBreak extends Check implements BlockBreakCheck {
         }
         breakCount++;
 
-        if (breakCount < BREAK_THRESHOLD) { reward(); return; }
+        if (breakCount < breakThreshold) {
+            reward();
+            return;
+        }
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > nettyRateThreshold;
 
         SpartanCrossCheck.CrossCheckResult spartanResult =
             SpartanCrossCheck.checkSpartan(player.uuid, "FastBreak");
@@ -46,6 +58,8 @@ public class CrossFastBreak extends Check implements BlockBreakCheck {
         if (buffer > 3) {
             flagAndAlert(String.format("breaks=%d/s netty=%.1f/s spartan=%s",
                 breakCount, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
+            return;
         }
+        reward();
     }
 }

@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
@@ -23,8 +24,8 @@ public class CrossFlightB extends Check implements PostPredictionCheck {
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
         if (player.compensatedEntities.self.isDead) return;
         if (player.packetStateData.lastPacketWasTeleport) return;
-        if (player.compensatedEntities.self.hasPotionEffect(com.github.retrooper.packetevents.protocol.potion.PotionTypes.LEVITATION)
-                || player.compensatedEntities.self.hasPotionEffect(com.github.retrooper.packetevents.protocol.potion.PotionTypes.SLOW_FALLING)
+        if (player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)
+                || player.compensatedEntities.self.hasPotionEffect(PotionTypes.SLOW_FALLING)
                 || player.inVehicle() || player.isGliding || player.canFly || player.wasTouchingWater) return;
 
         double deltaY = player.crossValidationData.pePositionDeltaY;
@@ -35,7 +36,8 @@ public class CrossFlightB extends Check implements PostPredictionCheck {
         } else {
             hoverTicks = Math.max(0, hoverTicks - 2);
             buffer = Math.max(0, buffer - 0.02);
-            if (buffer < 0.01) reward();
+            // reward() every clean tick — not gated by buffer < 0.01
+            reward();
             return;
         }
 

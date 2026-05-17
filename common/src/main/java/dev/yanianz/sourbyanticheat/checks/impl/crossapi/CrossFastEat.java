@@ -1,6 +1,9 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
+import com.github.retrooper.packetevents.protocol.item.type.ItemType;
+import com.github.retrooper.packetevents.protocol.item.type.ItemTypes;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
@@ -15,7 +18,13 @@ public class CrossFastEat extends Check implements PostPredictionCheck {
     private double buffer;
     private long useStartTime = 0;
     private boolean isUsing = false;
-    private static final long MIN_EAT_TIME = 1400;
+    private boolean isFood = false; // true = food item, false = non-food consumable (potion etc)
+
+    // Vanilla food time: 32 ticks = ~1600ms. Config default = 1400ms (latency tolerance).
+    private long minEatTime   = 1400;
+    // Potions also take 32 ticks, same tolerance by default.
+    private long minDrinkTime = 1400;
+
     private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public CrossFastEat(SacPlayer player) {
@@ -23,12 +32,30 @@ public class CrossFastEat extends Check implements PostPredictionCheck {
     }
 
     @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        this.minEatTime   = config.getIntElse(base + "min-eat-time",   1400);
+        this.minDrinkTime = config.getIntElse(base + "min-drink-time", 1400);
+    }
+
+    @Override
     public void onPacketReceive(PacketReceiveEvent event) {
         if (player.disableGrim) return;
 
         if (event.getPacketType() == PacketType.Play.Client.USE_ITEM) {
-            useStartTime = System.currentTimeMillis();
-            isUsing = true;
+            var hand = player.inventory.getHeldItem();
+            ItemType type = hand.getType();
+            // Track whether the used item is food (EDIBLE) or a non-food consumable (potion etc)
+            if (type != null && type.hasAttribute(ItemTypes.ItemAttribute.EDIBLE)) {
+                useStartTime = System.currentTimeMillis();
+                isUsing = true;
+                isFood = true;
+            } else if (type == ItemTypes.POTION || type == ItemTypes.MILK_BUCKET
+                    || type == ItemTypes.HONEY_BOTTLE) {
+                useStartTime = System.currentTimeMillis();
+                isUsing = true;
+                isFood = false;
+            }
         }
 
         if (event.getPacketType() == PacketType.Play.Client.PLAYER_DIGGING) {
@@ -54,12 +81,14 @@ public class CrossFastEat extends Check implements PostPredictionCheck {
         long elapsed = System.currentTimeMillis() - useStartTime;
         if (elapsed > 5000 || elapsed < 100) {
             isUsing = false;
+            reward();
             return;
         }
 
-        boolean fastEat = elapsed < MIN_EAT_TIME;
+        long minTime = isFood ? minEatTime : minDrinkTime;
+        boolean fastConsume = elapsed < minTime;
 
-        if (!fastEat) {
+        if (!fastConsume) {
             buffer = Math.max(0, buffer - 0.02);
             reward();
             return;
@@ -73,8 +102,9 @@ public class CrossFastEat extends Check implements PostPredictionCheck {
 
         buffer += (nettyConfirms || spartanConfirms) ? 1.5 : 0.5;
         if (buffer > 3.0) {
-            flagAndAlert(String.format("eat=%dms netty=%.1f/s spartan=%s",
-                elapsed, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
+            flagAndAlert(String.format("eat=%dms min=%dms food=%b netty=%.1f/s spartan=%s",
+                elapsed, minTime, isFood,
+                player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
         }
         isUsing = false;
     }

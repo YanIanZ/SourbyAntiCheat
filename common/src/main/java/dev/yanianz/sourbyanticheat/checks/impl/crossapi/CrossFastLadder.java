@@ -1,6 +1,8 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
+import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 import com.github.retrooper.packetevents.protocol.world.states.type.StateTypes;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 import dev.yanianz.sourbyanticheat.checks.Check;
@@ -14,11 +16,17 @@ import dev.yanianz.sourbyanticheat.utils.nmsutil.Collisions;
 public class CrossFastLadder extends Check implements PacketCheck {
 
     private int buffer;
-    private static final double MAX_LADDER_SPEED = 0.20;
+
+    private double maxLadderSpeed = 0.20;
     private static final double NETTY_RATE_THRESHOLD = 18.0;
 
     public CrossFastLadder(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        this.maxLadderSpeed = config.getDoubleElse(getConfigName() + ".max-ladder-speed", 0.20);
     }
 
     @Override
@@ -30,8 +38,14 @@ public class CrossFastLadder extends Check implements PacketCheck {
 
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
         if (player.packetStateData.lastPacketWasTeleport) return;
-        if (player.canFly || player.isFlying || player.isGliding || player.inVehicle()
-                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE) return;
+        // Duplicate CREATIVE check removed — already guarded above.
+        if (player.canFly || player.isFlying || player.isGliding || player.inVehicle()) return;
+
+        // Levitation causes uncontrolled vertical movement — exempt
+        if (player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)) {
+            reward();
+            return;
+        }
 
         boolean onLadder = Collisions.hasMaterial(player,
                 player.boundingBox.copy(),
@@ -46,7 +60,7 @@ public class CrossFastLadder extends Check implements PacketCheck {
 
         double deltaY = player.y - player.lastY;
 
-        if (deltaY > MAX_LADDER_SPEED && deltaY < 0.5) {
+        if (deltaY > maxLadderSpeed && deltaY < 0.5) {
             boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
 
             SpartanCrossCheck.CrossCheckResult spartanResult =
