@@ -40,6 +40,13 @@ import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossAutoClicker;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.PingSpoof;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.Nuker;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFreecam;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastLadder;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.FastFall;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossJump;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossTeleport;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.DerpHead;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastEat;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFoodSprint;
 import dev.yanianz.sourbyanticheat.checks.impl.elytra.*;
 import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitA;
 import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitB;
@@ -159,6 +166,7 @@ public class CheckManager {
                 .put(CrossSpider.class, new CrossSpider(player))
                 .put(CrossElytraMove.class, new CrossElytraMove(player))
                 .put(CrossKillAura.class, new CrossKillAura(player))
+                .put(CrossFastLadder.class, new CrossFastLadder(player))
                 .put(MorePackets.class, new MorePackets(player))
                 .put(CrossAutoClicker.class, new CrossAutoClicker(player))
                 .put(PingSpoof.class, new PingSpoof(player))
@@ -266,6 +274,7 @@ public class CheckManager {
                 .put(AimDuplicateLook.class, new AimDuplicateLook(player))
                 .put(AimAssist.class, new AimAssist(player))
                 .put(Baritone.class, new Baritone(player))
+                .put(DerpHead.class, new DerpHead(player))
                 .build();
         vehicleChecks = new ImmutableClassToInstanceMap.Builder<VehicleCheck>()
                 .put(VehiclePredictionRunner.class, new VehiclePredictionRunner(player))
@@ -319,6 +328,11 @@ public class CheckManager {
                 .put(CrossJesus.class, new CrossJesus(player))
                 .put(CrossNoFall.class, new CrossNoFall(player))
                 .put(CrossFreecam.class, new CrossFreecam(player))
+                .put(FastFall.class, new FastFall(player))
+                .put(CrossJump.class, new CrossJump(player))
+                .put(CrossTeleport.class, new CrossTeleport(player))
+                .put(CrossFastEat.class, new CrossFastEat(player))
+                .put(CrossFoodSprint.class, new CrossFoodSprint(player))
                 .put(Freecam.class, new Freecam(player))
                 .put(NoClip.class, new NoClip(player))
                 .put(IrregularMovements.class, new IrregularMovements(player))

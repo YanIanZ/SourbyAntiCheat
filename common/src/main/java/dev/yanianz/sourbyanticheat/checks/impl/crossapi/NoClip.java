@@ -1,6 +1,5 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
-import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;

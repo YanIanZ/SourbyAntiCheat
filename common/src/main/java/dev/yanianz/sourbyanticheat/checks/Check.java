@@ -7,7 +7,6 @@ import ac.grim.grimac.api.event.events.FlagEvent;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.spartan.SpartanEventBridge;
-import dev.yanianz.sourbyanticheat.utils.anticheat.LogUtil;
 import dev.yanianz.sourbyanticheat.manager.AutoPunishment;
 import dev.yanianz.sourbyanticheat.manager.CheckPerformance;
 import dev.yanianz.sourbyanticheat.utils.reflection.GeyserUtil;
