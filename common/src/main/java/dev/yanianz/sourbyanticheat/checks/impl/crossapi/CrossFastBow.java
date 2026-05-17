@@ -52,21 +52,20 @@ public class CrossFastBow extends Check implements PacketCheck {
                 long charge = System.currentTimeMillis() - drawStart;
                 isDrawing = false;
 
-                // Subtract player RTT so high-ping players get leniency on their charge window.
-                // Clamp to 0 so a high-ping player never has a negative adjustedCharge that
-                // auto-flags every shot; also guard adjustedCharge > 0 so a genuinely slow
-                // draw that ping fully covers is never flagged.
+                // Add player RTT as tolerance: a high-ping player's server-measured charge
+                // appears shorter than the real client-side duration, so we grant the full
+                // ping as benefit of the doubt. Flag only when charge + ping is still below
+                // minChargeTime — meaning even with leniency the shot was impossibly fast.
                 long ping = player.getTransactionPing();
-                long adjustedCharge = Math.max(0, charge - ping);
 
-                if (adjustedCharge > 0 && adjustedCharge < minChargeTime) {
+                if (charge > 0 && charge + ping < minChargeTime) {
                     boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
                     SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "FastBow");
                     boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
                     buffer += (nettyConfirms || spartanConfirms) ? 2 : 1;
                     if (buffer > 3) {
-                        flagAndAlert(String.format("charge=%dms adj=%dms ping=%dms netty=%.1f/s spartan=%s",
-                            charge, adjustedCharge, ping,
+                        flagAndAlert(String.format("charge=%dms tolerant=%dms ping=%dms netty=%.1f/s spartan=%s",
+                            charge, charge + ping, ping,
                             player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
                     }
                 } else {
