@@ -17,7 +17,6 @@ public class BlockReach extends BlockPlaceCheck {
 
     // Protocol/physics constants — not configurable
     private static final double STANDING_EYE_HEIGHT = 1.62;
-    private static final double SNEAKING_EYE_HEIGHT = 1.27;
 
     public BlockReach(SacPlayer player) {
         super(player);

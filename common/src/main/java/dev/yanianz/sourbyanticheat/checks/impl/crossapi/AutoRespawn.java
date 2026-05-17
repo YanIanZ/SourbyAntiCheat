@@ -55,6 +55,8 @@ public class AutoRespawn extends Check implements PacketCheck {
                             lastDeathTime = now;
                             return;
                         }
+                        // Suspicious but below flag threshold — decay VL so it cannot accumulate monotonically
+                        reward();
                     } else {
                         buffer = Math.max(0, buffer - 1);
                         reward();
