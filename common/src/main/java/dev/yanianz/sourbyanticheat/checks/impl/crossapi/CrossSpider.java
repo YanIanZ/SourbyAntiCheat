@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 import dev.yanianz.sourbyanticheat.checks.Check;
@@ -12,14 +13,24 @@ import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 @CheckData(name = "CrossSpider", configName = "crossspider", decay = 0.1, setback = 10, stableKey = "cross.spider")
 public class CrossSpider extends Check implements PacketCheck {
 
-    private int spiderBuffer;
+    private double spiderBuffer;
     private int consecutiveWallTicks;
-    private static final double MIN_Y_DELTA = 0.15;
-    private static final double MAX_Y_DELTA = 0.5;
-    private static final double NETTY_RATE_THRESHOLD = 18.0;
+
+    // Config-wired thresholds (defaults equal prior hardcoded values)
+    private double minYDelta          = 0.15;
+    private double maxYDelta          = 0.5;
+    private double nettyRateThreshold = 18.0;
 
     public CrossSpider(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        minYDelta          = config.getDoubleElse(base + "min-y-delta", 0.15);
+        maxYDelta          = config.getDoubleElse(base + "max-y-delta", 0.5);
+        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 18.0);
     }
 
     @Override
@@ -44,14 +55,14 @@ public class CrossSpider extends Check implements PacketCheck {
         double deltaY = player.crossValidationData.pePositionDeltaY;
         boolean againstWall = player.horizontalCollision;
 
-        if (againstWall && deltaY > MIN_Y_DELTA && deltaY < MAX_Y_DELTA) {
+        if (againstWall && deltaY > minYDelta && deltaY < maxYDelta) {
             consecutiveWallTicks++;
         } else {
             consecutiveWallTicks = 0;
         }
 
         boolean wallClimbing = consecutiveWallTicks >= 4
-            && deltaY > MIN_Y_DELTA && deltaY < MAX_Y_DELTA
+            && deltaY > minYDelta && deltaY < maxYDelta
             && againstWall;
 
         if (!wallClimbing) {
@@ -60,7 +71,7 @@ public class CrossSpider extends Check implements PacketCheck {
             return;
         }
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > nettyRateThreshold;
 
         SpartanCrossCheck.CrossCheckResult spartanResult =
             SpartanCrossCheck.checkSpartan(player.uuid, "Spider");
@@ -70,9 +81,9 @@ public class CrossSpider extends Check implements PacketCheck {
         double multiplier = ping > 400 ? 0.5 : 1.0;
 
         if (nettyConfirms || spartanConfirms) {
-            spiderBuffer += (int)(2 * multiplier);
+            spiderBuffer += 2 * multiplier;
         } else {
-            spiderBuffer += (int)(1 * multiplier);
+            spiderBuffer += multiplier;
         }
 
         if (spiderBuffer > 4) {

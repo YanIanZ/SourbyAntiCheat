@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.player.GameMode;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
@@ -14,14 +15,24 @@ import dev.yanianz.sourbyanticheat.utils.nmsutil.Collisions;
 @CheckData(name = "CrossPhase", configName = "crossphase", decay = 0.05, setback = 5, stableKey = "cross.phase")
 public class CrossPhase extends Check implements PacketCheck {
 
-    private int phaseBuffer;
+    private double phaseBuffer;
     private long lastPacketTime;
-    private static final long GAP_THRESHOLD_MS = 1000;
-    private static final double OFFSET_THRESHOLD = 0.1;
-    private static final double NETTY_RATE_THRESHOLD = 15.0;
+
+    // Config-wired thresholds (defaults equal prior hardcoded values)
+    private long gapThresholdMs       = 1000;
+    private double offsetThreshold    = 0.1;
+    private double nettyRateThreshold = 15.0;
 
     public CrossPhase(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        gapThresholdMs     = config.getIntElse(base + "gap-threshold-ms", 1000);
+        offsetThreshold    = config.getDoubleElse(base + "offset-threshold", 0.1);
+        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 15.0);
     }
 
     @Override
@@ -42,11 +53,11 @@ public class CrossPhase extends Check implements PacketCheck {
         long gap = now - lastPacketTime;
         lastPacketTime = now;
 
-        boolean gapFlag = gap > GAP_THRESHOLD_MS;
+        boolean gapFlag = gap > gapThresholdMs;
 
         SimpleCollisionBox playerBox = player.boundingBox.copy().expand(0.05);
         boolean insideBlock = !Collisions.isEmpty(player, playerBox)
-            && player.crossValidationData.offsetFromPrediction > OFFSET_THRESHOLD;
+            && player.crossValidationData.offsetFromPrediction > offsetThreshold;
 
         if (!gapFlag && !insideBlock) {
             phaseBuffer = Math.max(0, phaseBuffer - 1);
@@ -54,8 +65,8 @@ public class CrossPhase extends Check implements PacketCheck {
             return;
         }
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec < NETTY_RATE_THRESHOLD
-            || gap > GAP_THRESHOLD_MS * 2;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec < nettyRateThreshold
+            || gap > gapThresholdMs * 2;
 
         SpartanCrossCheck.CrossCheckResult spartanResult =
             SpartanCrossCheck.checkSpartan(player.uuid, "Phase");
@@ -75,9 +86,9 @@ public class CrossPhase extends Check implements PacketCheck {
         double multiplier = ping > 400 ? 0.5 : 1.0;
 
         if (nettyConfirms || spartanConfirms) {
-            phaseBuffer += (int)(2 * multiplier);
+            phaseBuffer += 2 * multiplier;
         } else {
-            phaseBuffer += (int)(1 * multiplier);
+            phaseBuffer += multiplier;
         }
 
         if (phaseBuffer > 5) {

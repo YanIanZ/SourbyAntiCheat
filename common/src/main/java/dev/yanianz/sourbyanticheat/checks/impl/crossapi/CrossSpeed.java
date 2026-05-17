@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
@@ -11,13 +12,24 @@ import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 public class CrossSpeed extends Check implements PostPredictionCheck {
 
     private double buffer;
-    private static final double VELOCITY_MULTIPLIER = 2.0;
-    private static final double GROUND_FRICTION = 0.6;
-    private static final double AIR_FRICTION = 0.91;
-    private static final double NETTY_RATE_THRESHOLD = 18.0;
+
+    // Config-wired thresholds (defaults equal prior hardcoded values)
+    private double velocityMultiplier = 2.0;
+    private double groundFriction     = 0.6;
+    private double airFriction        = 0.91;
+    private double nettyRateThreshold = 18.0;
 
     public CrossSpeed(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        velocityMultiplier = config.getDoubleElse(base + "velocity-multiplier", 2.0);
+        groundFriction     = config.getDoubleElse(base + "ground-friction", 0.6);
+        airFriction        = config.getDoubleElse(base + "air-friction", 0.91);
+        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 18.0);
     }
 
     @Override
@@ -42,8 +54,8 @@ public class CrossSpeed extends Check implements PostPredictionCheck {
         double velZ = player.clientVelocity.getZ();
         double velH = Math.sqrt(velX * velX + velZ * velZ);
 
-        double friction = player.crossValidationData.peOnGround ? GROUND_FRICTION : AIR_FRICTION;
-        double maxExpectedH = velH * VELOCITY_MULTIPLIER;
+        double friction = player.crossValidationData.peOnGround ? groundFriction : airFriction;
+        double maxExpectedH = velH * velocityMultiplier;
 
         double offset = player.crossValidationData.offsetFromPrediction;
         boolean velocityFlag = actualH > maxExpectedH && velH > 0.01;
@@ -58,18 +70,18 @@ public class CrossSpeed extends Check implements PostPredictionCheck {
         int ping = player.getTransactionPing();
         double pingMultiplier = ping > 400 ? 0.5 : 1.0;
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > nettyRateThreshold;
         SpartanCrossCheck.CrossCheckResult spartanResult =
             SpartanCrossCheck.checkSpartan(player.uuid, "Speed");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
         boolean crossConfirm = nettyConfirms || spartanConfirms;
 
+        // Both flags false is unreachable here — the !velocityFlag && !predictionFlag clean
+        // path returns above — so at least one of the two branches always applies.
         if (velocityFlag && predictionFlag) {
             buffer += 1.5 * pingMultiplier;
-        } else if (velocityFlag || predictionFlag) {
-            buffer += 0.75 * pingMultiplier;
         } else {
-            buffer += 0.3 * pingMultiplier;
+            buffer += 0.75 * pingMultiplier;
         }
 
         if (buffer > 4.0) {
@@ -77,7 +89,5 @@ public class CrossSpeed extends Check implements PostPredictionCheck {
                 actualH, velH, offset,
                 player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
         }
-
-        reward();
     }
 }

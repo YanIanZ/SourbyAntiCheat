@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.attribute.Attributes;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
@@ -9,17 +10,28 @@ import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
+import dev.yanianz.sourbyanticheat.utils.collisions.datatypes.SimpleCollisionBox;
 import dev.yanianz.sourbyanticheat.utils.data.packetentity.PacketEntity;
+import dev.yanianz.sourbyanticheat.utils.nmsutil.ReachUtils;
 
 @CheckData(name = "CrossReach", configName = "crossreach", decay = 0.01, setback = 15, stableKey = "cross.reach")
 public class CrossReach extends Check implements PacketCheck {
 
     private int buffer;
-    private static final double REACH_MARGIN = 0.5;
-    private static final double NETTY_RATE_THRESHOLD = 15.0;
+
+    // Config-wired thresholds (defaults equal prior hardcoded values)
+    private double reachMargin        = 0.5;
+    private double nettyRateThreshold = 15.0;
 
     public CrossReach(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        reachMargin        = config.getDoubleElse(base + "reach-margin", 0.5);
+        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 15.0);
     }
 
     @Override
@@ -40,12 +52,12 @@ public class CrossReach extends Check implements PacketCheck {
 
         double maxReach = player.compensatedEntities.self.getAttributeValue(Attributes.ENTITY_INTERACTION_RANGE);
 
-        double ex = entity.trackedServerPosition.getPos().getX();
-        double ey = entity.trackedServerPosition.getPos().getY();
-        double ez = entity.trackedServerPosition.getPos().getZ();
-        double dist = Math.sqrt(Math.pow(player.x - ex, 2) + Math.pow(player.y - ey, 2) + Math.pow(player.z - ez, 2));
+        // Distance to the nearest point of the target's bounding box, not root-to-root —
+        // root distance overestimates for tall/wide entities and produces false positives.
+        SimpleCollisionBox targetBox = entity.getPossibleCollisionBoxes();
+        double dist = ReachUtils.getMinReachToBox(player, targetBox);
 
-        boolean outOfReach = dist > maxReach + REACH_MARGIN;
+        boolean outOfReach = dist > maxReach + reachMargin;
 
         if (!outOfReach) {
             buffer = Math.max(0, buffer - 1);
@@ -53,7 +65,7 @@ public class CrossReach extends Check implements PacketCheck {
             return;
         }
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > nettyRateThreshold;
 
         SpartanCrossCheck.CrossCheckResult spartanResult =
             SpartanCrossCheck.checkSpartan(player.uuid, "Reach");

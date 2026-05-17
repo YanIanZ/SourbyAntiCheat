@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 import dev.yanianz.sourbyanticheat.checks.Check;
@@ -13,10 +14,21 @@ public class CrossSpeedB extends Check implements PacketCheck {
 
     private double buffer;
     private double consistentRatio;
-    private static final double NETTY_RATE_THRESHOLD = 18.0;
-    private static final double MAX_RATIO_DEVIATION = 0.3;
+
+    // Config-wired thresholds (defaults equal prior hardcoded values)
+    private double nettyRateThreshold = 18.0;
+    private double maxRatioDeviation  = 0.3;
+    private double ratioThreshold     = 1.5;
 
     public CrossSpeedB(SacPlayer player) { super(player); }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 18.0);
+        maxRatioDeviation  = config.getDoubleElse(base + "max-ratio-deviation", 0.3);
+        ratioThreshold     = config.getDoubleElse(base + "ratio-threshold", 1.5);
+    }
 
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
@@ -41,23 +53,29 @@ public class CrossSpeedB extends Check implements PacketCheck {
         double ratio = actualH / velH;
         double diff = Math.abs(ratio - consistentRatio);
 
-        if (diff < MAX_RATIO_DEVIATION && ratio > 1.5) {
+        if (diff < maxRatioDeviation && ratio > ratioThreshold) {
             buffer += 0.5;
         } else {
             buffer = Math.max(0, buffer - 0.5);
             consistentRatio = ratio;
         }
 
-        if (buffer > 4.0) {
-            boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
-            SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "Speed");
-            boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
+        if (buffer <= 4.0) {
+            reward();
+            return;
+        }
 
-            if (nettyConfirms || spartanConfirms) {
-                flagAndAlert(String.format("ratio=%.2f buffer=%.1f netty=%.1f/s spartan=%s",
-                    ratio, buffer, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
-            }
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > nettyRateThreshold;
+        SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "Speed");
+        boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
+
+        if (nettyConfirms || spartanConfirms) {
+            flagAndAlert(String.format("ratio=%.2f buffer=%.1f netty=%.1f/s spartan=%s",
+                ratio, buffer, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
         } else {
+            // Buffer is over threshold but cross-checks do not confirm — decay and reward
+            // so VL does not stagnate while no cross-source agrees.
+            buffer = Math.max(0, buffer - 0.5);
             reward();
         }
     }

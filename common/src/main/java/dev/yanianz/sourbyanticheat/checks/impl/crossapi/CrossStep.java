@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 import dev.yanianz.sourbyanticheat.checks.Check;
@@ -12,13 +13,23 @@ import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 @CheckData(name = "CrossStep", configName = "crossstep", decay = 0.1, setback = 10, stableKey = "cross.step")
 public class CrossStep extends Check implements PacketCheck {
 
-    private int stepBuffer;
-    private static final double STEP_THRESHOLD = 0.6;
-    private static final double NETTY_DELAY_THRESHOLD = 40.0;
-    private static final double NETTY_RATE_THRESHOLD = 18.0;
+    private double stepBuffer;
+
+    // Config-wired thresholds (defaults equal prior hardcoded values)
+    private double stepThreshold       = 0.6;
+    private double nettyDelayThreshold = 40.0;
+    private double nettyRateThreshold  = 18.0;
 
     public CrossStep(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        stepThreshold       = config.getDoubleElse(base + "step-threshold", 0.6);
+        nettyDelayThreshold = config.getDoubleElse(base + "netty-delay-threshold", 40.0);
+        nettyRateThreshold  = config.getDoubleElse(base + "netty-rate-threshold", 18.0);
     }
 
     @Override
@@ -38,7 +49,7 @@ public class CrossStep extends Check implements PacketCheck {
         }
 
         double deltaY = player.crossValidationData.pePositionDeltaY;
-        boolean stepSpike = deltaY > STEP_THRESHOLD;
+        boolean stepSpike = deltaY > stepThreshold;
         boolean notJumping = player.clientVelocity.getY() <= 0;
 
         if (!stepSpike || !notJumping) {
@@ -47,8 +58,8 @@ public class CrossStep extends Check implements PacketCheck {
             return;
         }
 
-        boolean nettyConfirms = player.crossValidationData.nettyAvgDelayBetweenPacketsMs < NETTY_DELAY_THRESHOLD
-            && player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
+        boolean nettyConfirms = player.crossValidationData.nettyAvgDelayBetweenPacketsMs < nettyDelayThreshold
+            && player.crossValidationData.nettyPacketRatePerSec > nettyRateThreshold;
 
         SpartanCrossCheck.CrossCheckResult spartanResult =
             SpartanCrossCheck.checkSpartan(player.uuid, "Step");
@@ -58,9 +69,9 @@ public class CrossStep extends Check implements PacketCheck {
         double multiplier = ping > 400 ? 0.5 : 1.0;
 
         if (nettyConfirms || spartanConfirms) {
-            stepBuffer += (int)(2 * multiplier);
+            stepBuffer += 2 * multiplier;
         } else {
-            stepBuffer += (int)(1 * multiplier);
+            stepBuffer += multiplier;
         }
 
         if (stepBuffer > 3) {
