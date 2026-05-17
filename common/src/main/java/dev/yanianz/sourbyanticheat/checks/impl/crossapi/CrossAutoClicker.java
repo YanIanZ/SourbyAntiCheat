@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientInteractEntity;
@@ -17,11 +18,25 @@ public class CrossAutoClicker extends Check implements PacketCheck {
     private final LinkedList<Long> clickTimes = new LinkedList<>();
     private int buffer;
     private static final int MAX_SAMPLES = 30;
-    private static final double NETTY_VARIANCE_THRESHOLD = 10.0;
-    private static final double NETTY_RATE_THRESHOLD = 15.0;
+    private double nettyVarianceThreshold = 10.0;
+    private double nettyRateThreshold = 15.0;
+    private int cpsThresholdLowPing = 18;
+    private int cpsThresholdMedPing = 15;
+    private int cpsThresholdHighPing = 12;
+    private int cpsThresholdVeryHighPing = 10;
 
     public CrossAutoClicker(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        this.nettyVarianceThreshold = config.getDoubleElse(getConfigName() + ".netty-variance-threshold", 10.0);
+        this.nettyRateThreshold = config.getDoubleElse(getConfigName() + ".netty-rate-threshold", 15.0);
+        this.cpsThresholdLowPing = config.getIntElse(getConfigName() + ".cps-threshold-low-ping", 18);
+        this.cpsThresholdMedPing = config.getIntElse(getConfigName() + ".cps-threshold-med-ping", 15);
+        this.cpsThresholdHighPing = config.getIntElse(getConfigName() + ".cps-threshold-high-ping", 12);
+        this.cpsThresholdVeryHighPing = config.getIntElse(getConfigName() + ".cps-threshold-very-high-ping", 10);
     }
 
     @Override
@@ -44,10 +59,10 @@ public class CrossAutoClicker extends Check implements PacketCheck {
 
         long now = System.nanoTime();
         clickTimes.add(now);
+        // Single prune via while-loop — no redundant removeIf
         while (!clickTimes.isEmpty() && now - clickTimes.getFirst() > 1_000_000_000L) {
             clickTimes.removeFirst();
         }
-        clickTimes.removeIf(t -> now - t > 2_000_000_000L);
 
         int cps = clickTimes.size();
         int ping = player.getTransactionPing();
@@ -58,10 +73,10 @@ public class CrossAutoClicker extends Check implements PacketCheck {
         }
 
         int effectiveThreshold;
-        if (ping < 50) effectiveThreshold = 18;
-        else if (ping < 150) effectiveThreshold = 15;
-        else if (ping < 300) effectiveThreshold = 12;
-        else effectiveThreshold = 10;
+        if (ping < 50) effectiveThreshold = cpsThresholdLowPing;
+        else if (ping < 150) effectiveThreshold = cpsThresholdMedPing;
+        else if (ping < 300) effectiveThreshold = cpsThresholdHighPing;
+        else effectiveThreshold = cpsThresholdVeryHighPing;
 
         if (cps < effectiveThreshold) {
             reward();
@@ -83,9 +98,10 @@ public class CrossAutoClicker extends Check implements PacketCheck {
         }
         int n = clickTimes.size() - 1;
         if (n > 0) avgInterval /= n;
-        double variance = n > 0 ? maxInterval - minInterval : 0;
+        // range = max - min (renamed from misleading 'variance')
+        double range = n > 0 ? maxInterval - minInterval : 0;
 
-        boolean consistentPattern = variance < 25.0 && cps > 12;
+        boolean consistentPattern = range < 25.0 && cps > 12;
         boolean highCPS = cps > effectiveThreshold + 5;
 
         if (!consistentPattern && !highCPS) {
@@ -94,8 +110,8 @@ public class CrossAutoClicker extends Check implements PacketCheck {
             return;
         }
 
-        boolean nettyConfirms = player.crossValidationData.nettyIntervalVariance < NETTY_VARIANCE_THRESHOLD
-            && player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
+        boolean nettyConfirms = player.crossValidationData.nettyIntervalVariance < nettyVarianceThreshold
+            && player.crossValidationData.nettyPacketRatePerSec > nettyRateThreshold;
 
         SpartanCrossCheck.CrossCheckResult spartanResult =
             SpartanCrossCheck.checkSpartan(player.uuid, "AutoClicker");
@@ -108,8 +124,8 @@ public class CrossAutoClicker extends Check implements PacketCheck {
         }
 
         if (buffer > 5) {
-            flagAndAlert(String.format("cps=%d ping=%dms var=%.1fms nettyVar=%.1f spartan=%s",
-                cps, ping, variance,
+            flagAndAlert(String.format("cps=%d ping=%dms range=%.1fms nettyVar=%.1f spartan=%s",
+                cps, ping, range,
                 player.crossValidationData.nettyIntervalVariance, spartanResult.type()));
         }
     }

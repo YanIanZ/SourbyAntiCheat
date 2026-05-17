@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientInteractEntity;
@@ -16,9 +17,15 @@ public class BackTrack extends Check implements PostPredictionCheck {
     private int buffer;
     private boolean attackedThisTick = false;
     private static final double NETTY_RATE_THRESHOLD = 15.0;
+    private double mismatchThreshold = 1.5;
 
     public BackTrack(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        this.mismatchThreshold = config.getDoubleElse(getConfigName() + ".mismatch-threshold", 1.5);
     }
 
     @Override
@@ -45,13 +52,17 @@ public class BackTrack extends Check implements PostPredictionCheck {
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
         if (player.compensatedEntities.self.isDead) return;
 
+        // Vehicle / gliding / elytra / teleport exemption — position claims unreliable in these states
+        if (player.inVehicle() || player.isGliding) return;
+        if (player.packetStateData.lastPacketWasTeleport) return;
+
         if (player.packetStateData.lastClaimedPosition == null) return;
 
         double dx = player.x - player.packetStateData.lastClaimedPosition.getX();
         double dz = player.z - player.packetStateData.lastClaimedPosition.getZ();
         double mismatch = Math.sqrt(dx * dx + dz * dz);
 
-        if (mismatch < 1.5) {
+        if (mismatch < mismatchThreshold) {
             reward();
             return;
         }

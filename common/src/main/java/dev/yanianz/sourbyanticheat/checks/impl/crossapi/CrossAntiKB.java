@@ -10,7 +10,7 @@ import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 @CheckData(name = "CrossAntiKB", configName = "crossantikb", decay = 0.15, setback = 15, stableKey = "cross.antikb")
 public class CrossAntiKB extends Check implements PostPredictionCheck {
 
-    private int consecutiveFlags;
+    private int buffer;
     private static final double RATIO_THRESHOLD = 0.5;
 
     public CrossAntiKB(SacPlayer player) {
@@ -26,7 +26,7 @@ public class CrossAntiKB extends Check implements PostPredictionCheck {
 
         boolean hasVelocity = player.likelyKB != null || player.firstBreadKB != null;
         if (!hasVelocity) {
-            consecutiveFlags = 0;
+            buffer = Math.max(0, buffer - 1);
             reward();
             return;
         }
@@ -53,15 +53,15 @@ public class CrossAntiKB extends Check implements PostPredictionCheck {
                 SpartanCrossCheck.checkSpartan(player.uuid, "AntiVelocity");
             boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 
-            consecutiveFlags++;
+            buffer++;
 
-            if (spartanConfirms || consecutiveFlags >= 2) {
-                String verbose = String.format("ratio=%.2f predicted=%.3f actual=%.3f spartan=%s consecutive=%d",
-                    ratio, predictedMovement, actualMovement, spartanResult.type(), consecutiveFlags);
+            if (spartanConfirms || buffer >= 2) {
+                String verbose = String.format("ratio=%.2f predicted=%.3f actual=%.3f spartan=%s buffer=%d",
+                    ratio, predictedMovement, actualMovement, spartanResult.type(), buffer);
                 flagAndAlert(verbose);
             }
         } else {
-            consecutiveFlags = 0;
+            buffer = Math.max(0, buffer - 1);
             reward();
         }
     }

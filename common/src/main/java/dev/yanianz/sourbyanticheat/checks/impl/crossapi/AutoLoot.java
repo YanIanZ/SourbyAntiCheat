@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import dev.yanianz.sourbyanticheat.checks.Check;
@@ -14,12 +15,18 @@ public class AutoLoot extends Check implements PacketCheck {
     private int pickupCount;
     private long lastReset;
     private int buffer;
-    private static final int PICKUP_THRESHOLD = 10;
-    private static final double NETTY_RATE_THRESHOLD = 15.0;
+    private int pickupThreshold = 10;
+    private double nettyRateThreshold = 15.0;
 
     public AutoLoot(SacPlayer player) {
         super(player);
         lastReset = System.currentTimeMillis();
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        this.pickupThreshold = config.getIntElse(getConfigName() + ".pickup-threshold", 10);
+        this.nettyRateThreshold = config.getDoubleElse(getConfigName() + ".netty-rate-threshold", 15.0);
     }
 
     @Override
@@ -28,6 +35,12 @@ public class AutoLoot extends Check implements PacketCheck {
         if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
 
+        // High-ping pickup-window exemption — items may arrive clustered under lag
+        if (player.getTransactionPing() > 400) {
+            reward();
+            return;
+        }
+
         long now = System.currentTimeMillis();
         if (now - lastReset > 1000) { pickupCount = 0; lastReset = now; }
 
@@ -35,9 +48,12 @@ public class AutoLoot extends Check implements PacketCheck {
             pickupCount++;
         }
 
-        if (pickupCount < PICKUP_THRESHOLD) return;
+        if (pickupCount < pickupThreshold) {
+            reward();
+            return;
+        }
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > nettyRateThreshold;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "Exploits");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 
@@ -45,6 +61,8 @@ public class AutoLoot extends Check implements PacketCheck {
         if (buffer > 3) {
             flagAndAlert(String.format("picks=%d/s netty=%.1f/s spartan=%s",
                 pickupCount, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
+            return;
         }
+        reward();
     }
 }

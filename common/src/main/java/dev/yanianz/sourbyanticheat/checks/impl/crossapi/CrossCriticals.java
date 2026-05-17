@@ -37,7 +37,7 @@ public class CrossCriticals extends Check implements PostPredictionCheck {
         if (!attackedThisTick) {
             buffer = Math.max(0, buffer - 1);
             reward();
-            attackedThisTick = false;
+            // dead code removed: attackedThisTick = false was unreachable here (already returned)
             return;
         }
         attackedThisTick = false;
@@ -48,6 +48,13 @@ public class CrossCriticals extends Check implements PostPredictionCheck {
                 || player.compensatedEntities.self.hasPotionEffect(PotionTypes.SLOW_FALLING)
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
+
+        // Wind-burst exemption — explosion-type velocity (incl. wind charges in 1.21+) can launch a player
+        // upward; criticals check would falsely fire since the player is airborne and moving up.
+        if (player.firstBreadExplosion != null || player.likelyExplosions != null) {
+            reward();
+            return;
+        }
 
         double deltaY = player.crossValidationData.pePositionDeltaY;
         boolean notFalling = deltaY > -0.01;

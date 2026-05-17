@@ -1,20 +1,31 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.BlockPlaceCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.BlockPlace;
+import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 
 @CheckData(name = "BlockReach", configName = "blockreach", decay = 0.02, setback = 10, stableKey = "cross.blockreach")
 public class BlockReach extends BlockPlaceCheck {
 
     private int buffer;
-    private static final double MAX_BLOCK_REACH = 5.5;
+    private double maxBlockReach = 5.5;
     private static final double NETTY_RATE_THRESHOLD = 18.0;
+
+    // Protocol/physics constants — not configurable
+    private static final double STANDING_EYE_HEIGHT = 1.62;
+    private static final double SNEAKING_EYE_HEIGHT = 1.27;
 
     public BlockReach(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        this.maxBlockReach = config.getDoubleElse(getConfigName() + ".max-block-reach", 5.5);
     }
 
     @Override
@@ -23,12 +34,20 @@ public class BlockReach extends BlockPlaceCheck {
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
         if (player.compensatedEntities.self.isDead) return;
 
+        // Teleport exemption — position is stale immediately after teleport
+        if (player.packetStateData.lastPacketWasTeleport) { reward(); return; }
+
+        // Use pose-aware eye height (crouching/swimming have lower eye heights)
+        double eyeHeight = player.getClientVersion().isNewerThanOrEquals(ClientVersion.V_1_9)
+                ? player.pose.eyeHeight
+                : STANDING_EYE_HEIGHT;
+
         double dx = player.x - place.position.getX();
-        double dy = player.y + 1.62 - place.position.getY();
+        double dy = player.y + eyeHeight - place.position.getY();
         double dz = player.z - place.position.getZ();
         double dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-        if (dist < MAX_BLOCK_REACH) { buffer = Math.max(0, buffer - 1); reward(); return; }
+        if (dist < maxBlockReach) { buffer = Math.max(0, buffer - 1); reward(); return; }
 
         boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "BlockReach");

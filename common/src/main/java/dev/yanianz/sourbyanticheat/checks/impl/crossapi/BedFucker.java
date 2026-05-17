@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.BlockBreakCheck;
@@ -14,12 +15,18 @@ public class BedFucker extends Check implements BlockBreakCheck {
     private int bedBreakCount;
     private long lastReset;
     private int buffer;
-    private static final int BED_THRESHOLD = 3;
-    private static final double NETTY_RATE_THRESHOLD = 18.0;
+    private int bedThreshold = 3;
+    private double nettyRateThreshold = 18.0;
 
     public BedFucker(SacPlayer player) {
         super(player);
         lastReset = System.currentTimeMillis();
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        this.bedThreshold = config.getIntElse(getConfigName() + ".bed-threshold", 3);
+        this.nettyRateThreshold = config.getDoubleElse(getConfigName() + ".netty-rate-threshold", 18.0);
     }
 
     @Override
@@ -34,9 +41,9 @@ public class BedFucker extends Check implements BlockBreakCheck {
         if (!Materials.isBed(blockBreak.block.getType())) return;
 
         bedBreakCount++;
-        if (bedBreakCount < BED_THRESHOLD) { reward(); return; }
+        if (bedBreakCount < bedThreshold) { reward(); return; }
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > nettyRateThreshold;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "FastBreak");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 
@@ -44,6 +51,8 @@ public class BedFucker extends Check implements BlockBreakCheck {
         if (buffer > 3) {
             flagAndAlert(String.format("beds=%d/s netty=%.1f/s spartan=%s",
                 bedBreakCount, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
+            return;
         }
+        reward();
     }
 }
