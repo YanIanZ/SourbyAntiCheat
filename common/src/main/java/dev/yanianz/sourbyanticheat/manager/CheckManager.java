@@ -18,12 +18,14 @@ import dev.yanianz.sourbyanticheat.checks.impl.crash.*;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.BackTrack;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.AutoLoot;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.AutoRespawn;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.BedFucker;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.BlockReach;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossAntiKB;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossAutoClicker;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossCriticals;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossElytraMove;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossEntitySpeed;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.ExtraInventory;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastBow;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastBreak;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastEat;
@@ -61,6 +63,7 @@ import dev.yanianz.sourbyanticheat.checks.impl.crossapi.MorePackets;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.NoClip;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.Nuker;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.PingSpoof;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.PortalInventory;
 import dev.yanianz.sourbyanticheat.checks.impl.elytra.*;
 import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitA;
 import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitB;
@@ -282,6 +285,7 @@ public class CheckManager {
                 .put(AutoRespawn.class, new AutoRespawn(player))
                 .put(AutoLoot.class, new AutoLoot(player))
                 .put(FastHeal.class, new FastHeal(player))
+                .put(ExtraInventory.class, new ExtraInventory(player))
                 .put(SetbackBlocker.class, new SetbackBlocker(player)) // Must be last class otherwise we can't check while blocking packets
                 .build();
 
@@ -369,6 +373,7 @@ public class CheckManager {
                 .put(LastInstanceManager.class, player.lastInstanceManager)
                 .put(Liquids.class, new Liquids(player))
                 .put(CrossTower.class, new CrossTower(player))
+                .put(PortalInventory.class, new PortalInventory(player))
                 .build();
 
         blockPlaceChecks = new ImmutableClassToInstanceMap.Builder<BlockPlaceCheck>()
@@ -417,6 +422,7 @@ public class CheckManager {
                 .put(MultiActionsB.class, new MultiActionsB(player))
                 .put(CrossFastBreak.class, new CrossFastBreak(player))
                 .put(Nuker.class, new Nuker(player))
+                .put(BedFucker.class, new BedFucker(player))
                 .build();
 
         // All checks that have no listeners, generally invoked by other code to flag
