@@ -14,6 +14,7 @@ public class PacketEventsCheck implements StartableInitable {
 
     @Override
     public void start() {
+        LogUtil.installFilter();
         String serverBrand = getServerBrand();
         ServerVersion version = PacketEvents.getAPI().getServerManager().getVersion();
         boolean isSourbyCraft = serverBrand.contains("SourbyCraft");

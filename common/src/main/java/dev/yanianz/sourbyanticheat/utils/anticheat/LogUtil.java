@@ -11,6 +11,15 @@ import java.util.logging.Logger;
 @UtilityClass
 public class LogUtil {
     private static final String PREFIX = "[SAC] ";
+    private static SacLogFilter filter;
+
+    public void installFilter() {
+        Logger logger = getLogger();
+        if (logger != null && filter == null) {
+            filter = new SacLogFilter();
+            logger.setFilter(filter);
+        }
+    }
 
     public void info(final String info) {
         getLogger().info(PREFIX + info);

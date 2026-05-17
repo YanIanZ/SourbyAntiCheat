@@ -41,6 +41,30 @@ public class CloudCommandService implements CommandService {
     public void registerCommands() {
         if (commandsRegistered) return;
         CommandManager<Sender> commandManager = commandManagerSupplier.get();
+
+        commandManager.command(
+                commandManager.commandBuilder("sac")
+                        .handler(context -> {
+                            Sender sender = context.sender();
+                            sender.sendMessage(dev.yanianz.sourbyanticheat.utils.anticheat.SacColors.spacer());
+                            sender.sendMessage(dev.yanianz.sourbyanticheat.utils.anticheat.SacColors.header("SAC Command Reference"));
+                            sender.sendMessage(dev.yanianz.sourbyanticheat.utils.anticheat.SacColors.spacer());
+                            for (var group : dev.yanianz.sourbyanticheat.command.commands.SacHelp.COMMAND_GROUPS.entrySet()) {
+                                sender.sendMessage(dev.yanianz.sourbyanticheat.utils.anticheat.SacColors.subHeader(group.getKey()));
+                                for (String cmdLine : group.getValue()) {
+                                    String[] parts = cmdLine.split("\\|", 2);
+                                    sender.sendMessage(dev.yanianz.sourbyanticheat.utils.anticheat.SacColors.cmdEntry(parts[0], parts.length > 1 ? parts[1] : ""));
+                                }
+                                sender.sendMessage(dev.yanianz.sourbyanticheat.utils.anticheat.SacColors.spacer());
+                            }
+                            sender.sendMessage(net.kyori.adventure.text.Component.text()
+                                .append(net.kyori.adventure.text.Component.text("  Tip: ", dev.yanianz.sourbyanticheat.utils.anticheat.SacColors.HIGHLIGHT))
+                                .append(net.kyori.adventure.text.Component.text("Click any command above to auto-fill it", dev.yanianz.sourbyanticheat.utils.anticheat.SacColors.GRAY))
+                                .build());
+                            sender.sendMessage(dev.yanianz.sourbyanticheat.utils.anticheat.SacColors.footer());
+                        })
+        );
+
         new SacPerf().register(commandManager, commandAdapter);
         new SacDebug().register(commandManager, commandAdapter);
         new SacAlerts().register(commandManager, commandAdapter);
@@ -70,6 +94,7 @@ public class CloudCommandService implements CommandService {
         new SacNote().register(commandManager, commandAdapter);
         new SacTop().register(commandManager, commandAdapter);
         new SacExempt().register(commandManager, commandAdapter);
+        new SacChecks().register(commandManager, commandAdapter);
 
         final RequirementPostprocessor<Sender, SenderRequirement>
                 senderRequirementPostprocessor = RequirementPostprocessor.of(

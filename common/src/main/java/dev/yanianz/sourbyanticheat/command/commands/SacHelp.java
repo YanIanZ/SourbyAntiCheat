@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class SacHelp implements BuildableCommand {
 
-    private static final Map<String, String[]> COMMAND_GROUPS = new LinkedHashMap<>() {{
+    public static final Map<String, String[]> COMMAND_GROUPS = new LinkedHashMap<>() {{
         // [category, commands...]
         put("Monitoring", new String[]{
             "alerts|Toggle alert notifications",
@@ -33,11 +33,15 @@ public class SacHelp implements BuildableCommand {
             "list players|List tracked players",
             "list checks|List active checks + VLs"
         });
-        put("Administration", new String[]{
-            "gui|Open control panel GUI",
-            "toggle <check> <player>|Enable/disable check",
-            "exempt <player>|Toggle player exemption",
+        put("Check Management", new String[]{
+            "checks|Open check list (GUI on supported platforms)",
+            "list checks|List checks in chat",
+            "toggle <check> <player>|Enable/disable check for player",
             "reset <player>|Reset player violations",
+            "gui|Open control panel GUI"
+        });
+        put("Administration", new String[]{
+            "exempt <player>|Toggle player exemption",
             "reload|Reload configuration",
             "note <player> <msg>|Add staff note"
         });

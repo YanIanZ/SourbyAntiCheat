@@ -37,9 +37,9 @@ public class PunishmentManager implements ConfigReloadable {
     public void reload(ConfigManager config) {
         List<String> punish = config.getStringListElse("Punishments", new ArrayList<>());
         experimentalSymbol = config.getStringElse("experimental-symbol", "*");
-        alertString = config.getStringElse("alerts-format", "%prefix% &f%player% &bfailed &f%check_name% &f(x&c%vl%&f) &7%verbose%");
+        alertString = config.getStringElse("alerts-format", "%prefix% &f%player% &bfailed &f%check_name% &7[&c%vl%&7] &7%verbose%");
         testMode = config.getBooleanElse("test-mode", false);
-        proxyAlertString = config.getStringElse("alerts-format-proxy", "%prefix% &f[&cproxy&f] &f%player% &bfailed &f%check_name% &f(x&c%vl%&f) &7%verbose%");
+        proxyAlertString = config.getStringElse("alerts-format-proxy", "%prefix% &f[&cproxy&f] &f%player% &bfailed &f%check_name% &7[&c%vl%&7] &7%verbose%");
         try {
             groups.clear();
 

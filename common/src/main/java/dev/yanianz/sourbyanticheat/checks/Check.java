@@ -19,7 +19,6 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
-import java.util.Set;
 
 import static com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying.isFlying;
 
@@ -76,17 +75,8 @@ public class Check extends SacProcessor implements AbstractCheck {
         applyGlobalConfig();
     }
 
-    private static final Set<String> DISABLED_BY_DEFAULT = Set.of(
-        "AimSuspicion", "AutoArmor", "Blink", "SafeWalk",
-        "BadPacketsAE", "BadPacketsW", "NettyDelay", "NettyFlood"
-    );
-
     private void applyGlobalConfig() {
         try {
-            if (DISABLED_BY_DEFAULT.contains(checkName)) {
-                isEnabled = false;
-                return;
-            }
             var cfg = SacAPI.INSTANCE.getConfigManager().getConfig();
             isEnabled = cfg.getBooleanElse("checks.enabled." + checkName, true);
         } catch (Exception ignored) {}
@@ -202,7 +192,7 @@ public class Check extends SacProcessor implements AbstractCheck {
                 + ",\"player\":\"" + player.getName() + "\""
                 + ",\"uuid\":\"" + player.uuid + "\""
                 + ",\"check\":\"" + checkName + "\""
-                + ",\"vl\":" + String.format("%.1f", violations)
+                + ",\"vl\":" + ((int) violations)
                 + ",\"ping\":" + player.getTransactionPing()
                 + ",\"verbose\":\"" + (verbose + spartanSuffix).replace("\"", "'") + "\""
                 + "}";

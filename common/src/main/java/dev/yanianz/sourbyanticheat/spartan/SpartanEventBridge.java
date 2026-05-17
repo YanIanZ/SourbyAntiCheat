@@ -59,7 +59,7 @@ public final class SpartanEventBridge {
             PlayerViolationEvent event = new PlayerViolationEvent(player, checkName, violations, verbose);
             Bukkit.getPluginManager().callEvent(event);
         } catch (Exception e) {
-            LogUtil.warn("[SAC] Failed to fire Spartan PlayerViolationEvent: " + e.getMessage());
+            LogUtil.warn("Failed to fire Spartan PlayerViolationEvent: " + e.getMessage());
         }
     }
 
