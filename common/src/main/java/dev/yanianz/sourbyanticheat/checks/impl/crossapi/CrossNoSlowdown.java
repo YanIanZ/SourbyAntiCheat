@@ -16,7 +16,7 @@ public class CrossNoSlowdown extends Check implements PostPredictionCheck {
     private boolean isUsingItem = false;
     private long lastUseStart = 0;
     private static final double SPRINT_SPEED = 0.28;
-    private static final double NETTY_RATE_THRESHOLD = 20.0;
+    private static final double NETTY_RATE_THRESHOLD = 15.0;
     private static final long USE_TIMEOUT_MS = 5000;
 
     public CrossNoSlowdown(SacPlayer player) {

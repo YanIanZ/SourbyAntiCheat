@@ -15,6 +15,7 @@ public class BackTrack extends Check implements PostPredictionCheck {
 
     private int buffer;
     private boolean attackedThisTick = false;
+    private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public BackTrack(SacPlayer player) {
         super(player);
@@ -55,7 +56,7 @@ public class BackTrack extends Check implements PostPredictionCheck {
             return;
         }
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > 15.0;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "Reach");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 

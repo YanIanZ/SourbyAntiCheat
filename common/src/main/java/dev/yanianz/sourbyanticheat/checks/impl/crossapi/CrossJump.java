@@ -13,7 +13,7 @@ public class CrossJump extends Check implements PostPredictionCheck {
 
     private double buffer;
     private static final double JUMP_THRESHOLD = 1.25;
-    private static final double NETTY_DELAY_THRESHOLD = 50.0;
+    private static final double NETTY_DELAY_THRESHOLD = 40.0;
 
     public CrossJump(SacPlayer player) {
         super(player);
@@ -46,7 +46,9 @@ public class CrossJump extends Check implements PostPredictionCheck {
             SpartanCrossCheck.checkSpartan(player.uuid, "Step");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 
-        buffer += (nettyConfirms || spartanConfirms) ? 1.5 : 0.5;
+        int ping = player.getTransactionPing();
+        double multiplier = ping > 400 ? 0.5 : 1.0;
+        buffer += ((nettyConfirms || spartanConfirms) ? 1.5 : 0.5) * multiplier;
         if (buffer > 3.0) {
             flagAndAlert(String.format("dY=%.3f velY=%.3f netty=%.1fms spartan=%s",
                 deltaY, player.clientVelocity.getY(),

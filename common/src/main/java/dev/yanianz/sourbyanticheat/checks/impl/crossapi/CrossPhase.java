@@ -18,6 +18,7 @@ public class CrossPhase extends Check implements PacketCheck {
     private long lastPacketTime;
     private static final long GAP_THRESHOLD_MS = 1500;
     private static final double OFFSET_THRESHOLD = 0.5;
+    private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public CrossPhase(SacPlayer player) {
         super(player);
@@ -53,7 +54,7 @@ public class CrossPhase extends Check implements PacketCheck {
             return;
         }
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec < 12.0
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec < NETTY_RATE_THRESHOLD
             || gap > GAP_THRESHOLD_MS * 2;
 
         SpartanCrossCheck.CrossCheckResult spartanResult =
@@ -70,10 +71,13 @@ public class CrossPhase extends Check implements PacketCheck {
                 gap, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type());
         }
 
+        int ping = player.getTransactionPing();
+        double multiplier = ping > 400 ? 0.5 : 1.0;
+
         if (nettyConfirms || spartanConfirms) {
-            phaseBuffer += 2;
+            phaseBuffer += (int)(2 * multiplier);
         } else {
-            phaseBuffer += 1;
+            phaseBuffer += (int)(1 * multiplier);
         }
 
         if (phaseBuffer > 8) {

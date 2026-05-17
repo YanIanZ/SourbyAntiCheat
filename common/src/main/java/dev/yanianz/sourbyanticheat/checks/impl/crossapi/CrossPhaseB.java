@@ -16,6 +16,8 @@ public class CrossPhaseB extends Check implements PostPredictionCheck {
 
     private int buffer;
     private SimpleCollisionBox lastBox;
+    private static final double NETTY_RATE_THRESHOLD = 15.0;
+    private final List<SimpleCollisionBox> collisionBoxes = new ArrayList<>();
 
     public CrossPhaseB(SacPlayer player) {
         super(player);
@@ -33,7 +35,8 @@ public class CrossPhaseB extends Check implements PostPredictionCheck {
         }
 
         SimpleCollisionBox newBox = player.boundingBox.copy();
-        List<SimpleCollisionBox> boxes = new ArrayList<>();
+        List<SimpleCollisionBox> boxes = collisionBoxes;
+        boxes.clear();
         Collisions.getCollisionBoxes(player, lastBox, boxes, false);
 
         int blocksPassed = 0;
@@ -45,7 +48,7 @@ public class CrossPhaseB extends Check implements PostPredictionCheck {
 
         if (blocksPassed < 2) { buffer = Math.max(0, buffer - 1); reward(); return; }
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec < 12.0;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec < NETTY_RATE_THRESHOLD;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "Phase");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 

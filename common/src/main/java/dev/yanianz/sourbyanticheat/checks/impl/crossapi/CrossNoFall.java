@@ -12,7 +12,7 @@ public class CrossNoFall extends Check implements PostPredictionCheck {
 
     private double buffer;
     private static final double OFFSET_THRESHOLD = 0.10;
-    private static final double NETTY_DELAY_THRESHOLD = 50.0;
+    private static final double NETTY_DELAY_THRESHOLD = 40.0;
 
     public CrossNoFall(SacPlayer player) {
         super(player);
@@ -51,15 +51,18 @@ public class CrossNoFall extends Check implements PostPredictionCheck {
             SpartanCrossCheck.checkSpartan(player.uuid, "NoFall");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 
+        int ping = player.getTransactionPing();
+        double multiplier = ping > 400 ? 0.5 : 1.0;
+
         if (nettyConfirms || spartanConfirms) {
-            buffer += 1.5;
+            buffer += 1.5 * multiplier;
             if (buffer > 4.0) {
                 flagAndAlert(String.format("yOff=%.3f off=%.3f netty=%.1fms spartan=%s",
                     yOffset, fullOffset,
                     player.crossValidationData.nettyAvgDelayBetweenPacketsMs, spartanResult.type()));
             }
         } else {
-            buffer += 0.5;
+            buffer += 0.5 * multiplier;
             if (buffer > 6.0) {
                 flagAndAlert(String.format("yOff=%.3f off=%.3f (no cross-confirm)",
                     yOffset, fullOffset));

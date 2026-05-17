@@ -17,6 +17,7 @@ public class PingSpoof extends Check implements PacketCheck {
     private int buffer;
     private int stableHighPingCount;
     private static final int PING_SAMPLE_SIZE = 10;
+    private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public PingSpoof(SacPlayer player) {
         super(player);
@@ -65,7 +66,7 @@ public class PingSpoof extends Check implements PacketCheck {
 
         if (stableHighPingCount < 5) return;
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec < 10.0;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec < NETTY_RATE_THRESHOLD;
 
         SpartanCrossCheck.CrossCheckResult spartanResult =
             SpartanCrossCheck.checkSpartan(player.uuid, "Exploits");

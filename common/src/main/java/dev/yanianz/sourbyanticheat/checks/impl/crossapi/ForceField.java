@@ -15,6 +15,7 @@ public class ForceField extends Check implements PacketCheck {
     private int attacksThisTick;
     private int lastEntity;
     private int buffer;
+    private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public ForceField(SacPlayer player) {
         super(player);
@@ -30,7 +31,7 @@ public class ForceField extends Check implements PacketCheck {
 
         if (com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) {
             if (attacksThisTick > 1) {
-                boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > 15.0;
+                boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
                 SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "KillAura");
                 boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
                 buffer += (nettyConfirms || spartanConfirms) ? 2 : 1;

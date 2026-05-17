@@ -16,6 +16,7 @@ public class CrossFastBow extends Check implements PacketCheck {
     private long drawStart = 0;
     private boolean isDrawing = false;
     private static final long MIN_CHARGE_TIME = 100;
+    private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public CrossFastBow(SacPlayer player) {
         super(player);
@@ -45,7 +46,7 @@ public class CrossFastBow extends Check implements PacketCheck {
                 isDrawing = false;
 
                 if (charge < MIN_CHARGE_TIME && charge > 0) {
-                    boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > 15.0;
+                    boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
                     SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "FastBow");
                     boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
                     buffer += (nettyConfirms || spartanConfirms) ? 2 : 1;

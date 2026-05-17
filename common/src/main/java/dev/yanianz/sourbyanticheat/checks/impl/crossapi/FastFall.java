@@ -12,7 +12,7 @@ public class FastFall extends Check implements PostPredictionCheck {
 
     private double buffer;
     private static final double FALL_THRESHOLD = 0.5;
-    private static final double NETTY_RATE_THRESHOLD = 15.0;
+    private static final double NETTY_RATE_THRESHOLD = 18.0;
 
     public FastFall(SacPlayer player) {
         super(player);
@@ -45,7 +45,9 @@ public class FastFall extends Check implements PostPredictionCheck {
             SpartanCrossCheck.checkSpartan(player.uuid, "NoFall");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 
-        buffer += (nettyConfirms || spartanConfirms) ? 1.5 : 0.5;
+        int ping = player.getTransactionPing();
+        double multiplier = ping > 400 ? 0.5 : 1.0;
+        buffer += ((nettyConfirms || spartanConfirms) ? 1.5 : 0.5) * multiplier;
         if (buffer > 3.0) {
             flagAndAlert(String.format("dY=%.3f predY=%.3f excess=%.3f netty=%.1f/s spartan=%s",
                 deltaY, predictedY, fallExcess,

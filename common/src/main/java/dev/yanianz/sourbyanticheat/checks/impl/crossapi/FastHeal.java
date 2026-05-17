@@ -15,6 +15,7 @@ public class FastHeal extends Check implements PacketCheck {
     private long lastReset;
     private int buffer;
     private static final int HEAL_THRESHOLD = 5;
+    private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public FastHeal(SacPlayer player) {
         super(player);
@@ -37,7 +38,7 @@ public class FastHeal extends Check implements PacketCheck {
 
         if (healCount < HEAL_THRESHOLD) { reward(); return; }
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > 15.0;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "FastHeal");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 

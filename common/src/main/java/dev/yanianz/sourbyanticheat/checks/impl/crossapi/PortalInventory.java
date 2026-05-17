@@ -15,6 +15,7 @@ public class PortalInventory extends Check implements PostPredictionCheck {
     private int buffer;
     private boolean inPortal = false;
     private boolean clickedInventory = false;
+    private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public PortalInventory(SacPlayer player) { super(player); }
 
@@ -41,7 +42,7 @@ public class PortalInventory extends Check implements PostPredictionCheck {
 
         if (!inPortal) { buffer = Math.max(0, buffer - 1); reward(); return; }
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > 12.0;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "Exploits");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 

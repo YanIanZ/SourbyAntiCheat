@@ -15,6 +15,7 @@ public class BedFucker extends Check implements BlockBreakCheck {
     private long lastReset;
     private int buffer;
     private static final int BED_THRESHOLD = 3;
+    private static final double NETTY_RATE_THRESHOLD = 18.0;
 
     public BedFucker(SacPlayer player) {
         super(player);
@@ -35,7 +36,7 @@ public class BedFucker extends Check implements BlockBreakCheck {
         bedBreakCount++;
         if (bedBreakCount < BED_THRESHOLD) { reward(); return; }
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > 15.0;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "FastBreak");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 

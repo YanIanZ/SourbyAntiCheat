@@ -14,6 +14,7 @@ public class CrossTower extends Check implements PostPredictionCheck {
     private double buffer;
     private int consecutiveUpTicks;
     private static final double TOWER_Y_THRESHOLD = 0.4;
+    private static final double NETTY_RATE_THRESHOLD = 18.0;
 
     public CrossTower(SacPlayer player) { super(player); }
 
@@ -41,11 +42,13 @@ public class CrossTower extends Check implements PostPredictionCheck {
 
         if (consecutiveUpTicks < 4) return;
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > 18.0;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "Tower");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 
-        buffer += (nettyConfirms || spartanConfirms) ? 1.5 : 0.5;
+        int ping = player.getTransactionPing();
+        double multiplier = ping > 400 ? 0.5 : 1.0;
+        buffer += ((nettyConfirms || spartanConfirms) ? 1.5 : 0.5) * multiplier;
         if (buffer > 3.0) {
             flagAndAlert(String.format("dY=%.3f ticks=%d netty=%.1f/s spartan=%s",
                 deltaY, consecutiveUpTicks, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));

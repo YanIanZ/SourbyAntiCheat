@@ -12,7 +12,7 @@ public class CrossEntitySpeed extends Check implements PostPredictionCheck {
 
     private double buffer;
     private static final double MAX_RIDE_SPEED = 0.35;
-    private static final double NETTY_RATE_THRESHOLD = 18.0;
+    private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public CrossEntitySpeed(SacPlayer player) {
         super(player);

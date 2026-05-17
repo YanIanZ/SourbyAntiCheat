@@ -12,7 +12,7 @@ public class Liquids extends Check implements PostPredictionCheck {
 
     private double buffer;
     private static final double OFFSET_THRESHOLD = 0.5;
-    private static final double NETTY_RATE_THRESHOLD = 20.0;
+    private static final double NETTY_RATE_THRESHOLD = 18.0;
 
     public Liquids(SacPlayer player) { super(player); }
 
@@ -34,7 +34,9 @@ public class Liquids extends Check implements PostPredictionCheck {
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "Jesus");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 
-        buffer += (nettyConfirms || spartanConfirms) ? 1.5 : 0.5;
+        int ping = player.getTransactionPing();
+        double multiplier = ping > 400 ? 0.5 : 1.0;
+        buffer += ((nettyConfirms || spartanConfirms) ? 1.5 : 0.5) * multiplier;
         if (buffer > 3.0) {
             flagAndAlert(String.format("offset=%.3f netty=%.1f/s spartan=%s",
                 offset, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));

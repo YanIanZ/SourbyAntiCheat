@@ -13,6 +13,7 @@ public class MorePackets extends Check implements PacketCheck {
     private int buffer;
     private static final double RATE_THRESHOLD = 30.0;
     private static final double BYTES_THRESHOLD = 1024.0;
+    private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public MorePackets(SacPlayer player) {
         super(player);

@@ -13,7 +13,7 @@ public class CrossVehicle extends Check implements PostPredictionCheck {
     private double buffer;
     private static final double MAX_HORSE_SPEED = 0.45;
     private static final double MAX_BOAT_SPEED = 0.40;
-    private static final double NETTY_RATE_THRESHOLD = 18.0;
+    private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public CrossVehicle(SacPlayer player) {
         super(player);

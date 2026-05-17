@@ -11,6 +11,7 @@ public class BlockReach extends BlockPlaceCheck {
 
     private int buffer;
     private static final double MAX_BLOCK_REACH = 5.5;
+    private static final double NETTY_RATE_THRESHOLD = 18.0;
 
     public BlockReach(SacPlayer player) {
         super(player);
@@ -29,7 +30,7 @@ public class BlockReach extends BlockPlaceCheck {
 
         if (dist < MAX_BLOCK_REACH) { buffer = Math.max(0, buffer - 1); reward(); return; }
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > 15.0;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "BlockReach");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 

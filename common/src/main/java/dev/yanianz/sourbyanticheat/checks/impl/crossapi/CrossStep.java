@@ -54,10 +54,13 @@ public class CrossStep extends Check implements PacketCheck {
             SpartanCrossCheck.checkSpartan(player.uuid, "Step");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 
+        int ping = player.getTransactionPing();
+        double multiplier = ping > 400 ? 0.5 : 1.0;
+
         if (nettyConfirms || spartanConfirms) {
-            stepBuffer += 2;
+            stepBuffer += (int)(2 * multiplier);
         } else {
-            stepBuffer += 1;
+            stepBuffer += (int)(1 * multiplier);
         }
 
         if (stepBuffer > 3) {

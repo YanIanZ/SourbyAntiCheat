@@ -13,6 +13,7 @@ public class AutoRespawn extends Check implements PacketCheck {
 
     private int buffer;
     private long lastDeathTime = 0;
+    private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public AutoRespawn(SacPlayer player) { super(player); }
 
@@ -29,7 +30,7 @@ public class AutoRespawn extends Check implements PacketCheck {
                 if (lastDeathTime > 0) {
                     long gap = now - lastDeathTime;
                     if (gap < 500 && gap > 0) {
-                        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > 15.0;
+                        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
                         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "Exploits");
                         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
                         buffer += (nettyConfirms || spartanConfirms) ? 2 : 1;

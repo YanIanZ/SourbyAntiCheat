@@ -18,6 +18,7 @@ public class CrossAutoClicker extends Check implements PacketCheck {
     private int buffer;
     private static final int MAX_SAMPLES = 30;
     private static final double NETTY_VARIANCE_THRESHOLD = 10.0;
+    private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public CrossAutoClicker(SacPlayer player) {
         super(player);
@@ -94,7 +95,7 @@ public class CrossAutoClicker extends Check implements PacketCheck {
         }
 
         boolean nettyConfirms = player.crossValidationData.nettyIntervalVariance < NETTY_VARIANCE_THRESHOLD
-            && player.crossValidationData.nettyPacketRatePerSec > 12.0;
+            && player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
 
         SpartanCrossCheck.CrossCheckResult spartanResult =
             SpartanCrossCheck.checkSpartan(player.uuid, "AutoClicker");

@@ -45,7 +45,9 @@ public class CrossFlightB extends Check implements PostPredictionCheck {
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "Flight");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 
-        buffer += (nettyConfirms || spartanConfirms) ? 1.5 : 0.5;
+        int ping = player.getTransactionPing();
+        double multiplier = ping > 400 ? 0.5 : 1.0;
+        buffer += ((nettyConfirms || spartanConfirms) ? 1.5 : 0.5) * multiplier;
         if (buffer > 3.0) {
             flagAndAlert(String.format("hover=%d netty=%.1f/s spartan=%s",
                 hoverTicks, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));

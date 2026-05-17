@@ -14,6 +14,7 @@ public class ExtraInventory extends Check implements PacketCheck {
 
     private int buffer;
     private static final int MAX_SLOT = 45;
+    private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public ExtraInventory(SacPlayer player) { super(player); }
 
@@ -27,7 +28,7 @@ public class ExtraInventory extends Check implements PacketCheck {
 
         WrapperPlayClientClickWindow click = new WrapperPlayClientClickWindow(event);
         if (click.getWindowId() == 0 && click.getSlot() > MAX_SLOT) {
-            boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > 12.0;
+            boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
             SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "Exploits");
             boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 

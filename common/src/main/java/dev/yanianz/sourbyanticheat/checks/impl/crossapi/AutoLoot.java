@@ -15,6 +15,7 @@ public class AutoLoot extends Check implements PacketCheck {
     private long lastReset;
     private int buffer;
     private static final int PICKUP_THRESHOLD = 10;
+    private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public AutoLoot(SacPlayer player) {
         super(player);
@@ -36,7 +37,7 @@ public class AutoLoot extends Check implements PacketCheck {
 
         if (pickupCount < PICKUP_THRESHOLD) return;
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > 15.0;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "Exploits");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 

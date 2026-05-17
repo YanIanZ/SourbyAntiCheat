@@ -16,7 +16,7 @@ public class CrossSpider extends Check implements PacketCheck {
     private int consecutiveWallTicks;
     private static final double MIN_Y_DELTA = 0.15;
     private static final double MAX_Y_DELTA = 0.5;
-    private static final double NETTY_RATE_THRESHOLD = 20.0;
+    private static final double NETTY_RATE_THRESHOLD = 18.0;
 
     public CrossSpider(SacPlayer player) {
         super(player);
@@ -66,10 +66,13 @@ public class CrossSpider extends Check implements PacketCheck {
             SpartanCrossCheck.checkSpartan(player.uuid, "Spider");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 
+        int ping = player.getTransactionPing();
+        double multiplier = ping > 400 ? 0.5 : 1.0;
+
         if (nettyConfirms || spartanConfirms) {
-            spiderBuffer += 2;
+            spiderBuffer += (int)(2 * multiplier);
         } else {
-            spiderBuffer += 1;
+            spiderBuffer += (int)(1 * multiplier);
         }
 
         if (spiderBuffer > 4) {

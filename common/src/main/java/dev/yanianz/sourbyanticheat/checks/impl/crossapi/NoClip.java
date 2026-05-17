@@ -18,7 +18,8 @@ public class NoClip extends Check implements PostPredictionCheck {
 
     private int insideBuffer;
     private SimpleCollisionBox lastBox;
-    private static final double NETTY_RATE_THRESHOLD = 18.0;
+    private static final double NETTY_RATE_THRESHOLD = 15.0;
+    private final List<SimpleCollisionBox> collisionBoxes = new ArrayList<>();
 
     public NoClip(SacPlayer player) {
         super(player);
@@ -50,7 +51,8 @@ public class NoClip extends Check implements PostPredictionCheck {
         SimpleCollisionBox newBox = player.boundingBox.copy();
         boolean phasedThrough = false;
 
-        List<SimpleCollisionBox> boxes = new ArrayList<>();
+        List<SimpleCollisionBox> boxes = collisionBoxes;
+        boxes.clear();
         Collisions.getCollisionBoxes(player, newBox, boxes, false);
 
         for (SimpleCollisionBox box : boxes) {
@@ -69,7 +71,7 @@ public class NoClip extends Check implements PostPredictionCheck {
         }
 
         boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD
-            || player.crossValidationData.nettyAvgDelayBetweenPacketsMs < 40.0;
+            || player.crossValidationData.nettyAvgDelayBetweenPacketsMs < 50.0;
 
         SpartanCrossCheck.CrossCheckResult spartanResult =
             SpartanCrossCheck.checkSpartan(player.uuid, "Phase");

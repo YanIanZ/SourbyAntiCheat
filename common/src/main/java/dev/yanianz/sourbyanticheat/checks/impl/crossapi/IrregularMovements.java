@@ -15,7 +15,7 @@ public class IrregularMovements extends Check implements PostPredictionCheck {
     private double lastSpeed;
     private static final double DIRECTION_CHANGE_MIN_SPEED = 0.3;
     private static final double DIRECTION_CHANGE_THRESHOLD = 0.95;
-    private static final double NETTY_RATE_THRESHOLD = 20.0;
+    private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public IrregularMovements(SacPlayer player) {
         super(player);

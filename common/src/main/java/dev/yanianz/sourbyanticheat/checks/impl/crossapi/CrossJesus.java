@@ -13,7 +13,7 @@ public class CrossJesus extends Check implements PostPredictionCheck {
 
     private double buffer;
     private static final double OFFSET_THRESHOLD = 0.4;
-    private static final double NETTY_RATE_THRESHOLD = 22.0;
+    private static final double NETTY_RATE_THRESHOLD = 18.0;
 
     public CrossJesus(SacPlayer player) {
         super(player);
@@ -44,14 +44,17 @@ public class CrossJesus extends Check implements PostPredictionCheck {
             SpartanCrossCheck.checkSpartan(player.uuid, "Jesus");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 
+        int ping = player.getTransactionPing();
+        double multiplier = ping > 400 ? 0.5 : 1.0;
+
         if (nettyConfirms || spartanConfirms) {
-            buffer += 1.5;
+            buffer += 1.5 * multiplier;
             if (buffer > 3.0) {
                 flagAndAlert(String.format("offset=%.3f netty=%.1f/s spartan=%s",
                     offset, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
             }
         } else {
-            buffer += 0.5;
+            buffer += 0.5 * multiplier;
             if (buffer > 5.0) {
                 flagAndAlert(String.format("offset=%.3f (no cross-confirm)", offset));
             }

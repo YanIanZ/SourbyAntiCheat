@@ -16,6 +16,8 @@ public class CrossFreecam extends Check implements PostPredictionCheck {
     private long lastChunkAck = System.currentTimeMillis();
     private static final double OFFSET_THRESHOLD = 1.5;
     private static final long CHUNK_GAP_THRESHOLD_MS = 2000;
+    private static final double NETTY_RATE_THRESHOLD = 15.0;
+    private static final double NETTY_DELAY_THRESHOLD = 50.0;
 
     public CrossFreecam(SacPlayer player) {
         super(player);
@@ -45,8 +47,8 @@ public class CrossFreecam extends Check implements PostPredictionCheck {
             return;
         }
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec < 12.0
-            || player.crossValidationData.nettyAvgDelayBetweenPacketsMs > 60.0;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec < NETTY_RATE_THRESHOLD
+            || player.crossValidationData.nettyAvgDelayBetweenPacketsMs > NETTY_DELAY_THRESHOLD;
 
         SpartanCrossCheck.CrossCheckResult spartanResult =
             SpartanCrossCheck.checkSpartan(player.uuid, "Freecam");

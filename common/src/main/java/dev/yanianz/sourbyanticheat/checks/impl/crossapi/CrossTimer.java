@@ -12,7 +12,7 @@ public class CrossTimer extends Check implements PacketCheck {
 
     private double balance;
     private static final double BALANCE_LIMIT = 20.0;
-    private static final double NETTY_RATE_THRESHOLD = 22.0;
+    private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public CrossTimer(SacPlayer player) {
         super(player);
@@ -26,7 +26,10 @@ public class CrossTimer extends Check implements PacketCheck {
 
         if (!isUpdate(event.getPacketType())) return;
 
-        balance += 1.0;
+        int ping = player.getTransactionPing();
+        double multiplier = ping > 400 ? 0.5 : 1.0;
+
+        balance += 1.0 * multiplier;
         balance -= 1.0;
 
         if (balance > BALANCE_LIMIT) balance = BALANCE_LIMIT;
@@ -39,7 +42,7 @@ public class CrossTimer extends Check implements PacketCheck {
         }
 
         boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD
-            || player.crossValidationData.nettyAvgDelayBetweenPacketsMs < 45.0;
+            || player.crossValidationData.nettyAvgDelayBetweenPacketsMs < 50.0;
 
         SpartanCrossCheck.CrossCheckResult spartanResult =
             SpartanCrossCheck.checkSpartan(player.uuid, "Timer");
