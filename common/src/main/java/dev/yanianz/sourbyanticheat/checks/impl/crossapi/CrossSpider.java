@@ -28,7 +28,8 @@ public class CrossSpider extends Check implements PacketCheck {
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
 
         if (player.wasTouchingWater || player.compensatedEntities.self.isDead
-                || player.isGliding || player.canFly) {
+                || player.isGliding || player.canFly
+                || player.inVehicle()) {
             spiderBuffer = Math.max(0, spiderBuffer - 1);
             consecutiveWallTicks = 0;
             reward();
@@ -44,7 +45,7 @@ public class CrossSpider extends Check implements PacketCheck {
             consecutiveWallTicks = 0;
         }
 
-        boolean wallClimbing = consecutiveWallTicks >= 2
+        boolean wallClimbing = consecutiveWallTicks >= 4
             && deltaY > MIN_Y_DELTA && deltaY < MAX_Y_DELTA
             && againstWall;
 

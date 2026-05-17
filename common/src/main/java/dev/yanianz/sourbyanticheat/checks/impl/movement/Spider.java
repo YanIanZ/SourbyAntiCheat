@@ -23,7 +23,8 @@ public class Spider extends Check implements PostPredictionCheck {
     public void onPacketReceive(PacketReceiveEvent event) {
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
         if (player.packetStateData.lastPacketWasTeleport || player.packetStateData.lastPacketWasOnePointSeventeenDuplicate) return;
-        if (player.canFly || player.isFlying || player.isGliding || player.inVehicle()) {
+        if (player.canFly || player.isFlying || player.isGliding || player.inVehicle()
+                || player.wasTouchingWater || player.compensatedEntities.self.isDead) {
             climbTicks = 0;
             return;
         }
@@ -38,9 +39,9 @@ public class Spider extends Check implements PostPredictionCheck {
             return;
         }
 
-        if (!wasOnGround && deltaY > 0.1) {
+        if (!wasOnGround && deltaY > 0.15 && player.horizontalCollision) {
             climbTicks++;
-            if (climbTicks > 4) {
+            if (climbTicks > 6) {
                 flagAndAlert("dY=" + String.format("%.3f", deltaY) + " ticks=" + climbTicks);
             }
         } else if (deltaY > 0.0) {
