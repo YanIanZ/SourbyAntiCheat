@@ -16,8 +16,8 @@ import java.util.LinkedList;
 public class AimAssist extends Check implements RotationCheck {
 
     private static final int SAMPLE_SIZE = 30;
-    private static final double SNAP_THRESHOLD = 15.0;
-    private static final double SMOOTH_VARIANCE_MAX = 0.02;
+    private static final double SNAP_THRESHOLD = 25.0;
+    private static final double SMOOTH_VARIANCE_MAX = 0.08;
 
     private final LinkedList<Float> deltaYaws = new LinkedList<>();
     private final LinkedList<Float> deltaPitches = new LinkedList<>();
@@ -32,6 +32,8 @@ public class AimAssist extends Check implements RotationCheck {
     public void process(RotationUpdate rotationUpdate) {
         if (player.packetStateData.lastPacketWasTeleport || player.vehicleData.wasVehicleSwitch) return;
         if (rotationUpdate.isCinematic()) return;
+        if (player.inVehicle() || player.compensatedEntities.self.isDead
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
 
         float deltaYaw = rotationUpdate.getDeltaXRotABS();
         float deltaPitch = rotationUpdate.getDeltaYRotABS();
@@ -52,7 +54,7 @@ public class AimAssist extends Check implements RotationCheck {
 
             if (deltaYaw > SNAP_THRESHOLD && lastWasSnap) {
                 snapStreak++;
-                if (snapStreak >= 3) {
+                if (snapStreak >= 5) {
                     flagAndAlert("snap=" + String.format("%.1f", deltaYaw) + " streak=" + snapStreak);
                 }
             } else if (deltaYaw > SNAP_THRESHOLD) {

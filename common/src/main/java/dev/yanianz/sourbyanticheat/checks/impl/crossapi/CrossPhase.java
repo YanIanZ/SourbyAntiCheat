@@ -1,6 +1,7 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
+import com.github.retrooper.packetevents.protocol.player.GameMode;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
@@ -28,7 +29,9 @@ public class CrossPhase extends Check implements PacketCheck {
 
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
 
-        if (player.packetStateData.lastPacketWasTeleport) {
+        if (player.packetStateData.lastPacketWasTeleport
+                || player.compensatedEntities.self.isDead
+                || player.gamemode == GameMode.SPECTATOR) {
             phaseBuffer = 0;
             return;
         }

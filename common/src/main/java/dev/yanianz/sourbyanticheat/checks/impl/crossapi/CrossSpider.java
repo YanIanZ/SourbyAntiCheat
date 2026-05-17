@@ -12,6 +12,7 @@ import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 public class CrossSpider extends Check implements PacketCheck {
 
     private int spiderBuffer;
+    private int consecutiveWallTicks;
     private static final double MIN_Y_DELTA = 0.15;
     private static final double MAX_Y_DELTA = 0.5;
     private static final double NETTY_RATE_THRESHOLD = 20.0;
@@ -26,9 +27,26 @@ public class CrossSpider extends Check implements PacketCheck {
 
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
 
+        if (player.wasTouchingWater || player.compensatedEntities.self.isDead
+                || player.isGliding || player.canFly) {
+            spiderBuffer = Math.max(0, spiderBuffer - 1);
+            consecutiveWallTicks = 0;
+            reward();
+            return;
+        }
+
         double deltaY = player.crossValidationData.pePositionDeltaY;
-        boolean wallClimbing = deltaY > MIN_Y_DELTA && deltaY < MAX_Y_DELTA
-            && player.horizontalCollision;
+        boolean againstWall = player.horizontalCollision;
+
+        if (againstWall && deltaY > MIN_Y_DELTA && deltaY < MAX_Y_DELTA) {
+            consecutiveWallTicks++;
+        } else {
+            consecutiveWallTicks = 0;
+        }
+
+        boolean wallClimbing = consecutiveWallTicks >= 2
+            && deltaY > MIN_Y_DELTA && deltaY < MAX_Y_DELTA
+            && againstWall;
 
         if (!wallClimbing) {
             spiderBuffer = Math.max(0, spiderBuffer - 1);
