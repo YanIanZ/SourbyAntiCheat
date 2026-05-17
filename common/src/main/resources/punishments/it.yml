@@ -107,6 +107,7 @@ Punishments:
     remove-violations-after: 300
     checks:
       - "Speed"
+      - "InventoryWalk"
       - "NoWeb"
       - "FastLadder"
       - "NoRotate"
@@ -124,6 +125,7 @@ Punishments:
     remove-violations-after: 300
     checks:
       - "Cross"
+      - "Freecam"
     commands:
       - "5:3 [alert]"
       - "1:1 [log]"
