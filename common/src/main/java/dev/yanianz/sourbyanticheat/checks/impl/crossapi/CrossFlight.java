@@ -76,6 +76,6 @@ public class CrossFlight extends Check implements PostPredictionCheck {
                 return;
             }
         }
-        // reward() only reached on non-flagging flag-accumulation ticks — do not reward while flagging
+        // No reward() on suspicious ticks — reward() only on confirmed-clean paths above.
     }
 }

@@ -52,11 +52,14 @@ public class CrossFastBow extends Check implements PacketCheck {
                 long charge = System.currentTimeMillis() - drawStart;
                 isDrawing = false;
 
-                // Subtract player RTT so high-ping players get leniency on their charge window
+                // Subtract player RTT so high-ping players get leniency on their charge window.
+                // Clamp to 0 so a high-ping player never has a negative adjustedCharge that
+                // auto-flags every shot; also guard adjustedCharge > 0 so a genuinely slow
+                // draw that ping fully covers is never flagged.
                 long ping = player.getTransactionPing();
-                long adjustedCharge = charge - ping;
+                long adjustedCharge = Math.max(0, charge - ping);
 
-                if (adjustedCharge < minChargeTime && charge > 0) {
+                if (adjustedCharge > 0 && adjustedCharge < minChargeTime) {
                     boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
                     SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "FastBow");
                     boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
