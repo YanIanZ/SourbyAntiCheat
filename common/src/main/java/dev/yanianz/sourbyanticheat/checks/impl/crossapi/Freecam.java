@@ -10,6 +10,9 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.collisions.datatypes.SimpleCollisionBox;
 import dev.yanianz.sourbyanticheat.utils.nmsutil.Collisions;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @CheckData(name = "Freecam", configName = "freecam", decay = 0.05, setback = 10, stableKey = "cross.freecam")
 public class Freecam extends Check implements PacketCheck {
 
@@ -17,6 +20,7 @@ public class Freecam extends Check implements PacketCheck {
     private long lastChunkAck = System.currentTimeMillis();
     private double anchorX, anchorY, anchorZ;
     private boolean anchorSet = false;
+    private SimpleCollisionBox lastBox;
     private static final long CHUNK_ACK_TIMEOUT_MS = 2000;
     private static final double MOVE_THRESHOLD = 10.0;
     private static final double VELOCITY_THRESHOLD = 15.0;
@@ -24,6 +28,7 @@ public class Freecam extends Check implements PacketCheck {
 
     public Freecam(SacPlayer player) {
         super(player);
+        lastBox = player.boundingBox.copy();
     }
 
     @Override
@@ -57,8 +62,19 @@ public class Freecam extends Check implements PacketCheck {
         );
         boolean velocityFlag = tickDist > VELOCITY_THRESHOLD;
 
-        SimpleCollisionBox playerBox = player.boundingBox.copy().expand(0.01);
-        boolean insideBlock = tickDist > INSIDE_BLOCK_DIST && !Collisions.isEmpty(player, playerBox);
+        SimpleCollisionBox newBox = player.boundingBox.copy();
+        boolean insideBlock = false;
+        if (tickDist > INSIDE_BLOCK_DIST) {
+            List<SimpleCollisionBox> boxes = new ArrayList<>();
+            Collisions.getCollisionBoxes(player, newBox, boxes, false);
+            for (SimpleCollisionBox box : boxes) {
+                if (newBox.isIntersected(box) && !lastBox.isIntersected(box)) {
+                    insideBlock = true;
+                    break;
+                }
+            }
+        }
+        lastBox = newBox;
 
         if (!anchorSet && !velocityFlag && !insideBlock) return;
 
