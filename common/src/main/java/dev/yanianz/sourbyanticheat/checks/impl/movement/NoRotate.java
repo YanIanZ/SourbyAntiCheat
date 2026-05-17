@@ -34,7 +34,14 @@ public class NoRotate extends Check implements PacketCheck {
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
         if (player.packetStateData.lastPacketWasTeleport) return;
         if (player.inVehicle() || player.isGliding || player.canFly || player.isFlying
-                || player.gamemode == GameMode.CREATIVE) return;
+                || player.gamemode == GameMode.CREATIVE
+                || player.wasTouchingWater) return;
+
+        if (player.isSneaking) {
+            movesWithoutRotation = 0;
+            buffer = Math.max(0, buffer - 1);
+            return;
+        }
 
         WrapperPlayClientPlayerFlying flying = new WrapperPlayClientPlayerFlying(event);
         boolean hasPosition = flying.hasPositionChanged();
@@ -48,15 +55,15 @@ public class NoRotate extends Check implements PacketCheck {
         double deltaZ = Math.abs(player.z - player.lastZ);
         double horizontalDist = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
 
-        if (horizontalDist < 0.3) {
+        if (horizontalDist < 0.5) {
             return;
         }
 
         if (!hasRotation) {
             movesWithoutRotation++;
-            if (movesWithoutRotation > 60 && horizontalDist > 0.4) {
+            if (movesWithoutRotation > 100 && horizontalDist > 0.6) {
                 buffer++;
-                if (buffer > 5) {
+                if (buffer > 10) {
                     flagAndAlert("norot_ticks=" + movesWithoutRotation + " dist=" + String.format("%.2f", horizontalDist));
                 }
             }

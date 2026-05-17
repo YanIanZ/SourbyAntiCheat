@@ -36,9 +36,16 @@ public class FlightA extends Check implements PacketCheck {
             return;
         }
 
+        if (player.wasTouchingWater || player.inVehicle()) {
+            if (airTicks > 0) reward();
+            airTicks = 0;
+            wasOnGround = true;
+            return;
+        }
+
         WrapperPlayClientPlayerFlying flying = new WrapperPlayClientPlayerFlying(event);
 
-        if (flying.isOnGround() || player.inVehicle()) {
+        if (flying.isOnGround()) {
             if (airTicks > 0) reward();
             airTicks = 0;
             wasOnGround = true;

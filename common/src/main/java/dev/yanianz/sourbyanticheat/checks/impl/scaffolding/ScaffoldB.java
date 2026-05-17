@@ -23,10 +23,10 @@ public class ScaffoldB extends BlockPlaceCheck {
         double playerY = player.y;
         int feetY = (int) Math.floor(playerY);
 
-        if (blockY == feetY - 1 && player.isSneaking) {
+        if (blockY == feetY - 1) {
             if (blockY == lastY) {
                 towerCount++;
-                if (towerCount > 4) {
+                if (towerCount > 3) {
                     flagAndAlert("tower=" + towerCount + " y=" + blockY);
                 }
             } else {

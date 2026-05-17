@@ -50,6 +50,7 @@ import dev.yanianz.sourbyanticheat.checks.impl.movement.EntitySpeed;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.SafeWalk;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.Blink;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.InventoryMove;
+import dev.yanianz.sourbyanticheat.checks.impl.movement.InventoryWalk;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.Tower;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.NoRotate;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.NoSlow;
@@ -204,6 +205,7 @@ public class CheckManager {
                 .put(MultiAttack.class, new MultiAttack(player))
                 .put(AttackFrequency.class, new AttackFrequency(player))
                 .put(InventoryMove.class, new InventoryMove(player))
+                .put(InventoryWalk.class, new InventoryWalk(player))
                 .put(BadPacketsAI.class, new BadPacketsAI(player))
                 .put(BadPacketsAJ.class, new BadPacketsAJ(player))
                 .put(AimSnap.class, new AimSnap(player))

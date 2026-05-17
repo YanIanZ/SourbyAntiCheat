@@ -23,9 +23,9 @@ public class ScaffoldA extends BlockPlaceCheck {
         double dz = Math.abs(place.position.getZ() - lastPlaceZ);
         double dist = Math.sqrt(dx * dx + dz * dz);
 
-        if (dist > 0.5 && dist < 6.0 && Math.abs(place.position.getY() - player.y) < 2.0) {
+        if (dist > 0.1 && dist < 6.0 && Math.abs(place.position.getY() - player.y) < 2.0) {
             placeStreak++;
-            if (placeStreak > 15) {
+            if (placeStreak > 8) {
                 flagAndAlert("streak=" + placeStreak + " interval=" + String.format("%.1f", dist));
             }
         } else {
