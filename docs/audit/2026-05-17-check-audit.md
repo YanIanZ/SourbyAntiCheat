@@ -49,7 +49,7 @@ This is the single most common finding across all directories.
 | chat | 4 | 4 | 0 | — |
 | combat | 16 | 14 | 2 | — |
 | crash | 9 | 9 | 0 | — |
-| crossapi | 54 | 54 | 0 | — |
+| crossapi | 54 | 54 | 0 | fixed — see plan 2026-05-17-crossapi-check-fixes |
 | elytra | 9 | 9 | 0 | — |
 | exploit | 3 | 3 | 0 | — |
 | flight | 1 | 1 | 0 | — |
@@ -213,6 +213,8 @@ This is the single most common finding across all directories.
 | scaffolding | RotationPlace | findings | `[BUG]` `flagBuffer` magic `1` reset / `0.1` decay no config L66-69 · `[BUG]` `ignorePost` stays true if `onPostFlyingBlockPlace` never called (packet cancelled) — suppresses next legit check · `[FP]` single post-flying false gates all pre-flying placements 10 ticks L39 · `[CONFIG]` `flagBuffer` reset `1`/decay `0.1` hardcoded |
 | scaffolding | ScaffoldA | findings | `[BUG]` `reward()` only when `placeStreak<5` — never called above streak threshold, VL climbs L28-34 · `[FP]` no ladder/water/ice/wall-fill exemption — broad `dist<6.0`/Y`<2.0` · `[FP]` no elytra-glide exemption · `[CONFIG]` `0.1/6.0/2.0/streak 8` hardcoded L26-28 · `[STYLE]` `lastPlaceX/Z` init `0.0` — first placement near origin spurious streak |
 | scaffolding | ScaffoldB | findings | `[BUG]` `reward()` only when `towerCount<2` — inconsistent decay L37 · `[BUG]` `towerCount` resets to `1` not `0` L32 — off-by-one inflates sensitivity (3 placements trip `>3`) · `[FP]` no normal tower-jump-bridge exemption · `[FP]` no elytra/vehicle/world-change exemption · `[CONFIG]` `towerCount>3` + decay values hardcoded L29 |
+
+> **crossapi — resolved.** All 54 crossapi findings below are fixed — see plan `docs/superpowers/plans/2026-05-17-crossapi-check-fixes.md` (`CrossNoSlowdown` merged into `CrossFoodSprint`).
 
 | crossapi | AutoLoot | findings | `[BUG]` no `reward()` on flag path — buffer accumulates, VL never decays L44-48 · `[CONFIG]` `PICKUP_THRESHOLD 10`/`NETTY_RATE_THRESHOLD 15.0` hardcoded · `[FP]` no high-ping pickup-window exemption |
 | crossapi | AutoRespawn | findings | `[BUG]` no `reward()` on flag path L36-40 · `[CONFIG]` `gap<500` ms hardcoded L32 · `[FP]` no plugin-forced-respawn exemption |
