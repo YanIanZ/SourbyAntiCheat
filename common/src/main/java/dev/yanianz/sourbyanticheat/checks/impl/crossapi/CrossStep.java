@@ -7,6 +7,7 @@ import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
+import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 
 @CheckData(name = "CrossStep", configName = "crossstep", decay = 0.1, setback = 10, stableKey = "cross.step")
 public class CrossStep extends Check implements PacketCheck {
@@ -22,6 +23,8 @@ public class CrossStep extends Check implements PacketCheck {
 
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
+        if (player.compensatedEntities.self.hasPotionEffect(PotionTypes.JUMP_BOOST)
+            || player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)) return;
         if (player.disableGrim) return;
 
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;

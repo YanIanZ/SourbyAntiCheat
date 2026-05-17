@@ -6,6 +6,7 @@ import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
+import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 
 @CheckData(name = "CrossNoFall", configName = "crossnofall", decay = 0.15, setback = 15, stableKey = "cross.nofall")
 public class CrossNoFall extends Check implements PostPredictionCheck {
@@ -20,6 +21,8 @@ public class CrossNoFall extends Check implements PostPredictionCheck {
 
     @Override
     public void onPredictionComplete(PredictionComplete complete) {
+        if (player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)
+            || player.compensatedEntities.self.hasPotionEffect(PotionTypes.SLOW_FALLING)) return;
         if (player.disableGrim) return;
 
         double yOffset = Math.abs(player.crossValidationData.pePositionDeltaY

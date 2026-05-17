@@ -7,6 +7,7 @@ import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
+import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 
 @CheckData(name = "CrossSpider", configName = "crossspider", decay = 0.1, setback = 10, stableKey = "cross.spider")
 public class CrossSpider extends Check implements PacketCheck {
@@ -29,7 +30,9 @@ public class CrossSpider extends Check implements PacketCheck {
 
         if (player.wasTouchingWater || player.compensatedEntities.self.isDead
                 || player.isGliding || player.canFly
-                || player.inVehicle()) {
+                || player.inVehicle()
+                || player.compensatedEntities.self.hasPotionEffect(PotionTypes.JUMP_BOOST)
+                || player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)) {
             spiderBuffer = Math.max(0, spiderBuffer - 1);
             consecutiveWallTicks = 0;
             reward();

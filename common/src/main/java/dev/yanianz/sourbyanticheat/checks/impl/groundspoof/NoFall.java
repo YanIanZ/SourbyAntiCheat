@@ -11,6 +11,7 @@ import dev.yanianz.sourbyanticheat.utils.nmsutil.GetBoundingBox;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
+import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,8 @@ public class NoFall extends Check implements PacketCheck {
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
         if (event.getPacketType() == PacketType.Play.Client.PLAYER_FLYING || event.getPacketType() == PacketType.Play.Client.PLAYER_ROTATION) {
+            if (player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)
+                || player.compensatedEntities.self.hasPotionEffect(PotionTypes.SLOW_FALLING)) return;
             // The player hasn't spawned yet
             if (player.getSetbackTeleportUtil().insideUnloadedChunk()) return;
             // The player has already been flagged, and

@@ -11,6 +11,7 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.player.GameMode;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
+import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 
 @CheckData(name = "FlightA", stableKey = "sac.flight.invalid", description = "Detects illegal flight movements", setback = 10)
 public class FlightA extends Check implements PacketCheck {
@@ -31,7 +32,9 @@ public class FlightA extends Check implements PacketCheck {
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
         if (player.packetStateData.lastPacketWasTeleport || player.packetStateData.lastPacketWasOnePointSeventeenDuplicate) return;
 
-        if (player.canFly || player.isFlying || player.gamemode == GameMode.CREATIVE || player.gamemode == GameMode.SPECTATOR || player.isGliding) {
+        if (player.canFly || player.isFlying || player.gamemode == GameMode.CREATIVE || player.gamemode == GameMode.SPECTATOR || player.isGliding
+                || player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)
+                || player.compensatedEntities.self.hasPotionEffect(PotionTypes.SLOW_FALLING)) {
             airTicks = 0;
             return;
         }

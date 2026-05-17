@@ -6,6 +6,7 @@ import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
+import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 
 @CheckData(name = "CrossFlight", configName = "crossflight", decay = 0.05, setback = 25, stableKey = "cross.flight")
 public class CrossFlight extends Check implements PostPredictionCheck {
@@ -20,6 +21,7 @@ public class CrossFlight extends Check implements PostPredictionCheck {
 
     @Override
     public void onPredictionComplete(PredictionComplete complete) {
+        if (player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)) return;
         if (player.disableGrim) return;
 
         double offset = player.crossValidationData.offsetFromPrediction;

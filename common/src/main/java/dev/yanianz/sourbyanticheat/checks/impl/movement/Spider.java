@@ -7,6 +7,7 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
+import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 
 @CheckData(name = "Spider", stableKey = "sac.movement.spider", description = "Detects spider/wall climb hacks", setback = 10, decay = 0.02)
 public class Spider extends Check implements PostPredictionCheck {
@@ -24,7 +25,9 @@ public class Spider extends Check implements PostPredictionCheck {
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
         if (player.packetStateData.lastPacketWasTeleport || player.packetStateData.lastPacketWasOnePointSeventeenDuplicate) return;
         if (player.canFly || player.isFlying || player.isGliding || player.inVehicle()
-                || player.wasTouchingWater || player.compensatedEntities.self.isDead) {
+                || player.wasTouchingWater || player.compensatedEntities.self.isDead
+                || player.compensatedEntities.self.hasPotionEffect(PotionTypes.JUMP_BOOST)
+                || player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)) {
             climbTicks = 0;
             return;
         }

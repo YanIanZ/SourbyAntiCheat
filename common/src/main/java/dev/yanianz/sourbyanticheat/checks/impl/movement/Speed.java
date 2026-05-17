@@ -6,15 +6,17 @@ import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
+import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 
 @CheckData(name = "Speed", stableKey = "sac.movement.speed", description = "Detects horizontal speed hacks", setback = 10, decay = 0.01)
 public class Speed extends Check implements PostPredictionCheck {
 
-    private static final double MAX_WALK_SPEED = 0.217;
-    private static final double MAX_SPRINT_SPEED = 0.30;
+    private static final double BASE_WALK_SPEED = 0.217;
+    private static final double BASE_SPRINT_SPEED = 0.28;
     private static final double MAX_EFFECT_SPEED = 0.60;
     private static final double BUFFER_DECAY = 0.01;
+    private static final double SPEED_PER_LEVEL = 0.06;
 
     private double buffer = 0;
 
@@ -36,13 +38,16 @@ public class Speed extends Check implements PostPredictionCheck {
             return;
         }
 
+        int speedLevel = player.compensatedEntities.self.getPotionEffectLevel(PotionTypes.SPEED).orElse(-1);
+        double speedMultiplier = speedLevel >= 0 ? 1.0 + (speedLevel + 1) * 0.2 : 1.0;
+
         double maxSpeed;
         if (player.isFlying || player.canFly) {
             maxSpeed = MAX_EFFECT_SPEED;
         } else if (player.isSprinting) {
-            maxSpeed = MAX_SPRINT_SPEED;
+            maxSpeed = BASE_SPRINT_SPEED * speedMultiplier;
         } else {
-            maxSpeed = MAX_WALK_SPEED;
+            maxSpeed = BASE_WALK_SPEED * speedMultiplier;
         }
 
         double excess = deltaH - maxSpeed;

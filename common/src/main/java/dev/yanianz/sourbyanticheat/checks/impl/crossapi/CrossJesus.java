@@ -6,6 +6,7 @@ import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
+import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 
 @CheckData(name = "CrossJesus", configName = "crossjesus", decay = 0.05, setback = 15, stableKey = "cross.jesus")
 public class CrossJesus extends Check implements PostPredictionCheck {
@@ -20,6 +21,7 @@ public class CrossJesus extends Check implements PostPredictionCheck {
 
     @Override
     public void onPredictionComplete(PredictionComplete complete) {
+        if (player.compensatedEntities.self.hasPotionEffect(PotionTypes.DOLPHINS_GRACE)) return;
         if (player.disableGrim) return;
 
         boolean onWaterSurface = Math.abs(player.crossValidationData.pePositionDeltaY) < 0.01

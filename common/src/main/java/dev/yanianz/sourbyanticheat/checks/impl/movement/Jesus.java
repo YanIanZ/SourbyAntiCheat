@@ -6,6 +6,7 @@ import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
+import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 
 @CheckData(name = "Jesus", stableKey = "sac.movement.jesus", description = "Detects water walking / jesus hacks", setback = 10, decay = 0.02)
 public class Jesus extends Check implements PacketCheck {
@@ -19,6 +20,7 @@ public class Jesus extends Check implements PacketCheck {
 
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
+        if (player.compensatedEntities.self.hasPotionEffect(PotionTypes.DOLPHINS_GRACE)) return;
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
         if (player.packetStateData.lastPacketWasTeleport) return;
         if (player.canFly || player.isFlying || player.isGliding || player.inVehicle()) return;
