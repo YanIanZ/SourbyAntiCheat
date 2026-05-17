@@ -37,6 +37,7 @@ import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastBreak;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossVehicle;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossEntitySpeed;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossAutoClicker;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.PingSpoof;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFreecam;
 import dev.yanianz.sourbyanticheat.checks.impl.elytra.*;
 import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitA;
@@ -159,6 +160,7 @@ public class CheckManager {
                 .put(CrossKillAura.class, new CrossKillAura(player))
                 .put(MorePackets.class, new MorePackets(player))
                 .put(CrossAutoClicker.class, new CrossAutoClicker(player))
+                .put(PingSpoof.class, new PingSpoof(player))
                 .put(GhostHand.class, new GhostHand(player))
                 .put(PayloadCheck.class, new PayloadCheck(player))
                 .put(SpartanSync.class, new SpartanSync(player))
