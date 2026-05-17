@@ -16,6 +16,9 @@ import dev.yanianz.sourbyanticheat.checks.impl.chat.ChatD;
 import dev.yanianz.sourbyanticheat.checks.impl.combat.*;
 import dev.yanianz.sourbyanticheat.checks.impl.crash.*;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.BackTrack;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.AutoLoot;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.AutoRespawn;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.BlockReach;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossAntiKB;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossAutoClicker;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossCriticals;
@@ -25,6 +28,7 @@ import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastBow;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastBreak;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastEat;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastLadder;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastPlace;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFlight;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFoodSprint;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFreecam;
@@ -42,14 +46,17 @@ import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossSpider;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossStep;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossTeleport;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossTimer;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossTower;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossVehicle;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.DerpHead;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.FastFall;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.FastHeal;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.FightBot;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.ForceField;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.Freecam;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.GhostHand;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.IrregularMovements;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.Liquids;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.MorePackets;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.NoClip;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.Nuker;
@@ -272,6 +279,9 @@ public class CheckManager {
                 .put(CrashF.class, new CrashF(player))
                 .put(CrashH.class, new CrashH(player))
                 .put(CrashI.class, new CrashI(player))
+                .put(AutoRespawn.class, new AutoRespawn(player))
+                .put(AutoLoot.class, new AutoLoot(player))
+                .put(FastHeal.class, new FastHeal(player))
                 .put(SetbackBlocker.class, new SetbackBlocker(player)) // Must be last class otherwise we can't check while blocking packets
                 .build();
 
@@ -357,6 +367,8 @@ public class CheckManager {
                 .put(CompensatedFireworks.class, player.fireworks)
                 .put(SneakingEstimator.class, new SneakingEstimator(player))
                 .put(LastInstanceManager.class, player.lastInstanceManager)
+                .put(Liquids.class, new Liquids(player))
+                .put(CrossTower.class, new CrossTower(player))
                 .build();
 
         blockPlaceChecks = new ImmutableClassToInstanceMap.Builder<BlockPlaceCheck>()
@@ -378,6 +390,8 @@ public class CheckManager {
                 .put(ScaffoldA.class, new ScaffoldA(player))
                 .put(ScaffoldB.class, new ScaffoldB(player))
                 .put(CrossScaffold.class, new CrossScaffold(player))
+                .put(CrossFastPlace.class, new CrossFastPlace(player))
+                .put(BlockReach.class, new BlockReach(player))
                 .build();
 
         prePredictionChecks = new ImmutableClassToInstanceMap.Builder<PacketCheck>()
