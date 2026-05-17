@@ -51,7 +51,7 @@ public class CrossTimer extends Check implements PacketCheck {
             spartanResult.type());
 
         if (nettyConfirms || spartanConfirms) {
-            flagAndAlertWithSetback(verbose);
+            flagAndAlert(verbose);
         } else {
             flagAndAlert(verbose);
         }

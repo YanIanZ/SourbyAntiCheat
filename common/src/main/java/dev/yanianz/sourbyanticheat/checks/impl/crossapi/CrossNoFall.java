@@ -46,7 +46,7 @@ public class CrossNoFall extends Check implements PostPredictionCheck {
         if (nettyConfirms || spartanConfirms) {
             buffer += 1.5;
             if (buffer > 4.0) {
-                flagAndAlertWithSetback(String.format("yOff=%.3f off=%.3f netty=%.1fms spartan=%s",
+                flagAndAlert(String.format("yOff=%.3f off=%.3f netty=%.1fms spartan=%s",
                     yOffset, fullOffset,
                     player.crossValidationData.nettyAvgDelayBetweenPacketsMs, spartanResult.type()));
             }

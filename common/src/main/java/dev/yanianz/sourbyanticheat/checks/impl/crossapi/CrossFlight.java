@@ -43,7 +43,7 @@ public class CrossFlight extends Check implements PostPredictionCheck {
         if (nettyConfirms || spartanConfirms) {
             buffer += 1.5;
             if (buffer > 3.0) {
-                flagAndAlertWithSetback(String.format("offset=%.3f netty=%.1f/s spartan=%s",
+                flagAndAlert(String.format("offset=%.3f netty=%.1f/s spartan=%s",
                     offset, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
             }
         } else {

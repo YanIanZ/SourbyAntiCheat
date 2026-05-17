@@ -60,7 +60,7 @@ public class CrossKillAura extends Check implements PacketCheck {
         }
 
         if (auraBuffer > 5) {
-            flagAndAlertWithSetback(String.format("yaw=%.1f int=%.0fms netty=%.1f/s var=%.1f spartan=%s",
+            flagAndAlert(String.format("yaw=%.1f int=%.0fms netty=%.1f/s var=%.1f spartan=%s",
                 rotSnap, attackInterval,
                 player.crossValidationData.nettyPacketRatePerSec,
                 player.crossValidationData.nettyIntervalVariance, spartanResult.type()));

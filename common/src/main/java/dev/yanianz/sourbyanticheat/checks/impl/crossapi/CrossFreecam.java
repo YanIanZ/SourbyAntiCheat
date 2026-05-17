@@ -52,7 +52,7 @@ public class CrossFreecam extends Check implements PostPredictionCheck {
         if (nettyConfirms || spartanConfirms) {
             buffer += 1.5;
             if (buffer > 3.0) {
-                flagAndAlertWithSetback(String.format("offset=%.3f chunkGap=%dms netty=%.1f/s spartan=%s",
+                flagAndAlert(String.format("offset=%.3f chunkGap=%dms netty=%.1f/s spartan=%s",
                     offset, chunkGap,
                     player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
             }

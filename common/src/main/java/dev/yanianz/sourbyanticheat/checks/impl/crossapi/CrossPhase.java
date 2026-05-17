@@ -76,7 +76,7 @@ public class CrossPhase extends Check implements PacketCheck {
         }
 
         if (phaseBuffer > 8) {
-            flagAndAlertWithSetback(verbose);
+            flagAndAlert(verbose);
         }
     }
 }

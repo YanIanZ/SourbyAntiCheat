@@ -55,7 +55,7 @@ public class CrossAntiKB extends Check implements PostPredictionCheck {
             if (spartanConfirms || consecutiveFlags >= 2) {
                 String verbose = String.format("ratio=%.2f predicted=%.3f actual=%.3f spartan=%s consecutive=%d",
                     ratio, predictedMovement, actualMovement, spartanResult.type(), consecutiveFlags);
-                flagAndAlertWithSetback(verbose);
+                flagAndAlert(verbose);
             }
         } else {
             consecutiveFlags = 0;

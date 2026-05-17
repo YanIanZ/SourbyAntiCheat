@@ -58,7 +58,7 @@ public class CrossElytraMove extends Check implements PacketCheck {
         }
 
         if (elytraBuffer > 3) {
-            flagAndAlertWithSetback(String.format("speed=%.1f netty=%.1f/s spartan=%s",
+            flagAndAlert(String.format("speed=%.1f netty=%.1f/s spartan=%s",
                 speed, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
         }
     }

@@ -58,7 +58,7 @@ public class CrossStep extends Check implements PacketCheck {
         }
 
         if (stepBuffer > 3) {
-            flagAndAlertWithSetback(String.format("dy=%.3f netty=%.1f/s delay=%.1fms spartan=%s",
+            flagAndAlert(String.format("dy=%.3f netty=%.1f/s delay=%.1fms spartan=%s",
                 deltaY, player.crossValidationData.nettyPacketRatePerSec,
                 player.crossValidationData.nettyAvgDelayBetweenPacketsMs, spartanResult.type()));
         }

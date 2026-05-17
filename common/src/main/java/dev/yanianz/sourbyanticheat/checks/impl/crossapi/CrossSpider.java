@@ -71,7 +71,7 @@ public class CrossSpider extends Check implements PacketCheck {
         }
 
         if (spiderBuffer > 4) {
-            flagAndAlertWithSetback(String.format("dy=%.3f hCol=%s netty=%.1f/s spartan=%s",
+            flagAndAlert(String.format("dy=%.3f hCol=%s netty=%.1f/s spartan=%s",
                 deltaY, player.horizontalCollision,
                 player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
         }

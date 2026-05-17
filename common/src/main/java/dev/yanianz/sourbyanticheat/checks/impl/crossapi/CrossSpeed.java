@@ -47,7 +47,7 @@ public class CrossSpeed extends Check implements PostPredictionCheck {
                     offset,
                     player.crossValidationData.nettyPacketRatePerSec,
                     spartanResult.type());
-                flagAndAlertWithSetback(verbose);
+                flagAndAlert(verbose);
             }
         } else if (predictionFlag) {
             buffer += 0.5;

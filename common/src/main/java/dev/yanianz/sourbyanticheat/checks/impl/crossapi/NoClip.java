@@ -75,7 +75,7 @@ public class NoClip extends Check implements PacketCheck {
         }
 
         if (insideBuffer > 3) {
-            flagAndAlertWithSetback(String.format("netty=%.1f/s spartan=%s",
+            flagAndAlert(String.format("netty=%.1f/s spartan=%s",
                 player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
         }
     }

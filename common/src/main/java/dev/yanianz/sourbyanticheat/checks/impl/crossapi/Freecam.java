@@ -93,7 +93,7 @@ public class Freecam extends Check implements PacketCheck {
             buffer += 2;
             if (buffer > 3) {
                 String type = insideBlock ? "insideBlock" : velocityFlag ? "vDist=" + tickDist : "dist";
-                flagAndAlertWithSetback(String.format("%s=%.1f chunkGap=%dms",
+                flagAndAlert(String.format("%s=%.1f chunkGap=%dms",
                     type,
                     insideBlock || velocityFlag ? tickDist : distFromAnchor,
                     chunkGap));
