@@ -17,8 +17,8 @@ import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 public class FlightA extends Check implements PacketCheck {
 
     private static final double MAX_AIR_SPEED = 0.42;
-    private static final int MAX_AIR_TICKS = 40;
-    private static final int MIN_FLAG_AIR_TICKS = 50;
+    private static final int BASE_MAX_AIR_TICKS = 40;
+    private static final int BASE_MIN_FLAG_TICKS = 50;
 
     private int airTicks = 0;
     private boolean wasOnGround = true;
@@ -62,9 +62,14 @@ public class FlightA extends Check implements PacketCheck {
             airTicks++;
         }
 
-        if (airTicks > MAX_AIR_TICKS) {
+        int ping = player.getTransactionPing();
+        int pingTicks = Math.max(0, ping / 50);
+        int effectiveMaxTicks = BASE_MAX_AIR_TICKS + pingTicks;
+        int effectiveMinFlag = BASE_MIN_FLAG_TICKS + pingTicks;
+
+        if (airTicks > effectiveMaxTicks) {
             double deltaY = player.y - player.lastY;
-            if (deltaY >= 0 && airTicks > MIN_FLAG_AIR_TICKS) {
+            if (deltaY >= 0 && airTicks > effectiveMinFlag) {
                 flagAndAlert("airTicks=" + airTicks + " dY=" + String.format("%.3f", deltaY));
             }
         }

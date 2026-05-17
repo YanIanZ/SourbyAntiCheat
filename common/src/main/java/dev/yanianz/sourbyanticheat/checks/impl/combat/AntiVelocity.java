@@ -20,7 +20,7 @@ public class AntiVelocity extends Check implements PacketCheck {
     private double totalActualMovement = 0;
     private int buffer = 0;
 
-    private static final int RESPONSE_TICKS = 6;
+    private static final int BASE_RESPONSE_TICKS = 6;
     private static final double MIN_VELOCITY = 0.01;
     private static final double GROUND_FRICTION = 0.6;
     private static final double AIR_FRICTION = 0.91;
@@ -65,16 +65,18 @@ public class AntiVelocity extends Check implements PacketCheck {
         if (!velocityPending) return;
 
         ticksSinceVelocity++;
+        int ping = player.getTransactionPing();
+        int responseTicks = BASE_RESPONSE_TICKS + Math.max(0, ping / 100);
 
-        if (ticksSinceVelocity >= 2 && ticksSinceVelocity <= RESPONSE_TICKS) {
+        if (ticksSinceVelocity >= 2 && ticksSinceVelocity <= responseTicks) {
             double deltaX = player.x - player.lastX;
             double deltaZ = player.z - player.lastZ;
             totalActualMovement += Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
         }
 
-        if (ticksSinceVelocity > RESPONSE_TICKS) {
+        if (ticksSinceVelocity > responseTicks) {
             double friction = player.onGround ? GROUND_FRICTION : AIR_FRICTION;
-            double expected = cumulativeFrictionMovement(Math.sqrt(pendingVelX * pendingVelX + pendingVelZ * pendingVelZ), friction, RESPONSE_TICKS - 1);
+            double expected = cumulativeFrictionMovement(Math.sqrt(pendingVelX * pendingVelX + pendingVelZ * pendingVelZ), friction, responseTicks - 1);
 
             double ratio = expected > 0.001 ? totalActualMovement / expected : 1.0;
 

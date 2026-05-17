@@ -51,6 +51,11 @@ public class Speed extends Check implements PostPredictionCheck {
             }
         }
 
+        int ping = player.getTransactionPing();
+        if (ping > 100) {
+            maxSpeed *= 1.0 + ((ping - 100) / 2000.0);
+        }
+
         double excess = deltaH - maxSpeed;
         if (excess > 0.01) {
             buffer += excess;
