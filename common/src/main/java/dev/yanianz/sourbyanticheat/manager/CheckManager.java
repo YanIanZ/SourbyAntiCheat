@@ -63,6 +63,7 @@ import dev.yanianz.sourbyanticheat.checks.impl.crossapi.ForceField;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.Freecam;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.GhostHand;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.IrregularMovements;
+import dev.yanianz.sourbyanticheat.checks.crossapi.CrossValidationData;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.Liquids;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.MorePackets;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.NoClip;
@@ -144,6 +145,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CheckManager {
     private static final AtomicBoolean initedAtomic = new AtomicBoolean(false);
     private static boolean inited;
+    private final SacPlayer player;
     public final ClassToInstanceMap<AbstractCheck> allChecks;
     private final ClassToInstanceMap<PacketCheck> packetChecks;
     private final ClassToInstanceMap<PositionCheck> positionChecks;
@@ -166,6 +168,7 @@ public class CheckManager {
     private final List<PostPredictionCheck> postPredictionChecksValues;
 
     public CheckManager(SacPlayer player) {
+        this.player = player;
         packetEntityReplication = new PacketEntityReplication(player);
 
         packetChecks = new ImmutableClassToInstanceMap.Builder<PacketCheck>()
@@ -566,6 +569,13 @@ public class CheckManager {
     }
 
     public void onPredictionFinish(final PredictionComplete complete) {
+        CrossValidationData cvd = player.crossValidationData;
+        cvd.offsetFromPrediction = complete.getOffset();
+        if (complete.getData() != null) {
+            cvd.predictedDeltaX = complete.getData().getTo().getX() - complete.getData().getFrom().getX();
+            cvd.predictedDeltaY = complete.getData().getTo().getY() - complete.getData().getFrom().getY();
+            cvd.predictedDeltaZ = complete.getData().getTo().getZ() - complete.getData().getFrom().getZ();
+        }
         for (PostPredictionCheck check : postPredictionChecksValues) {
             check.onPredictionComplete(complete);
         }
