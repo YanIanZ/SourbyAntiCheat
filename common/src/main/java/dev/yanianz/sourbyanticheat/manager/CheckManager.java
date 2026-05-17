@@ -28,22 +28,27 @@ import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossEntitySpeed;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.ExtraInventory;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastBow;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastBreak;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastBreakB;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastEat;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastLadder;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastPlace;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFlight;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFlightB;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFoodSprint;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFreecam;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossJesus;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossJump;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossKillAura;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossKillAuraB;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossNoFall;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossNoSlowdown;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossNoSwing;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossPhase;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossPhaseB;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossReach;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossScaffold;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossSpeed;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossSpeedB;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossSpider;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossStep;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossTeleport;
@@ -183,6 +188,7 @@ public class CheckManager {
                 .put(CrossSpider.class, new CrossSpider(player))
                 .put(CrossElytraMove.class, new CrossElytraMove(player))
                 .put(CrossKillAura.class, new CrossKillAura(player))
+                .put(CrossKillAuraB.class, new CrossKillAuraB(player))
                 .put(CrossFastLadder.class, new CrossFastLadder(player))
                 .put(MorePackets.class, new MorePackets(player))
                 .put(CrossAutoClicker.class, new CrossAutoClicker(player))
@@ -191,6 +197,7 @@ public class CheckManager {
                 .put(PayloadCheck.class, new PayloadCheck(player))
                 .put(SpartanSync.class, new SpartanSync(player))
                 .put(SpartanDivergence.class, new SpartanDivergence(player))
+                .put(CrossSpeedB.class, new CrossSpeedB(player))
                 .put(CrossReach.class, new CrossReach(player))
                 .put(CrossFastBow.class, new CrossFastBow(player))
                 .put(ForceField.class, new ForceField(player))
@@ -350,6 +357,8 @@ public class CheckManager {
                 .put(CrossSpeed.class, new CrossSpeed(player))
                 .put(CrossAntiKB.class, new CrossAntiKB(player))
                 .put(CrossFlight.class, new CrossFlight(player))
+                .put(CrossFlightB.class, new CrossFlightB(player))
+                .put(CrossPhaseB.class, new CrossPhaseB(player))
                 .put(CrossJesus.class, new CrossJesus(player))
                 .put(CrossNoFall.class, new CrossNoFall(player))
                 .put(CrossFreecam.class, new CrossFreecam(player))
@@ -421,6 +430,7 @@ public class CheckManager {
                 .put(PositionBreakB.class, new PositionBreakB(player))
                 .put(MultiActionsB.class, new MultiActionsB(player))
                 .put(CrossFastBreak.class, new CrossFastBreak(player))
+                .put(CrossFastBreakB.class, new CrossFastBreakB(player))
                 .put(Nuker.class, new Nuker(player))
                 .put(BedFucker.class, new BedFucker(player))
                 .build();
