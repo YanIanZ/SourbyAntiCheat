@@ -7,11 +7,6 @@ import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
-import dev.yanianz.sourbyanticheat.utils.collisions.datatypes.SimpleCollisionBox;
-import dev.yanianz.sourbyanticheat.utils.nmsutil.Collisions;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @CheckData(name = "Freecam", configName = "freecam", decay = 0.05, setback = 10, stableKey = "cross.freecam")
 public class Freecam extends Check implements PostPredictionCheck {
@@ -19,15 +14,12 @@ public class Freecam extends Check implements PostPredictionCheck {
     private int buffer;
     private long lastChunkAck = System.currentTimeMillis();
     private double anchorX, anchorY, anchorZ;
-    private SimpleCollisionBox lastBox;
-    private static final long CHUNK_ACK_TIMEOUT_MS = 2000;
-    private static final double MOVE_THRESHOLD = 10.0;
-    private static final double VELOCITY_THRESHOLD = 15.0;
-    private static final double INSIDE_BLOCK_DIST = 5.0;
+    private static final long CHUNK_ACK_TIMEOUT_MS = 3000;
+    private static final double MOVE_THRESHOLD = 20.0;
+    private static final double VELOCITY_THRESHOLD = 30.0;
 
     public Freecam(SacPlayer player) {
         super(player);
-        lastBox = player.boundingBox.copy();
     }
 
     @Override
@@ -46,7 +38,6 @@ public class Freecam extends Check implements PostPredictionCheck {
 
         if (player.packetStateData.lastPacketWasTeleport) {
             buffer = Math.max(0, buffer - 1);
-            lastBox = player.boundingBox.copy();
             return;
         }
         if (player.inVehicle() || player.isGliding || player.canFly || player.isFlying
@@ -60,50 +51,27 @@ public class Freecam extends Check implements PostPredictionCheck {
         );
         boolean velocityFlag = tickDist > VELOCITY_THRESHOLD;
 
-        SimpleCollisionBox newBox = player.boundingBox.copy();
-        boolean insideBlock = false;
-        if (tickDist > INSIDE_BLOCK_DIST) {
-            List<SimpleCollisionBox> boxes = new ArrayList<>();
-            Collisions.getCollisionBoxes(player, newBox, boxes, false);
-            for (SimpleCollisionBox box : boxes) {
-                if (newBox.isIntersected(box) && !lastBox.isIntersected(box)) {
-                    insideBlock = true;
-                    break;
-                }
-            }
-        }
-        lastBox = newBox;
+        long now = System.currentTimeMillis();
+        long chunkGap = now - lastChunkAck;
+        double distFromAnchor = Math.sqrt(
+            Math.pow(player.x - anchorX, 2)
+            + Math.pow(player.y - anchorY, 2)
+            + Math.pow(player.z - anchorZ, 2)
+        );
+        boolean chunkFlag = chunkGap > CHUNK_ACK_TIMEOUT_MS && distFromAnchor > MOVE_THRESHOLD;
 
-        if (!velocityFlag && !insideBlock) {
+        boolean flag = velocityFlag || (velocityFlag && chunkFlag) || (chunkFlag && tickDist > 5.0);
+
+        if (!flag) {
             buffer = Math.max(0, buffer - 1);
-            long now = System.currentTimeMillis();
-            if (anchorX == 0 && anchorZ == 0) {
-                anchorX = player.x;
-                anchorY = player.y;
-                anchorZ = player.z;
-            }
-            long chunkGap = now - lastChunkAck;
-            double distFromAnchor = Math.sqrt(
-                Math.pow(player.x - anchorX, 2)
-                + Math.pow(player.y - anchorY, 2)
-                + Math.pow(player.z - anchorZ, 2)
-            );
-            boolean noChunk = chunkGap > CHUNK_ACK_TIMEOUT_MS && distFromAnchor > MOVE_THRESHOLD;
-            if (noChunk) {
-                velocityFlag = true;
-                tickDist = distFromAnchor;
-            }
-        }
-
-        if (!velocityFlag && !insideBlock) {
             reward();
             return;
         }
 
         buffer += 2;
-        if (buffer > 3) {
-            String type = insideBlock ? "insideBlock" : "vDist";
-            flagAndAlert(String.format("%s=%.1f", type, tickDist));
+        if (buffer > 4) {
+            flagAndAlert(String.format("vDist=%.1f chunkGap=%dms anchorDist=%.1f",
+                tickDist, chunkGap, distFromAnchor));
         }
     }
 }
