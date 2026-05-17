@@ -7,6 +7,7 @@ import ac.grim.grimac.api.event.events.FlagEvent;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.spartan.SpartanEventBridge;
+import dev.yanianz.sourbyanticheat.utils.anticheat.LogUtil;
 import dev.yanianz.sourbyanticheat.manager.AutoPunishment;
 import dev.yanianz.sourbyanticheat.manager.CheckPerformance;
 import dev.yanianz.sourbyanticheat.utils.reflection.GeyserUtil;
@@ -126,7 +127,7 @@ public class Check extends SacProcessor implements AbstractCheck {
 
     public final boolean flag(String verbose) {
         long start = System.nanoTime();
-        if (player.disableGrim || exemptPermission)
+        if (player.disableGrim || exemptPermission || !isEnabled)
             return false;
 
         if (skipForBedrock && GeyserUtil.isBedrockPlayer(player.uuid))
@@ -209,7 +210,9 @@ public class Check extends SacProcessor implements AbstractCheck {
             SacAPI.INSTANCE.getProxyMessenger().sendAlert(player.uuid, json);
             SacAPI.INSTANCE.getAuditLogger().logAction(player.uuid, player.getName(),
                 "VL_CHECK", checkName, verbose, true);
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            LogUtil.warn(verbose);
+        }
         return player.punishmentManager.handleAlert(player, verbose + spartanSuffix, this);
     }
 

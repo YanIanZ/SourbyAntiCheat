@@ -12,8 +12,8 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPl
 public class Speed extends Check implements PostPredictionCheck {
 
     private static final double MAX_WALK_SPEED = 0.217;
-    private static final double MAX_SPRINT_SPEED = 0.33;
-    private static final double MAX_EFFECT_SPEED = 0.65;
+    private static final double MAX_SPRINT_SPEED = 0.36;
+    private static final double MAX_EFFECT_SPEED = 0.75;
     private static final double BUFFER_DECAY = 0.01;
 
     private double buffer = 0;

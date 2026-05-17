@@ -104,7 +104,7 @@ abstract class WriteLog {
         }
 
         @Override void recordRemove(@NotNull String path) {
-            logger.log(Level.FINE, "[SAC-Config-Updater] cross-file REMOVE op for '"
+            logger.log(Level.FINE, "cross-file REMOVE op for '"
                     + path + "' on " + siblingName
                     + " is not yet supported; expected the bundled default to drop the key");
         }

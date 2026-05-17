@@ -55,7 +55,7 @@ public class SacNettyChannelHandler extends ChannelDuplexHandler {
         if (packetCount > FLOOD_THRESHOLD) {
             floodWarnCount++;
             if (floodWarnCount <= 3) {
-                LOGGER.warning("[SAC-Netty] Flood: " + playerName + " " + packetCount + " pkt/s");
+                LOGGER.warning("Flood: " + playerName + " " + packetCount + " pkt/s");
             }
         }
 
@@ -63,13 +63,13 @@ public class SacNettyChannelHandler extends ChannelDuplexHandler {
             int size = buf.readableBytes();
             totalBytesRead += size;
             if (size > MAX_PACKET_SIZE) {
-                LOGGER.warning("[SAC-Netty] Oversized packet: " + playerName + " " + size + " bytes");
+                LOGGER.warning("Oversized packet: " + playerName + " " + size + " bytes");
             }
         }
 
         long elapsed = now - lastReadTime;
         if (elapsed > HIGH_DELAY_MS && lastReadTime > 0) {
-            LOGGER.fine("[SAC-Netty] Delay: " + playerName + " " + elapsed + "ms");
+            LOGGER.fine("Delay: " + playerName + " " + elapsed + "ms");
         }
         lastReadTime = now;
 
@@ -89,13 +89,13 @@ public class SacNettyChannelHandler extends ChannelDuplexHandler {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        LOGGER.fine("[SAC-Netty] Active: " + playerName);
+        LOGGER.fine("Active: " + playerName);
         super.channelActive(ctx);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        LOGGER.fine("[SAC-Netty] Closed: " + playerName
+        LOGGER.fine("Closed: " + playerName
             + " | rx=" + (totalBytesRead / 1024) + "KB"
             + " tx=" + (totalBytesWritten / 1024) + "KB"
             + " pkts=" + packetCount);
@@ -108,7 +108,7 @@ public class SacNettyChannelHandler extends ChannelDuplexHandler {
                 || cause instanceof java.nio.channels.ClosedChannelException) {
             return;
         }
-        LOGGER.warning("[SAC-Netty] Error: " + playerName + " " + cause.getMessage());
+        LOGGER.warning("Error: " + playerName + " " + cause.getMessage());
         ctx.close();
     }
 

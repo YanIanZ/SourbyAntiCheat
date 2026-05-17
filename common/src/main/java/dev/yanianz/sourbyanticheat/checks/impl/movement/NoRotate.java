@@ -9,6 +9,7 @@ import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
+import com.github.retrooper.packetevents.protocol.player.GameMode;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 
 /**
@@ -32,7 +33,8 @@ public class NoRotate extends Check implements PacketCheck {
     public void onPacketReceive(PacketReceiveEvent event) {
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
         if (player.packetStateData.lastPacketWasTeleport) return;
-        if (player.inVehicle() || player.isGliding || player.canFly || player.isFlying) return;
+        if (player.inVehicle() || player.isGliding || player.canFly || player.isFlying
+                || player.gamemode == GameMode.CREATIVE) return;
 
         WrapperPlayClientPlayerFlying flying = new WrapperPlayClientPlayerFlying(event);
         boolean hasPosition = flying.hasPositionChanged();
@@ -46,22 +48,20 @@ public class NoRotate extends Check implements PacketCheck {
         double deltaZ = Math.abs(player.z - player.lastZ);
         double horizontalDist = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
 
-        // Only care about significant movement (0.3 blocks/tick = sprint speed)
         if (horizontalDist < 0.3) {
             return;
         }
 
         if (!hasRotation) {
             movesWithoutRotation++;
-            // 30+ ticks of significant movement with zero rotation is suspicious
-            if (movesWithoutRotation > 30) {
+            if (movesWithoutRotation > 60 && horizontalDist > 0.4) {
                 buffer++;
-                if (buffer > 3) {
+                if (buffer > 5) {
                     flagAndAlert("norot_ticks=" + movesWithoutRotation + " dist=" + String.format("%.2f", horizontalDist));
                 }
             }
         } else {
-            movesWithoutRotation = 0;
+            movesWithoutRotation = Math.max(0, movesWithoutRotation - 2);
             buffer = Math.max(0, buffer - 1);
             if (buffer < 2) reward();
         }
