@@ -1,7 +1,3 @@
-// This file is part of SourbyAntiCheat
-// Copyright (C) 2026 YanIanZ
-// Licensed under GPLv3 - see LICENSE file for details
-
 package dev.yanianz.sourbyanticheat.checks.impl.combat;
 
 import dev.yanianz.sourbyanticheat.checks.Check;
@@ -17,18 +13,17 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEn
 @CheckData(name = "AntiVelocity", stableKey = "sac.combat.antivelocity", description = "Detects anti-knockback via velocity packet tracking", setback = 15, decay = 0.01)
 public class AntiVelocity extends Check implements PacketCheck {
 
-    private double pendingVelocityX = 0;
-    private double pendingVelocityZ = 0;
+    private double pendingVelX = 0;
+    private double pendingVelZ = 0;
     private boolean velocityPending = false;
     private int ticksSinceVelocity = 0;
+    private double totalActualMovement = 0;
     private int buffer = 0;
-    private double[] ratioSamples = new double[3];
-    private int sampleIndex = 0;
 
-    private static final int VELOCITY_RESPONSE_TICKS = 5;
+    private static final int RESPONSE_TICKS = 6;
     private static final double MIN_VELOCITY = 0.01;
-    private static final double HORIZONTAL_FRICTION_GROUND = 0.6;
-    private static final double HORIZONTAL_FRICTION_AIR = 0.91;
+    private static final double GROUND_FRICTION = 0.6;
+    private static final double AIR_FRICTION = 0.91;
 
     public AntiVelocity(SacPlayer player) {
         super(player);
@@ -47,11 +42,11 @@ public class AntiVelocity extends Check implements PacketCheck {
 
         if (magnitude > MIN_VELOCITY) {
             player.latencyUtils.addRealTimeTask(player.lastTransactionSent.get(), () -> {
-                pendingVelocityX = vx;
-                pendingVelocityZ = vz;
+                pendingVelX = vx;
+                pendingVelZ = vz;
                 velocityPending = true;
                 ticksSinceVelocity = 0;
-                sampleIndex = 0;
+                totalActualMovement = 0;
             });
         }
     }
@@ -62,7 +57,6 @@ public class AntiVelocity extends Check implements PacketCheck {
         if (player.packetStateData.lastPacketWasTeleport) return;
         if (player.inVehicle() || player.isFlying || player.canFly || player.isGliding) return;
 
-        // Reset on death/respawn
         if (player.packetStateData.lastPacketWasOnePointSeventeenDuplicate) {
             velocityPending = false;
             return;
@@ -72,33 +66,22 @@ public class AntiVelocity extends Check implements PacketCheck {
 
         ticksSinceVelocity++;
 
-        if (ticksSinceVelocity >= 2 && ticksSinceVelocity <= VELOCITY_RESPONSE_TICKS + 2) {
+        if (ticksSinceVelocity >= 2 && ticksSinceVelocity <= RESPONSE_TICKS) {
             double deltaX = player.x - player.lastX;
             double deltaZ = player.z - player.lastZ;
-            double horizontalDelta = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
-
-            double friction = player.onGround ? HORIZONTAL_FRICTION_GROUND : HORIZONTAL_FRICTION_AIR;
-            double expectedAfterFriction = Math.sqrt(pendingVelocityX * pendingVelocityX + pendingVelocityZ * pendingVelocityZ) * friction;
-            double ratio = horizontalDelta / Math.max(expectedAfterFriction, 0.001);
-
-            if (sampleIndex < ratioSamples.length) {
-                ratioSamples[sampleIndex++] = ratio;
-            }
+            totalActualMovement += Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
         }
 
-        if (ticksSinceVelocity > VELOCITY_RESPONSE_TICKS + 2) {
-            double avgRatio = 0;
-            int validSamples = 0;
-            for (int i = 0; i < sampleIndex; i++) {
-                avgRatio += ratioSamples[i];
-                validSamples++;
-            }
-            if (validSamples > 0) avgRatio /= validSamples;
+        if (ticksSinceVelocity > RESPONSE_TICKS) {
+            double friction = player.onGround ? GROUND_FRICTION : AIR_FRICTION;
+            double expected = cumulativeFrictionMovement(Math.sqrt(pendingVelX * pendingVelX + pendingVelZ * pendingVelZ), friction, RESPONSE_TICKS - 1);
 
-            if (avgRatio < 0.05 && validSamples >= 1) {
+            double ratio = expected > 0.001 ? totalActualMovement / expected : 1.0;
+
+            if (ratio < 0.15) {
                 buffer++;
                 if (buffer > 2) {
-                    flagAndAlert("ratio=" + String.format("%.3f", avgRatio) + " samples=" + validSamples);
+                    flagAndAlert("ratio=" + String.format("%.3f", ratio) + " actual=" + String.format("%.4f", totalActualMovement) + " expected=" + String.format("%.4f", expected));
                 }
             } else {
                 buffer = Math.max(0, buffer - 1);
@@ -107,5 +90,15 @@ public class AntiVelocity extends Check implements PacketCheck {
 
             velocityPending = false;
         }
+    }
+
+    private static double cumulativeFrictionMovement(double initial, double friction, int ticks) {
+        double total = 0;
+        double vel = initial;
+        for (int i = 0; i < ticks; i++) {
+            total += vel;
+            vel *= friction;
+        }
+        return total;
     }
 }

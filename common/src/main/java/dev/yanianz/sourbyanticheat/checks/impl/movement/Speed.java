@@ -13,7 +13,7 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPl
 public class Speed extends Check implements PostPredictionCheck {
 
     private static final double BASE_WALK_SPEED = 0.217;
-    private static final double BASE_SPRINT_SPEED = 0.28;
+    private static final double BASE_SPRINT_SPEED = 0.31;
     private static final double MAX_EFFECT_SPEED = 0.60;
     private static final double BUFFER_DECAY = 0.01;
     private static final double SPEED_PER_LEVEL = 0.06;
@@ -53,7 +53,7 @@ public class Speed extends Check implements PostPredictionCheck {
         double excess = deltaH - maxSpeed;
         if (excess > 0.01) {
             buffer += excess;
-            if (buffer > 1.5) {
+            if (buffer > 2.0) {
                 flagAndAlert("h=" + String.format("%.3f", deltaH) + " max=" + String.format("%.3f", maxSpeed) + " buffer=" + String.format("%.3f", buffer));
             }
         } else {
