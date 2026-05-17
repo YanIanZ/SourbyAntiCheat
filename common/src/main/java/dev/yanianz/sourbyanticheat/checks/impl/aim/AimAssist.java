@@ -17,7 +17,7 @@ public class AimAssist extends Check implements RotationCheck {
 
     private static final int SAMPLE_SIZE = 30;
     private static final double SNAP_THRESHOLD = 25.0;
-    private static final double SMOOTH_VARIANCE_MAX = 0.08;
+    private static final double SMOOTH_VARIANCE_MAX = 0.15;
 
     private final LinkedList<Float> deltaYaws = new LinkedList<>();
     private final LinkedList<Float> deltaPitches = new LinkedList<>();
@@ -66,7 +66,8 @@ public class AimAssist extends Check implements RotationCheck {
             }
 
             if (yawVariance < SMOOTH_VARIANCE_MAX && pitchVariance < SMOOTH_VARIANCE_MAX
-                    && deltaYaw > 0.5f && deltaYaw < 10.0f) {
+                    && deltaYaw > 2.0f && deltaYaw < 10.0f
+                    && deltaYaws.size() >= 40) {
                 flagAndAlert("smooth yawVar=" + String.format("%.4f", yawVariance) + " pitchVar=" + String.format("%.4f", pitchVariance));
             } else {
                 reward();

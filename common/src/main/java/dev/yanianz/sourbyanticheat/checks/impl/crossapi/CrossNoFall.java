@@ -12,7 +12,7 @@ import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 public class CrossNoFall extends Check implements PostPredictionCheck {
 
     private double buffer;
-    private static final double OFFSET_THRESHOLD = 0.05;
+    private static final double OFFSET_THRESHOLD = 0.10;
     private static final double NETTY_DELAY_THRESHOLD = 50.0;
 
     public CrossNoFall(SacPlayer player) {
@@ -21,9 +21,14 @@ public class CrossNoFall extends Check implements PostPredictionCheck {
 
     @Override
     public void onPredictionComplete(PredictionComplete complete) {
-        if (player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)
-            || player.compensatedEntities.self.hasPotionEffect(PotionTypes.SLOW_FALLING)) return;
         if (player.disableGrim) return;
+
+        if (player.wasTouchingWater
+                || player.compensatedEntities.self.hasPotionEffect(com.github.retrooper.packetevents.protocol.potion.PotionTypes.LEVITATION)
+                || player.compensatedEntities.self.hasPotionEffect(com.github.retrooper.packetevents.protocol.potion.PotionTypes.SLOW_FALLING)) {
+            reward();
+            return;
+        }
 
         double yOffset = Math.abs(player.crossValidationData.pePositionDeltaY
             - player.crossValidationData.predictedDeltaY);

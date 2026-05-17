@@ -38,6 +38,7 @@ import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossVehicle;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossEntitySpeed;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossAutoClicker;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.PingSpoof;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.Nuker;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFreecam;
 import dev.yanianz.sourbyanticheat.checks.impl.elytra.*;
 import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitA;
@@ -373,6 +374,7 @@ public class CheckManager {
                 .put(PositionBreakB.class, new PositionBreakB(player))
                 .put(MultiActionsB.class, new MultiActionsB(player))
                 .put(CrossFastBreak.class, new CrossFastBreak(player))
+                .put(Nuker.class, new Nuker(player))
                 .build();
 
         // All checks that have no listeners, generally invoked by other code to flag
