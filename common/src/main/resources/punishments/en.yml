@@ -117,3 +117,29 @@ Punishments:
     commands:
       - "20:40 [alert]"
       - "1:1 [log]"
+  Movement:
+    remove-violations-after: 300
+    checks:
+      - "Speed"
+      - "NoWeb"
+      - "FastLadder"
+      - "NoRotate"
+      - "Step"
+      - "Spider"
+      - "Jesus"
+      - "Flight"
+      - "EntitySpeed"
+    commands:
+      - "10:5 [alert]"
+      - "1:1 [log]"
+      - "20:10 [webhook]"
+      - "20:10 [proxy]"
+  CrossAPI:
+    remove-violations-after: 300
+    checks:
+      - "Cross"
+    commands:
+      - "5:3 [alert]"
+      - "1:1 [log]"
+      - "10:5 [webhook]"
+      - "10:5 [proxy]"
