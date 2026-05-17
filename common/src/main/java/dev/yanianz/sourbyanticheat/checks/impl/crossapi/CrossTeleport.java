@@ -63,7 +63,7 @@ public class CrossTeleport extends Check implements PostPredictionCheck {
         boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec < nettyRateThreshold;
 
         SpartanCrossCheck.CrossCheckResult spartanResult =
-            SpartanCrossCheck.checkSpartan(player.uuid, "Phase");
+            SpartanCrossCheck.checkSpartan(player.uuid, "Teleport");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 
         buffer += (nettyConfirms || spartanConfirms) ? 2 : 1;

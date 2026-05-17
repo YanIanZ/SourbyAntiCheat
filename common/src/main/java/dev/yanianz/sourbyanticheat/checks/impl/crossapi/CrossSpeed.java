@@ -88,6 +88,8 @@ public class CrossSpeed extends Check implements PostPredictionCheck {
             flagAndAlert(String.format("act=%.3f vel=%.3f off=%.3f netty=%.1f/s spartan=%s",
                 actualH, velH, offset,
                 player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
+            return;
         }
+        reward();
     }
 }
