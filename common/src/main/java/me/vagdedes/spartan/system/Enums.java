@@ -12,7 +12,7 @@ public class Enums {
         Aim, Blink, InventoryMove, NoRotate, SafeWalk, Tower,
         AutoArmor, Sprint, AntiVelocity, MultiAttack, MultiInteract,
         AttackFrequency, BadPackets, PacketOrder, Crash, Chat,
-        Baritone, TimerSpeed, CrossSpeed, CrossAntiKB, CrossPhase, CrossTimer, Freecam, CrossFreecam
+        Baritone, TimerSpeed, CrossSpeed, CrossAntiKB, CrossPhase, CrossTimer, Freecam, CrossFreecam, NoClip
     }
 
     public enum Permission {

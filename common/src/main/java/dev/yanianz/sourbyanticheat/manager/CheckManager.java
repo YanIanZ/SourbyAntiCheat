@@ -27,6 +27,7 @@ import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossNoFall;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossElytraMove;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossKillAura;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.Freecam;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.NoClip;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFreecam;
 import dev.yanianz.sourbyanticheat.checks.impl.elytra.*;
 import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitA;
@@ -148,6 +149,7 @@ public class CheckManager {
                 .put(CrossElytraMove.class, new CrossElytraMove(player))
                 .put(CrossKillAura.class, new CrossKillAura(player))
                 .put(Freecam.class, new Freecam(player))
+                .put(NoClip.class, new NoClip(player))
                 .put(PayloadCheck.class, new PayloadCheck(player))
                 .put(SpartanSync.class, new SpartanSync(player))
                 .put(SpartanDivergence.class, new SpartanDivergence(player))

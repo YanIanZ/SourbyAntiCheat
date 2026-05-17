@@ -7,6 +7,8 @@ import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
+import dev.yanianz.sourbyanticheat.utils.collisions.datatypes.SimpleCollisionBox;
+import dev.yanianz.sourbyanticheat.utils.nmsutil.Collisions;
 
 @CheckData(name = "Freecam", configName = "freecam", decay = 0.05, setback = 10, stableKey = "cross.freecam")
 public class Freecam extends Check implements PacketCheck {
@@ -17,7 +19,8 @@ public class Freecam extends Check implements PacketCheck {
     private boolean anchorSet = false;
     private static final long CHUNK_ACK_TIMEOUT_MS = 2000;
     private static final double MOVE_THRESHOLD = 10.0;
-    private static final double VELOCITY_THRESHOLD = 30.0;
+    private static final double VELOCITY_THRESHOLD = 15.0;
+    private static final double INSIDE_BLOCK_DIST = 5.0;
 
     public Freecam(SacPlayer player) {
         super(player);
@@ -54,7 +57,10 @@ public class Freecam extends Check implements PacketCheck {
         );
         boolean velocityFlag = tickDist > VELOCITY_THRESHOLD;
 
-        if (!anchorSet && !velocityFlag) return;
+        SimpleCollisionBox playerBox = player.boundingBox.copy().expand(0.01);
+        boolean insideBlock = tickDist > INSIDE_BLOCK_DIST && !Collisions.isEmpty(player, playerBox);
+
+        if (!anchorSet && !velocityFlag && !insideBlock) return;
 
         long now = System.currentTimeMillis();
         long chunkGap = now - lastChunkAck;
@@ -65,14 +71,16 @@ public class Freecam extends Check implements PacketCheck {
         ) : 0;
 
         boolean noChunkForMovement = anchorSet && chunkGap > CHUNK_ACK_TIMEOUT_MS && distFromAnchor > MOVE_THRESHOLD;
-        boolean flag = noChunkForMovement || velocityFlag;
+        boolean flag = noChunkForMovement || velocityFlag || insideBlock;
 
         if (flag) {
             buffer += 2;
             if (buffer > 3) {
-                flagAndAlertWithSetback(String.format(velocityFlag ? "vDist=%.1f" : "dist=%.1f chunkGap=%dms",
-                    velocityFlag ? tickDist : distFromAnchor,
-                    velocityFlag ? 0 : chunkGap));
+                String type = insideBlock ? "insideBlock" : velocityFlag ? "vDist=" + tickDist : "dist";
+                flagAndAlertWithSetback(String.format("%s=%.1f chunkGap=%dms",
+                    type,
+                    insideBlock || velocityFlag ? tickDist : distFromAnchor,
+                    chunkGap));
             }
         } else {
             buffer = Math.max(0, buffer - 1);
