@@ -2,11 +2,11 @@ package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
-import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
-import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
+import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
+import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 import dev.yanianz.sourbyanticheat.utils.collisions.datatypes.SimpleCollisionBox;
 import dev.yanianz.sourbyanticheat.utils.nmsutil.Collisions;
 
@@ -14,12 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @CheckData(name = "Freecam", configName = "freecam", decay = 0.05, setback = 10, stableKey = "cross.freecam")
-public class Freecam extends Check implements PacketCheck {
+public class Freecam extends Check implements PostPredictionCheck {
 
     private int buffer;
     private long lastChunkAck = System.currentTimeMillis();
     private double anchorX, anchorY, anchorZ;
-    private boolean anchorSet = false;
     private SimpleCollisionBox lastBox;
     private static final long CHUNK_ACK_TIMEOUT_MS = 2000;
     private static final double MOVE_THRESHOLD = 10.0;
@@ -33,22 +32,21 @@ public class Freecam extends Check implements PacketCheck {
 
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
-        if (player.disableGrim) return;
-
         if (event.getPacketType() == PacketType.Play.Client.CHUNK_BATCH_ACK) {
             lastChunkAck = System.currentTimeMillis();
             anchorX = player.x;
             anchorY = player.y;
             anchorZ = player.z;
-            anchorSet = true;
-            return;
         }
+    }
 
-        if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
+    @Override
+    public void onPredictionComplete(PredictionComplete complete) {
+        if (player.disableGrim) return;
 
         if (player.packetStateData.lastPacketWasTeleport) {
-            anchorSet = false;
             buffer = Math.max(0, buffer - 1);
+            lastBox = player.boundingBox.copy();
             return;
         }
         if (player.inVehicle() || player.isGliding || player.canFly || player.isFlying
@@ -76,31 +74,36 @@ public class Freecam extends Check implements PacketCheck {
         }
         lastBox = newBox;
 
-        if (!anchorSet && !velocityFlag && !insideBlock) return;
-
-        long now = System.currentTimeMillis();
-        long chunkGap = now - lastChunkAck;
-        double distFromAnchor = anchorSet ? Math.sqrt(
-            Math.pow(player.x - anchorX, 2)
-            + Math.pow(player.y - anchorY, 2)
-            + Math.pow(player.z - anchorZ, 2)
-        ) : 0;
-
-        boolean noChunkForMovement = anchorSet && chunkGap > CHUNK_ACK_TIMEOUT_MS && distFromAnchor > MOVE_THRESHOLD;
-        boolean flag = noChunkForMovement || velocityFlag || insideBlock;
-
-        if (flag) {
-            buffer += 2;
-            if (buffer > 3) {
-                String type = insideBlock ? "insideBlock" : velocityFlag ? "vDist=" + tickDist : "dist";
-                flagAndAlert(String.format("%s=%.1f chunkGap=%dms",
-                    type,
-                    insideBlock || velocityFlag ? tickDist : distFromAnchor,
-                    chunkGap));
-            }
-        } else {
+        if (!velocityFlag && !insideBlock) {
             buffer = Math.max(0, buffer - 1);
+            long now = System.currentTimeMillis();
+            if (anchorX == 0 && anchorZ == 0) {
+                anchorX = player.x;
+                anchorY = player.y;
+                anchorZ = player.z;
+            }
+            long chunkGap = now - lastChunkAck;
+            double distFromAnchor = Math.sqrt(
+                Math.pow(player.x - anchorX, 2)
+                + Math.pow(player.y - anchorY, 2)
+                + Math.pow(player.z - anchorZ, 2)
+            );
+            boolean noChunk = chunkGap > CHUNK_ACK_TIMEOUT_MS && distFromAnchor > MOVE_THRESHOLD;
+            if (noChunk) {
+                velocityFlag = true;
+                tickDist = distFromAnchor;
+            }
+        }
+
+        if (!velocityFlag && !insideBlock) {
             reward();
+            return;
+        }
+
+        buffer += 2;
+        if (buffer > 3) {
+            String type = insideBlock ? "insideBlock" : "vDist";
+            flagAndAlert(String.format("%s=%.1f", type, tickDist));
         }
     }
 }

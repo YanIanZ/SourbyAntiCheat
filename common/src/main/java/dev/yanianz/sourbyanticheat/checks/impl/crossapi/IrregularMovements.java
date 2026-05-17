@@ -1,20 +1,18 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
-import com.github.retrooper.packetevents.event.PacketReceiveEvent;
-import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
-import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
+import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
+import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 
 @CheckData(name = "IrregularMovements", configName = "irregularmovements", decay = 0.02, setback = 10, stableKey = "cross.irregularmovements")
-public class IrregularMovements extends Check implements PacketCheck {
+public class IrregularMovements extends Check implements PostPredictionCheck {
 
     private int buffer;
     private double lastDeltaX, lastDeltaZ;
     private double lastSpeed;
-    private double lastY;
     private static final double DIRECTION_CHANGE_MIN_SPEED = 0.3;
     private static final double DIRECTION_CHANGE_THRESHOLD = 0.95;
     private static final double NETTY_RATE_THRESHOLD = 20.0;
@@ -24,10 +22,8 @@ public class IrregularMovements extends Check implements PacketCheck {
     }
 
     @Override
-    public void onPacketReceive(PacketReceiveEvent event) {
+    public void onPredictionComplete(PredictionComplete complete) {
         if (player.disableGrim) return;
-
-        if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
 
         if (player.packetStateData.lastPacketWasTeleport
                 || player.inVehicle() || player.canFly || player.isGliding
@@ -35,8 +31,8 @@ public class IrregularMovements extends Check implements PacketCheck {
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
 
-        double deltaY = player.y - player.lastY;
-        boolean jumpingOrFalling = Math.abs(deltaY) > 0.1 || lastY != player.y;
+        double deltaY = Math.abs(player.y - player.lastY);
+        boolean jumpingOrFalling = deltaY > 0.1;
         double deltaX = player.x - player.lastX;
         double deltaZ = player.z - player.lastZ;
         double speed = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
@@ -46,7 +42,6 @@ public class IrregularMovements extends Check implements PacketCheck {
             lastDeltaX = deltaX;
             lastDeltaZ = deltaZ;
             lastSpeed = speed;
-            lastY = player.y;
             reward();
             return;
         }
@@ -58,7 +53,6 @@ public class IrregularMovements extends Check implements PacketCheck {
         lastDeltaX = deltaX;
         lastDeltaZ = deltaZ;
         lastSpeed = speed;
-        lastY = player.y;
 
         if (!directionReversed) {
             buffer = Math.max(0, buffer - 1);

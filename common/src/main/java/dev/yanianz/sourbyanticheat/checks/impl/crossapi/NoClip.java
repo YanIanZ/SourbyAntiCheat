@@ -1,20 +1,21 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
-import com.github.retrooper.packetevents.event.PacketReceiveEvent;
-import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
+import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
-import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
+import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
+import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 import dev.yanianz.sourbyanticheat.utils.collisions.datatypes.SimpleCollisionBox;
 import dev.yanianz.sourbyanticheat.utils.nmsutil.Collisions;
+import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @CheckData(name = "NoClip", configName = "noclip", decay = 0.05, setback = 10, stableKey = "cross.noclip")
-public class NoClip extends Check implements PacketCheck {
+public class NoClip extends Check implements PostPredictionCheck {
 
     private int insideBuffer;
     private SimpleCollisionBox lastBox;
@@ -29,10 +30,17 @@ public class NoClip extends Check implements PacketCheck {
     public void onPacketReceive(PacketReceiveEvent event) {
         if (player.disableGrim) return;
 
-        if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
+        if (player.packetStateData.lastPacketWasTeleport) {
+            lastBox = player.boundingBox.copy();
+            insideBuffer = 0;
+        }
+    }
 
-        if (player.packetStateData.lastPacketWasTeleport
-                || player.compensatedEntities.self.isDead
+    @Override
+    public void onPredictionComplete(PredictionComplete complete) {
+        if (player.disableGrim) return;
+
+        if (player.compensatedEntities.self.isDead
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE) {
             insideBuffer = 0;
