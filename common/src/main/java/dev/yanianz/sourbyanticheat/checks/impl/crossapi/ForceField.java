@@ -13,7 +13,6 @@ import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 @CheckData(name = "ForceField", configName = "forcefield", decay = 0.02, setback = 10, stableKey = "cross.forcefield")
 public class ForceField extends Check implements PacketCheck {
 
-    private int attacksThisTick;
     private int distinctTargetsThisTick;
     private int lastEntity;
     private int sustainedTicks;
@@ -45,7 +44,9 @@ public class ForceField extends Check implements PacketCheck {
             // Legitimate fast multi-mob hits: attacking several distinct entities in a
             // single tick once is normal (e.g. swing landing on a mob crowd). Only treat
             // it as suspicious when the burst is sustained across consecutive ticks.
-            if (attacksThisTick > maxAttacksPerTick) {
+            // Gate on distinct targets — repeated attack packets on the same entity
+            // (queued attack / attack+sweep) are normal client behaviour and must not count.
+            if (distinctTargetsThisTick > maxAttacksPerTick) {
                 sustainedTicks++;
                 if (sustainedTicks >= 2) {
                     boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
@@ -53,8 +54,8 @@ public class ForceField extends Check implements PacketCheck {
                     boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
                     buffer += (nettyConfirms || spartanConfirms) ? 2 : 1;
                     if (buffer > 3) {
-                        flagAndAlert(String.format("attacks=%d targets=%d sustained=%d netty=%.1f/s spartan=%s",
-                            attacksThisTick, distinctTargetsThisTick, sustainedTicks,
+                        flagAndAlert(String.format("targets=%d sustained=%d netty=%.1f/s spartan=%s",
+                            distinctTargetsThisTick, sustainedTicks,
                             player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
                     }
                 }
@@ -63,7 +64,6 @@ public class ForceField extends Check implements PacketCheck {
                 buffer = Math.max(0, buffer - 1);
                 reward();
             }
-            attacksThisTick = 0;
             distinctTargetsThisTick = 0;
             lastEntity = -1;
             return;
@@ -74,7 +74,6 @@ public class ForceField extends Check implements PacketCheck {
         if (interact.getAction() != WrapperPlayClientInteractEntity.InteractAction.ATTACK) return;
 
         int eid = interact.getEntityId();
-        attacksThisTick++;
         if (eid != lastEntity) {
             distinctTargetsThisTick++;
             lastEntity = eid;

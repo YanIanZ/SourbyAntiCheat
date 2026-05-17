@@ -22,6 +22,9 @@ public class PortalInventory extends Check implements PostPredictionCheck {
     // Config-wired threshold (default equals prior hardcoded value)
     private double nettyRateThreshold = 15.0;
 
+    // Fixed physics constant: player eye height (blocks).
+    private static final double EYE_HEIGHT = 1.62;
+
     public PortalInventory(SacPlayer player) { super(player); }
 
     @Override
@@ -73,7 +76,7 @@ public class PortalInventory extends Check implements PostPredictionCheck {
         int bx = (int) Math.floor(player.x);
         int bz = (int) Math.floor(player.z);
         int feetY = (int) Math.floor(player.y);
-        int headY = (int) Math.floor(player.y + 1.62);
+        int headY = (int) Math.floor(player.y + EYE_HEIGHT);
         for (int by = feetY; by <= headY; by++) {
             WrappedBlockState block = player.compensatedWorld.getBlock(bx, by, bz);
             if (block != null && block.getType() == StateTypes.NETHER_PORTAL) {
