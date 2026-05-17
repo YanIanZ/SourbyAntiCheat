@@ -19,8 +19,14 @@ public class FightBot extends Check implements PostPredictionCheck {
     private int perfectAimStreak;
     private int attackedEntity = -1;
 
-    // Config-wired thresholds (defaults equal prior hardcoded values)
-    private double normalizedDeltaThreshold = 2.0;
+    // Config-wired thresholds.
+    // combinedAimDeltaThreshold gates the combined yaw+pitch angular error magnitude
+    // sqrt(yawDiff^2 + pitchDiff^2) — see onPredictionComplete. The audit flagged the
+    // prior yaw-only metric as a false-positive source (legit players with perfect yaw
+    // but imperfect pitch were treated as bots). Requiring both axes to be near-perfect
+    // is the intended FP-reduction fix, so the metric is deliberately stricter than the
+    // old yaw-only check; the default keeps the prior 2.0 numeric value.
+    private double combinedAimDeltaThreshold = 2.0;
     private double peRotationDeltaYawThreshold = 5.0;
     private int perfectAimStreakThreshold = 5;
 
@@ -31,7 +37,7 @@ public class FightBot extends Check implements PostPredictionCheck {
     @Override
     public void onReload(ConfigManager config) {
         String base = getConfigName() + ".";
-        normalizedDeltaThreshold    = config.getDoubleElse(base + "normalized-delta-threshold",     2.0);
+        combinedAimDeltaThreshold   = config.getDoubleElse(base + "combined-aim-delta-threshold",    2.0);
         peRotationDeltaYawThreshold = config.getDoubleElse(base + "pe-rotation-delta-yaw-threshold", 5.0);
         perfectAimStreakThreshold   = config.getIntElse(base + "perfect-aim-streak-threshold",       5);
     }
@@ -86,9 +92,11 @@ public class FightBot extends Check implements PostPredictionCheck {
         double pitchDiff = Math.abs(player.pitch - pitchToEntity);
 
         // Combine yaw and pitch error into a single angular delta to the entity.
-        double normalizedDelta = Math.sqrt(yawDiff * yawDiff + pitchDiff * pitchDiff);
+        // Both axes must be near-perfect for this to fall under the threshold —
+        // perfect yaw alone no longer flags (FP-reduction, see field comment).
+        double combinedAimDelta = Math.sqrt(yawDiff * yawDiff + pitchDiff * pitchDiff);
 
-        if (normalizedDelta < normalizedDeltaThreshold
+        if (combinedAimDelta < combinedAimDeltaThreshold
                 && Math.abs(player.crossValidationData.peRotationDeltaYaw) > peRotationDeltaYawThreshold) {
             perfectAimStreak++;
         } else {
@@ -106,8 +114,8 @@ public class FightBot extends Check implements PostPredictionCheck {
 
         buffer += (nettyConfirms || spartanConfirms) ? 2 : 1;
         if (buffer > 4) {
-            flagAndAlert(String.format("yawErr=%.1f streak=%d nettyVar=%.1f spartan=%s",
-                normalizedDelta, perfectAimStreak, player.crossValidationData.nettyIntervalVariance, spartanResult.type()));
+            flagAndAlert(String.format("aimErr=%.1f streak=%d nettyVar=%.1f spartan=%s",
+                combinedAimDelta, perfectAimStreak, player.crossValidationData.nettyIntervalVariance, spartanResult.type()));
         }
     }
 }
