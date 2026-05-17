@@ -11,8 +11,7 @@ import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 public class CrossNoFall extends Check implements PostPredictionCheck {
 
     private double buffer;
-    private int airborneTicks;
-    private static final double OFFSET_THRESHOLD = 0.3;
+    private static final double OFFSET_THRESHOLD = 0.15;
     private static final double NETTY_DELAY_THRESHOLD = 50.0;
 
     public CrossNoFall(SacPlayer player) {
@@ -23,17 +22,11 @@ public class CrossNoFall extends Check implements PostPredictionCheck {
     public void onPredictionComplete(PredictionComplete complete) {
         if (player.disableGrim) return;
 
-        if (player.crossValidationData.peOnGround) {
-            airborneTicks = 0;
-        } else {
-            airborneTicks++;
-        }
-
         double yOffset = Math.abs(player.crossValidationData.pePositionDeltaY
             - player.crossValidationData.predictedDeltaY);
+        double fullOffset = player.crossValidationData.offsetFromPrediction;
         boolean groundSpoof = player.crossValidationData.peOnGround
-            && airborneTicks > 3
-            && yOffset > OFFSET_THRESHOLD;
+            && (yOffset > OFFSET_THRESHOLD || fullOffset > 0.5);
 
         if (!groundSpoof) {
             buffer = Math.max(0, buffer - 0.15);
@@ -50,15 +43,15 @@ public class CrossNoFall extends Check implements PostPredictionCheck {
         if (nettyConfirms || spartanConfirms) {
             buffer += 1.5;
             if (buffer > 4.0) {
-                flagAndAlertWithSetback(String.format("yOff=%.3f airTicks=%d netty=%.1fms spartan=%s",
-                    yOffset, airborneTicks,
+                flagAndAlertWithSetback(String.format("yOff=%.3f off=%.3f netty=%.1fms spartan=%s",
+                    yOffset, fullOffset,
                     player.crossValidationData.nettyAvgDelayBetweenPacketsMs, spartanResult.type()));
             }
         } else {
             buffer += 0.5;
             if (buffer > 6.0) {
-                flagAndAlert(String.format("yOff=%.3f airTicks=%d (no cross-confirm)",
-                    yOffset, airborneTicks));
+                flagAndAlert(String.format("yOff=%.3f off=%.3f (no cross-confirm)",
+                    yOffset, fullOffset));
             }
         }
 

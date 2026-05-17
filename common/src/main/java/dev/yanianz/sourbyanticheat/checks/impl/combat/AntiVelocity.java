@@ -26,9 +26,9 @@ public class AntiVelocity extends Check implements PacketCheck {
     private int sampleIndex = 0;
 
     private static final int VELOCITY_RESPONSE_TICKS = 5;
-    private static final double MIN_VELOCITY = 0.1;
-    private static final double HORIZONTAL_FRICTION_GROUND = 0.91;
-    private static final double HORIZONTAL_FRICTION_AIR = 0.98;
+    private static final double MIN_VELOCITY = 0.01;
+    private static final double HORIZONTAL_FRICTION_GROUND = 0.6;
+    private static final double HORIZONTAL_FRICTION_AIR = 0.91;
 
     public AntiVelocity(SacPlayer player) {
         super(player);
@@ -95,7 +95,7 @@ public class AntiVelocity extends Check implements PacketCheck {
             }
             if (validSamples > 0) avgRatio /= validSamples;
 
-            if (avgRatio < 0.1 && validSamples >= 2) {
+            if (avgRatio < 0.05 && validSamples >= 1) {
                 buffer++;
                 if (buffer > 2) {
                     flagAndAlert("ratio=" + String.format("%.3f", avgRatio) + " samples=" + validSamples);

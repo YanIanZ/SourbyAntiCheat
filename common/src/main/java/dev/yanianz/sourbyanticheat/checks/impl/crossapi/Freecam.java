@@ -15,8 +15,9 @@ public class Freecam extends Check implements PacketCheck {
     private long lastChunkAck = System.currentTimeMillis();
     private double anchorX, anchorY, anchorZ;
     private boolean anchorSet = false;
-    private static final long CHUNK_ACK_TIMEOUT_MS = 3000;
+    private static final long CHUNK_ACK_TIMEOUT_MS = 2000;
     private static final double MOVE_THRESHOLD = 10.0;
+    private static final double VELOCITY_THRESHOLD = 30.0;
 
     public Freecam(SacPlayer player) {
         super(player);
@@ -46,23 +47,32 @@ public class Freecam extends Check implements PacketCheck {
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
 
-        if (!anchorSet) return;
+        double tickDist = Math.sqrt(
+            Math.pow(player.x - player.lastX, 2)
+            + Math.pow(player.y - player.lastY, 2)
+            + Math.pow(player.z - player.lastZ, 2)
+        );
+        boolean velocityFlag = tickDist > VELOCITY_THRESHOLD;
+
+        if (!anchorSet && !velocityFlag) return;
 
         long now = System.currentTimeMillis();
         long chunkGap = now - lastChunkAck;
-        double distFromAnchor = Math.sqrt(
+        double distFromAnchor = anchorSet ? Math.sqrt(
             Math.pow(player.x - anchorX, 2)
             + Math.pow(player.y - anchorY, 2)
             + Math.pow(player.z - anchorZ, 2)
-        );
+        ) : 0;
 
-        boolean noChunkForMovement = chunkGap > CHUNK_ACK_TIMEOUT_MS && distFromAnchor > MOVE_THRESHOLD;
+        boolean noChunkForMovement = anchorSet && chunkGap > CHUNK_ACK_TIMEOUT_MS && distFromAnchor > MOVE_THRESHOLD;
+        boolean flag = noChunkForMovement || velocityFlag;
 
-        if (noChunkForMovement) {
-            buffer++;
+        if (flag) {
+            buffer += 2;
             if (buffer > 3) {
-                flagAndAlertWithSetback(String.format("dist=%.1f chunkGap=%dms",
-                    distFromAnchor, chunkGap));
+                flagAndAlertWithSetback(String.format(velocityFlag ? "vDist=%.1f" : "dist=%.1f chunkGap=%dms",
+                    velocityFlag ? tickDist : distFromAnchor,
+                    velocityFlag ? 0 : chunkGap));
             }
         } else {
             buffer = Math.max(0, buffer - 1);

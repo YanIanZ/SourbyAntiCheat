@@ -16,8 +16,8 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPl
 public class FlightA extends Check implements PacketCheck {
 
     private static final double MAX_AIR_SPEED = 0.42;
-    private static final int MAX_AIR_TICKS = 120;
-    private static final int MIN_FLAG_AIR_TICKS = 130;
+    private static final int MAX_AIR_TICKS = 60;
+    private static final int MIN_FLAG_AIR_TICKS = 70;
 
     private int airTicks = 0;
     private boolean wasOnGround = true;

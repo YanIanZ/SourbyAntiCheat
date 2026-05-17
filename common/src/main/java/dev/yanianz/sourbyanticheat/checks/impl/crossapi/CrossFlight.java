@@ -11,7 +11,7 @@ import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 public class CrossFlight extends Check implements PostPredictionCheck {
 
     private double buffer;
-    private static final double PREDICTION_THRESHOLD = 1.0;
+    private static final double PREDICTION_THRESHOLD = 0.7;
     private static final double NETTY_RATE_THRESHOLD = 25.0;
 
     public CrossFlight(SacPlayer player) {

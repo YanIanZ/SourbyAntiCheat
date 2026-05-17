@@ -16,7 +16,7 @@ public class CrossPhase extends Check implements PacketCheck {
 
     private int phaseBuffer;
     private long lastPacketTime;
-    private static final long GAP_THRESHOLD_MS = 1000;
+    private static final long GAP_THRESHOLD_MS = 1500;
     private static final double OFFSET_THRESHOLD = 0.5;
 
     public CrossPhase(SacPlayer player) {
@@ -75,7 +75,7 @@ public class CrossPhase extends Check implements PacketCheck {
             phaseBuffer += 1;
         }
 
-        if (phaseBuffer > 5) {
+        if (phaseBuffer > 8) {
             flagAndAlertWithSetback(verbose);
         }
     }
