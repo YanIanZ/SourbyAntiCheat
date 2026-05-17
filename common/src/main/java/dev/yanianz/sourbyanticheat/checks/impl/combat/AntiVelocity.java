@@ -78,7 +78,7 @@ public class AntiVelocity extends Check implements PacketCheck {
 
             double ratio = expected > 0.001 ? totalActualMovement / expected : 1.0;
 
-            if (ratio < 0.15) {
+            if (ratio < 0.08) {
                 buffer++;
                 if (buffer > 2) {
                     flagAndAlert("ratio=" + String.format("%.3f", ratio) + " actual=" + String.format("%.4f", totalActualMovement) + " expected=" + String.format("%.4f", expected));

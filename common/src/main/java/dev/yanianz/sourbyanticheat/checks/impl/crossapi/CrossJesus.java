@@ -12,7 +12,7 @@ import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 public class CrossJesus extends Check implements PostPredictionCheck {
 
     private double buffer;
-    private static final double OFFSET_THRESHOLD = 0.8;
+    private static final double OFFSET_THRESHOLD = 0.4;
     private static final double NETTY_RATE_THRESHOLD = 22.0;
 
     public CrossJesus(SacPlayer player) {
@@ -24,8 +24,7 @@ public class CrossJesus extends Check implements PostPredictionCheck {
         if (player.compensatedEntities.self.hasPotionEffect(PotionTypes.DOLPHINS_GRACE)) return;
         if (player.disableGrim) return;
 
-        boolean onWaterSurface = Math.abs(player.crossValidationData.pePositionDeltaY) < 0.01
-            && player.wasTouchingWater;
+        boolean onWaterSurface = player.wasTouchingWater;
         double offset = player.crossValidationData.offsetFromPrediction;
         boolean predictionFlag = onWaterSurface && offset > OFFSET_THRESHOLD;
 

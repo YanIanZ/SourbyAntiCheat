@@ -12,7 +12,7 @@ import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 public class CrossNoFall extends Check implements PostPredictionCheck {
 
     private double buffer;
-    private static final double OFFSET_THRESHOLD = 0.15;
+    private static final double OFFSET_THRESHOLD = 0.05;
     private static final double NETTY_DELAY_THRESHOLD = 50.0;
 
     public CrossNoFall(SacPlayer player) {

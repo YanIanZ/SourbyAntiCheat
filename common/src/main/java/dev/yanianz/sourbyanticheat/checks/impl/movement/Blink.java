@@ -12,7 +12,7 @@ public class Blink extends Check implements PacketCheck {
 
     private long lastPacketTime = 0;
     private double lastX, lastY, lastZ;
-    private int blinkCount = 0;
+    private int buffer = 0;
 
     public Blink(SacPlayer player) {
         super(player);
@@ -26,7 +26,7 @@ public class Blink extends Check implements PacketCheck {
                 || player.inVehicle() || player.canFly || player.isGliding
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) {
-            blinkCount = 0;
+            buffer = 0;
             return;
         }
 
@@ -39,14 +39,14 @@ public class Blink extends Check implements PacketCheck {
                 + Math.pow(player.z - lastZ, 2)
             );
 
-            if (gap > 2000 && moved > 3.0) {
-                blinkCount++;
-                if (blinkCount > 3) {
-                    flagAndAlert("gap=" + gap + "ms moved=" + String.format("%.1f", moved) + " count=" + blinkCount);
+            if (gap > 2000 && moved > 8.0) {
+                buffer += 3;
+                if (buffer > 4) {
+                    flagAndAlert("gap=" + gap + "ms moved=" + String.format("%.1f", moved));
                 }
             } else {
-                blinkCount = Math.max(0, blinkCount - 1);
-                if (blinkCount < 2) reward();
+                buffer = Math.max(0, buffer - 1);
+                if (buffer < 2) reward();
             }
         }
         lastPacketTime = now;

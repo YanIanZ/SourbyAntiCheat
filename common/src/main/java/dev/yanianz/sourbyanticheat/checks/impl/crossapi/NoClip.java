@@ -82,7 +82,7 @@ public class NoClip extends Check implements PostPredictionCheck {
             insideBuffer += 1;
         }
 
-        if (insideBuffer > 3) {
+        if (insideBuffer > 2) {
             flagAndAlert(String.format("netty=%.1f/s spartan=%s",
                 player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
         }
