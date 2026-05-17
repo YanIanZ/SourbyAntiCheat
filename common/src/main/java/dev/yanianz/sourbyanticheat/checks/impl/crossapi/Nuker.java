@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.BlockBreakCheck;
@@ -14,11 +15,21 @@ public class Nuker extends Check implements BlockBreakCheck {
 
     private final LinkedList<Long> breakTimes = new LinkedList<>();
     private int buffer;
-    private static final int MAX_BREAKS_PER_SEC = 15;
+
+    // Config-wired thresholds (defaults equal prior hardcoded values)
+    private int maxBreaksPerSec = 15;
+    private double avgIntervalThreshold = 70.0;
     private static final double NETTY_RATE_THRESHOLD = 18.0;
 
     public Nuker(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        maxBreaksPerSec      = config.getIntElse(base + "max-breaks-per-sec", 15);
+        avgIntervalThreshold = config.getDoubleElse(base + "avg-interval-threshold", 70.0);
     }
 
     @Override
@@ -35,7 +46,7 @@ public class Nuker extends Check implements BlockBreakCheck {
 
         int bps = breakTimes.size();
 
-        if (bps < MAX_BREAKS_PER_SEC) {
+        if (bps < maxBreaksPerSec) {
             reward();
             return;
         }
@@ -49,7 +60,9 @@ public class Nuker extends Check implements BlockBreakCheck {
         int n = breakTimes.size() - 1;
         if (n > 0) avgInterval /= n;
 
-        boolean consistentRate = avgInterval < 70 && bps > 12;
+        // bps >= maxBreaksPerSec is guaranteed here (gated above); the consistency
+        // signal is purely the low, even break interval.
+        boolean consistentRate = avgInterval < avgIntervalThreshold;
 
         if (!consistentRate) {
             buffer = Math.max(0, buffer - 1);

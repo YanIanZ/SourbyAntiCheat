@@ -1,11 +1,13 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
+import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 
 @CheckData(name = "Freecam", configName = "freecam", decay = 0.05, setback = 10, stableKey = "cross.freecam")
@@ -14,12 +16,23 @@ public class Freecam extends Check implements PostPredictionCheck {
     private int buffer;
     private long lastChunkAck = System.currentTimeMillis();
     private double anchorX, anchorY, anchorZ;
-    private static final long CHUNK_ACK_TIMEOUT_MS = 3000;
-    private static final double MOVE_THRESHOLD = 20.0;
-    private static final double VELOCITY_THRESHOLD = 30.0;
+
+    // Config-wired thresholds (defaults equal prior hardcoded values)
+    private long chunkAckTimeoutMs = 3000L;
+    private double moveThreshold = 20.0;
+    private double velocityThreshold = 30.0;
+    private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public Freecam(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        chunkAckTimeoutMs = config.getIntElse(base + "chunk-ack-timeout-ms", 3000);
+        moveThreshold     = config.getDoubleElse(base + "move-threshold", 20.0);
+        velocityThreshold = config.getDoubleElse(base + "velocity-threshold", 30.0);
     }
 
     @Override
@@ -49,7 +62,7 @@ public class Freecam extends Check implements PostPredictionCheck {
             + Math.pow(player.y - player.lastY, 2)
             + Math.pow(player.z - player.lastZ, 2)
         );
-        boolean velocityFlag = tickDist > VELOCITY_THRESHOLD;
+        boolean velocityFlag = tickDist > velocityThreshold;
 
         long now = System.currentTimeMillis();
         long chunkGap = now - lastChunkAck;
@@ -58,9 +71,11 @@ public class Freecam extends Check implements PostPredictionCheck {
             + Math.pow(player.y - anchorY, 2)
             + Math.pow(player.z - anchorZ, 2)
         );
-        boolean chunkFlag = chunkGap > CHUNK_ACK_TIMEOUT_MS && distFromAnchor > MOVE_THRESHOLD;
+        boolean chunkFlag = chunkGap > chunkAckTimeoutMs && distFromAnchor > moveThreshold;
 
-        boolean flag = velocityFlag || (velocityFlag && chunkFlag) || (chunkFlag && tickDist > 5.0);
+        // chunkFlag now genuinely contributes: either a raw velocity spike, or moving
+        // far from the last acked anchor while still drifting (tickDist > 5).
+        boolean flag = velocityFlag || (chunkFlag && tickDist > 5.0);
 
         if (!flag) {
             buffer = Math.max(0, buffer - 1);
@@ -68,10 +83,15 @@ public class Freecam extends Check implements PostPredictionCheck {
             return;
         }
 
-        buffer += 2;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
+        SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "Freecam");
+        boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
+
+        buffer += (nettyConfirms || spartanConfirms) ? 2 : 1;
         if (buffer > 4) {
-            flagAndAlert(String.format("vDist=%.1f chunkGap=%dms anchorDist=%.1f",
-                tickDist, chunkGap, distFromAnchor));
+            flagAndAlert(String.format("vDist=%.1f chunkGap=%dms anchorDist=%.1f netty=%.1f/s spartan=%s",
+                tickDist, chunkGap, distFromAnchor,
+                player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
         }
     }
 }

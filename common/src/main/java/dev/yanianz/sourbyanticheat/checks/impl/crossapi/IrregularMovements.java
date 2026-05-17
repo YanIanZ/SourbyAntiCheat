@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
@@ -13,12 +14,22 @@ public class IrregularMovements extends Check implements PostPredictionCheck {
     private int buffer;
     private double lastDeltaX, lastDeltaZ;
     private double lastSpeed;
-    private static final double DIRECTION_CHANGE_MIN_SPEED = 0.3;
-    private static final double DIRECTION_CHANGE_THRESHOLD = 0.95;
+    private int knockbackExemptTicks;
+
+    // Config-wired thresholds (defaults equal prior hardcoded values)
+    private double directionChangeMinSpeed = 0.3;
+    private double directionChangeThreshold = 0.95;
     private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public IrregularMovements(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        directionChangeMinSpeed  = config.getDoubleElse(base + "direction-change-min-speed", 0.3);
+        directionChangeThreshold = config.getDoubleElse(base + "direction-change-threshold", 0.95);
     }
 
     @Override
@@ -31,13 +42,21 @@ public class IrregularMovements extends Check implements PostPredictionCheck {
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
 
+        // Knockback / explosion velocity reverses movement direction legitimately —
+        // keep an exemption window for a few ticks after velocity is applied.
+        if (player.likelyKB != null || player.firstBreadKB != null) {
+            knockbackExemptTicks = 5;
+        } else if (knockbackExemptTicks > 0) {
+            knockbackExemptTicks--;
+        }
+
         double deltaY = Math.abs(player.y - player.lastY);
         boolean jumpingOrFalling = deltaY > 0.1;
         double deltaX = player.x - player.lastX;
         double deltaZ = player.z - player.lastZ;
         double speed = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
 
-        if (speed < DIRECTION_CHANGE_MIN_SPEED || jumpingOrFalling) {
+        if (speed < directionChangeMinSpeed || jumpingOrFalling || knockbackExemptTicks > 0) {
             buffer = Math.max(0, buffer - 1);
             lastDeltaX = deltaX;
             lastDeltaZ = deltaZ;
@@ -48,7 +67,7 @@ public class IrregularMovements extends Check implements PostPredictionCheck {
 
         double prevSpeed = lastSpeed > 0.001 ? lastSpeed : 0.001;
         double dot = (deltaX * lastDeltaX + deltaZ * lastDeltaZ) / (speed * prevSpeed);
-        boolean directionReversed = dot < -DIRECTION_CHANGE_THRESHOLD && speed > DIRECTION_CHANGE_MIN_SPEED;
+        boolean directionReversed = dot < -directionChangeThreshold && speed > directionChangeMinSpeed;
 
         lastDeltaX = deltaX;
         lastDeltaZ = deltaZ;

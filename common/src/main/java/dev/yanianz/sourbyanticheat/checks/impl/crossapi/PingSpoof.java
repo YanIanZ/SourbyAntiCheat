@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import dev.yanianz.sourbyanticheat.checks.Check;
@@ -16,11 +17,27 @@ public class PingSpoof extends Check implements PacketCheck {
     private final LinkedList<Long> recentPings = new LinkedList<>();
     private int buffer;
     private int stableHighPingCount;
-    private static final int PING_SAMPLE_SIZE = 10;
+
+    // Config-wired thresholds (defaults equal prior hardcoded values)
+    private int pingSampleSize = 10;
+    private double pingGapThreshold = 200.0;
+    private double transactionPingThreshold = 300.0;
+    private double varianceThreshold = 0.05;
+    private double avgPingThreshold = 200.0;
     private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public PingSpoof(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        pingSampleSize           = config.getIntElse(base + "ping-sample-size", 10);
+        pingGapThreshold         = config.getDoubleElse(base + "ping-gap-threshold", 200.0);
+        transactionPingThreshold = config.getDoubleElse(base + "transaction-ping-threshold", 300.0);
+        varianceThreshold        = config.getDoubleElse(base + "variance-threshold", 0.05);
+        avgPingThreshold         = config.getDoubleElse(base + "avg-ping-threshold", 200.0);
     }
 
     @Override
@@ -42,9 +59,9 @@ public class PingSpoof extends Check implements PacketCheck {
         }
 
         recentPings.add((long) transactionPing);
-        if (recentPings.size() > PING_SAMPLE_SIZE) recentPings.removeFirst();
+        if (recentPings.size() > pingSampleSize) recentPings.removeFirst();
 
-        if (recentPings.size() < PING_SAMPLE_SIZE) return;
+        if (recentPings.size() < pingSampleSize) return;
 
         double avgPing = recentPings.stream().mapToLong(Long::longValue).average().orElse(0);
         double minPing = recentPings.stream().mapToLong(Long::longValue).min().orElse(0);
@@ -52,8 +69,12 @@ public class PingSpoof extends Check implements PacketCheck {
         double variance = (maxPing - minPing) / Math.max(avgPing, 1);
 
         int pingGap = Math.abs(transactionPing - keepAlivePing);
-        boolean pingMismatch = pingGap > 200 && transactionPing > 300;
-        boolean tooStable = variance < 0.05 && avgPing > 200;
+        boolean pingMismatch = pingGap > pingGapThreshold && transactionPing > transactionPingThreshold;
+        // A genuinely stable fibre/LAN connection has consistent high transaction ping
+        // AND a matching keep-alive ping. Spoofers fake one metric — require the gap
+        // between the two pings to also be suspicious before treating stability as a signal.
+        boolean tooStable = variance < varianceThreshold && avgPing > avgPingThreshold
+            && pingGap > pingGapThreshold;
 
         if (pingMismatch || tooStable) {
             stableHighPingCount++;

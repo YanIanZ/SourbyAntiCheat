@@ -1,7 +1,10 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.protocol.world.states.WrappedBlockState;
+import com.github.retrooper.packetevents.protocol.world.states.type.StateTypes;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
@@ -15,9 +18,16 @@ public class PortalInventory extends Check implements PostPredictionCheck {
     private int buffer;
     private boolean inPortal = false;
     private boolean clickedInventory = false;
-    private static final double NETTY_RATE_THRESHOLD = 15.0;
+
+    // Config-wired threshold (default equals prior hardcoded value)
+    private double nettyRateThreshold = 15.0;
 
     public PortalInventory(SacPlayer player) { super(player); }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        nettyRateThreshold = config.getDoubleElse(getConfigName() + ".netty-rate-threshold", 15.0);
+    }
 
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
@@ -33,16 +43,22 @@ public class PortalInventory extends Check implements PostPredictionCheck {
         if (player.disableGrim) return;
         if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
+        if (player.compensatedEntities.self.isDead) {
+            inPortal = false;
+            clickedInventory = false;
+            return;
+        }
 
-        double deltaY = player.crossValidationData.pePositionDeltaY;
-        inPortal = Math.abs(deltaY) < 0.01 && !player.crossValidationData.peOnGround;
+        // Detect the actual nether portal block the player occupies, rather than
+        // inferring "portal" from a hovering position delta (which matched any hover).
+        inPortal = isInsidePortalBlock();
 
         if (!clickedInventory) { reward(); return; }
         clickedInventory = false;
 
         if (!inPortal) { buffer = Math.max(0, buffer - 1); reward(); return; }
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > nettyRateThreshold;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "Exploits");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 
@@ -51,5 +67,19 @@ public class PortalInventory extends Check implements PostPredictionCheck {
             flagAndAlert(String.format("netty=%.1f/s spartan=%s",
                 player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
         }
+    }
+
+    private boolean isInsidePortalBlock() {
+        int bx = (int) Math.floor(player.x);
+        int bz = (int) Math.floor(player.z);
+        int feetY = (int) Math.floor(player.y);
+        int headY = (int) Math.floor(player.y + 1.62);
+        for (int by = feetY; by <= headY; by++) {
+            WrappedBlockState block = player.compensatedWorld.getBlock(bx, by, bz);
+            if (block != null && block.getType() == StateTypes.NETHER_PORTAL) {
+                return true;
+            }
+        }
+        return false;
     }
 }

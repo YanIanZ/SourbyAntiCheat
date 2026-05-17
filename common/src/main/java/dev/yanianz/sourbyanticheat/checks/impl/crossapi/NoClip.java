@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
@@ -17,13 +18,23 @@ import java.util.List;
 public class NoClip extends Check implements PostPredictionCheck {
 
     private int insideBuffer;
+    private boolean lastTickPhased;
     private SimpleCollisionBox lastBox;
     private static final double NETTY_RATE_THRESHOLD = 15.0;
     private final List<SimpleCollisionBox> collisionBoxes = new ArrayList<>();
 
+    // Config-wired threshold (raised above the prior hardcoded 2 to absorb
+    // a single false collision from a server-placed-block race).
+    private int insideBufferThreshold = 4;
+
     public NoClip(SacPlayer player) {
         super(player);
         lastBox = player.boundingBox.copy();
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        insideBufferThreshold = config.getIntElse(getConfigName() + ".inside-buffer-threshold", 4);
     }
 
     @Override
@@ -33,6 +44,7 @@ public class NoClip extends Check implements PostPredictionCheck {
         if (player.packetStateData.lastPacketWasTeleport) {
             lastBox = player.boundingBox.copy();
             insideBuffer = 0;
+            lastTickPhased = false;
         }
     }
 
@@ -44,6 +56,7 @@ public class NoClip extends Check implements PostPredictionCheck {
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE) {
             insideBuffer = 0;
+            lastTickPhased = false;
             lastBox = player.boundingBox.copy();
             return;
         }
@@ -64,8 +77,14 @@ public class NoClip extends Check implements PostPredictionCheck {
 
         lastBox = newBox;
 
-        if (!phasedThrough) {
-            insideBuffer = Math.max(0, insideBuffer - 1);
+        // Require the intersection to persist across 2+ consecutive ticks. A single
+        // isolated intersection is almost always a server-placed-block race (a block
+        // appears adjacent to the player on one tick), not a phase.
+        boolean persistentPhase = phasedThrough && lastTickPhased;
+        lastTickPhased = phasedThrough;
+
+        if (!persistentPhase) {
+            if (!phasedThrough) insideBuffer = Math.max(0, insideBuffer - 1);
             reward();
             return;
         }
@@ -83,7 +102,7 @@ public class NoClip extends Check implements PostPredictionCheck {
             insideBuffer += 1;
         }
 
-        if (insideBuffer > 2) {
+        if (insideBuffer > insideBufferThreshold) {
             flagAndAlert(String.format("netty=%.1f/s spartan=%s",
                 player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
         }
