@@ -31,6 +31,12 @@ import dev.yanianz.sourbyanticheat.checks.impl.crossapi.NoClip;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.GhostHand;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.IrregularMovements;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.MorePackets;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossNoSlowdown;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossScaffold;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastBreak;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossVehicle;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossEntitySpeed;
+import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossAutoClicker;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFreecam;
 import dev.yanianz.sourbyanticheat.checks.impl.elytra.*;
 import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitA;
@@ -152,6 +158,7 @@ public class CheckManager {
                 .put(CrossElytraMove.class, new CrossElytraMove(player))
                 .put(CrossKillAura.class, new CrossKillAura(player))
                 .put(MorePackets.class, new MorePackets(player))
+                .put(CrossAutoClicker.class, new CrossAutoClicker(player))
                 .put(GhostHand.class, new GhostHand(player))
                 .put(PayloadCheck.class, new PayloadCheck(player))
                 .put(SpartanSync.class, new SpartanSync(player))
@@ -312,6 +319,9 @@ public class CheckManager {
                 .put(Freecam.class, new Freecam(player))
                 .put(NoClip.class, new NoClip(player))
                 .put(IrregularMovements.class, new IrregularMovements(player))
+                .put(CrossNoSlowdown.class, new CrossNoSlowdown(player))
+                .put(CrossVehicle.class, new CrossVehicle(player))
+                .put(CrossEntitySpeed.class, new CrossEntitySpeed(player))
                 .put(SetbackTeleportUtil.class, new SetbackTeleportUtil(player)) // Avoid teleporting to new position, update safe pos last
                 .put(CompensatedFireworks.class, player.fireworks)
                 .put(SneakingEstimator.class, new SneakingEstimator(player))
@@ -336,6 +346,7 @@ public class CheckManager {
                 .put(GhostBlockMitigation.class, new GhostBlockMitigation(player))
                 .put(ScaffoldA.class, new ScaffoldA(player))
                 .put(ScaffoldB.class, new ScaffoldB(player))
+                .put(CrossScaffold.class, new CrossScaffold(player))
                 .build();
 
         prePredictionChecks = new ImmutableClassToInstanceMap.Builder<PacketCheck>()
@@ -359,6 +370,7 @@ public class CheckManager {
                 .put(PositionBreakA.class, new PositionBreakA(player))
                 .put(PositionBreakB.class, new PositionBreakB(player))
                 .put(MultiActionsB.class, new MultiActionsB(player))
+                .put(CrossFastBreak.class, new CrossFastBreak(player))
                 .build();
 
         // All checks that have no listeners, generally invoked by other code to flag

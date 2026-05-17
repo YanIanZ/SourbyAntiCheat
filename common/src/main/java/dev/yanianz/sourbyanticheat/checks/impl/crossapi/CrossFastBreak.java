@@ -1,0 +1,47 @@
+package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
+
+import dev.yanianz.sourbyanticheat.checks.Check;
+import dev.yanianz.sourbyanticheat.checks.CheckData;
+import dev.yanianz.sourbyanticheat.checks.type.BlockBreakCheck;
+import dev.yanianz.sourbyanticheat.player.SacPlayer;
+import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
+import dev.yanianz.sourbyanticheat.utils.anticheat.update.BlockBreak;
+
+@CheckData(name = "CrossFastBreak", configName = "crossfastbreak", decay = 0.02, setback = 10, stableKey = "cross.fastbreak")
+public class CrossFastBreak extends Check implements BlockBreakCheck {
+
+    private int breakCount;
+    private long lastReset;
+    private int buffer;
+    private static final int BREAK_THRESHOLD = 8;
+    private static final double NETTY_RATE_THRESHOLD = 18.0;
+
+    public CrossFastBreak(SacPlayer player) {
+        super(player);
+        lastReset = System.currentTimeMillis();
+    }
+
+    @Override
+    public void onBlockBreak(BlockBreak blockBreak) {
+        long now = System.currentTimeMillis();
+        if (now - lastReset > 1000) {
+            breakCount = 0;
+            lastReset = now;
+        }
+        breakCount++;
+
+        if (breakCount < BREAK_THRESHOLD) return;
+
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
+
+        SpartanCrossCheck.CrossCheckResult spartanResult =
+            SpartanCrossCheck.checkSpartan(player.uuid, "FastBreak");
+        boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
+
+        buffer += (nettyConfirms || spartanConfirms) ? 2 : 1;
+        if (buffer > 3) {
+            flagAndAlert(String.format("breaks=%d/s netty=%.1f/s spartan=%s",
+                breakCount, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
+        }
+    }
+}
