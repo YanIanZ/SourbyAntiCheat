@@ -11,7 +11,7 @@ import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 public class CrossNoFall extends Check implements PostPredictionCheck {
 
     private double buffer;
-    private static final double OFFSET_THRESHOLD = 0.10;
+    private static final double OFFSET_THRESHOLD = 0.06;
     private static final double NETTY_DELAY_THRESHOLD = 40.0;
 
     public CrossNoFall(SacPlayer player) {
@@ -37,7 +37,7 @@ public class CrossNoFall extends Check implements PostPredictionCheck {
             - player.crossValidationData.predictedDeltaY);
         double fullOffset = player.crossValidationData.offsetFromPrediction;
         boolean groundSpoof = player.crossValidationData.peOnGround
-            && (yOffset > OFFSET_THRESHOLD || fullOffset > 0.5);
+            && (yOffset > OFFSET_THRESHOLD || fullOffset > 0.2);
 
         if (!groundSpoof) {
             buffer = Math.max(0, buffer - 0.15);
@@ -56,7 +56,7 @@ public class CrossNoFall extends Check implements PostPredictionCheck {
 
         if (nettyConfirms || spartanConfirms) {
             buffer += 1.5 * multiplier;
-            if (buffer > 4.0) {
+            if (buffer > 5.0) {
                 flagAndAlert(String.format("yOff=%.3f off=%.3f netty=%.1fms spartan=%s",
                     yOffset, fullOffset,
                     player.crossValidationData.nettyAvgDelayBetweenPacketsMs, spartanResult.type()));

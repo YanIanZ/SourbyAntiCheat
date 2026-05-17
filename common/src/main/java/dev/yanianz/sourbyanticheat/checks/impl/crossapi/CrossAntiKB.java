@@ -11,7 +11,7 @@ import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 public class CrossAntiKB extends Check implements PostPredictionCheck {
 
     private int consecutiveFlags;
-    private static final double RATIO_THRESHOLD = 0.4;
+    private static final double RATIO_THRESHOLD = 0.5;
 
     public CrossAntiKB(SacPlayer player) {
         super(player);

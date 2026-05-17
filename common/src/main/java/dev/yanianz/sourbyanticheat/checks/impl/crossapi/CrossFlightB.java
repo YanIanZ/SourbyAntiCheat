@@ -39,7 +39,7 @@ public class CrossFlightB extends Check implements PostPredictionCheck {
             return;
         }
 
-        if (hoverTicks < 15) return;
+        if (hoverTicks < 10) return;
 
         boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "Flight");

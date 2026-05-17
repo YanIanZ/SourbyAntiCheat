@@ -11,7 +11,7 @@ import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 public class CrossTimer extends Check implements PacketCheck {
 
     private double balance;
-    private static final double BALANCE_LIMIT = 20.0;
+    private static final double BALANCE_LIMIT = 15.0;
     private static final double NETTY_RATE_THRESHOLD = 15.0;
 
     public CrossTimer(SacPlayer player) {
@@ -34,7 +34,7 @@ public class CrossTimer extends Check implements PacketCheck {
 
         if (balance > BALANCE_LIMIT) balance = BALANCE_LIMIT;
 
-        boolean balanceFlag = balance > 10.0;
+        boolean balanceFlag = balance > 8.0;
 
         if (!balanceFlag) {
             reward();

@@ -12,7 +12,7 @@ import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 public class CrossFlight extends Check implements PostPredictionCheck {
 
     private double buffer;
-    private static final double PREDICTION_THRESHOLD = 0.7;
+    private static final double PREDICTION_THRESHOLD = 0.15;
     private static final double NETTY_RATE_THRESHOLD = 18.0;
 
     public CrossFlight(SacPlayer player) {
@@ -48,13 +48,13 @@ public class CrossFlight extends Check implements PostPredictionCheck {
 
         if (nettyConfirms || spartanConfirms) {
             buffer += 1.5 * multiplier;
-            if (buffer > 3.0) {
+            if (buffer > 5.0) {
                 flagAndAlert(String.format("offset=%.3f netty=%.1f/s spartan=%s",
                     offset, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
             }
         } else {
             buffer += 0.5 * multiplier;
-            if (buffer > 5.0) {
+            if (buffer > 8.0) {
                 flagAndAlert(String.format("offset=%.3f (no cross-confirm)", offset));
             }
         }

@@ -11,7 +11,7 @@ import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 public class FastFall extends Check implements PostPredictionCheck {
 
     private double buffer;
-    private static final double FALL_THRESHOLD = 0.5;
+    private static final double FALL_THRESHOLD = 0.15;
     private static final double NETTY_RATE_THRESHOLD = 18.0;
 
     public FastFall(SacPlayer player) {
@@ -31,7 +31,7 @@ public class FastFall extends Check implements PostPredictionCheck {
         double predictedY = player.crossValidationData.predictedDeltaY;
         double fallExcess = Math.abs(deltaY) - Math.abs(predictedY);
 
-        boolean fastFalling = deltaY < -0.2 && fallExcess > FALL_THRESHOLD;
+        boolean fastFalling = deltaY < -0.1 && fallExcess > FALL_THRESHOLD;
 
         if (!fastFalling) {
             buffer = Math.max(0, buffer - 0.02);

@@ -11,7 +11,7 @@ import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 public class Liquids extends Check implements PostPredictionCheck {
 
     private double buffer;
-    private static final double OFFSET_THRESHOLD = 0.5;
+    private static final double OFFSET_THRESHOLD = 0.15;
     private static final double NETTY_RATE_THRESHOLD = 18.0;
 
     public Liquids(SacPlayer player) { super(player); }

@@ -14,8 +14,8 @@ public class CrossFreecam extends Check implements PostPredictionCheck {
 
     private double buffer;
     private long lastChunkAck = System.currentTimeMillis();
-    private static final double OFFSET_THRESHOLD = 1.5;
-    private static final long CHUNK_GAP_THRESHOLD_MS = 2000;
+    private static final double OFFSET_THRESHOLD = 0.8;
+    private static final long CHUNK_GAP_THRESHOLD_MS = 1500;
     private static final double NETTY_RATE_THRESHOLD = 15.0;
     private static final double NETTY_DELAY_THRESHOLD = 50.0;
 

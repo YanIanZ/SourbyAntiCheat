@@ -14,7 +14,7 @@ public class CrossSpeedB extends Check implements PacketCheck {
     private double buffer;
     private double lastSpeed = 0;
     private double lastAccel = 0;
-    private static final double ACCEL_LIMIT = 0.3;
+    private static final double ACCEL_LIMIT = 0.15;
     private static final double NETTY_RATE_THRESHOLD = 18.0;
 
     public CrossSpeedB(SacPlayer player) { super(player); }

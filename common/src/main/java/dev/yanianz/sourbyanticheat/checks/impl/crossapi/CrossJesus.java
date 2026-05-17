@@ -12,7 +12,7 @@ import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 public class CrossJesus extends Check implements PostPredictionCheck {
 
     private double buffer;
-    private static final double OFFSET_THRESHOLD = 0.4;
+    private static final double OFFSET_THRESHOLD = 0.15;
     private static final double NETTY_RATE_THRESHOLD = 18.0;
 
     public CrossJesus(SacPlayer player) {

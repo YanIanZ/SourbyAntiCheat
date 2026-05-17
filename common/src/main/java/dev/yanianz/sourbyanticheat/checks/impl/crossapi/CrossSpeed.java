@@ -11,7 +11,7 @@ import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 public class CrossSpeed extends Check implements PostPredictionCheck {
 
     private double buffer;
-    private static final double PREDICTION_THRESHOLD = 0.5;
+    private static final double PREDICTION_THRESHOLD = 0.08;
     private static final double NETTY_RATE_THRESHOLD = 18.0;
     private static final double NETTY_DELAY_THRESHOLD = 40.0;
 
@@ -33,7 +33,7 @@ public class CrossSpeed extends Check implements PostPredictionCheck {
         boolean predictionFlag = offset > PREDICTION_THRESHOLD;
 
         if (!predictionFlag) {
-            buffer = Math.max(0, buffer - 0.05);
+            buffer = Math.max(0, buffer - 0.08);
             reward();
             return;
         }
