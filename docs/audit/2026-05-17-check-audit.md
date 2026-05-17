@@ -2,10 +2,7 @@
 
 Read-only audit of anticheat checks. Tags: `[BUG]` `[FP]` `[CONFIG]` `[STYLE]`.
 
-**Status:** 136 of 250 checks audited (15 of 21 directories). 6 directories
-pending — `crossapi`, `movement`, `sprint`, `timer`, `vehicle`, `velocity`
-(~92 checks) — subagent quota exhausted, resets 22:20 Asia/Jakarta. Re-run
-audit agents for those dirs to complete.
+**Status:** Complete — 236 checks audited across all 21 directories.
 
 ## Top `[BUG]` findings (false-ban / crash risk)
 
@@ -24,6 +21,18 @@ audit agents for those dirs to complete.
 - `combat/AutoArmor` — fires on `CLOSE_WINDOW` (not armor switch) → false inter-event timing.
 - `breaking/FastBreak` — `startBreak` 50ms grace inconsistently applied (only when `targetBlockPosition==null`).
 - `crash/CrashI` — `e.getMessage().substring(27)` fragile parse → unchecked exception if packetevents reworas prefix.
+- `crossapi/CrossPhase`,`CrossSpider`,`CrossStep` — `(int)(1 * multiplier)` truncates to 0 when `multiplier=0.5` → buffer never increments, check inert for high-ping players.
+- `crossapi/CrossKillAura` — `reward()` fires on every non-attack packet (20+/sec) → VL suppressed, check near non-functional.
+- `crossapi/CrossTimer` — both branches of `if(nettyConfirms||spartanConfirms)` run identical `flagAndAlert` → cross-confirm is dead code.
+- `crossapi/CrossSpeed` — `else` branch L71 unreachable (both flags false already returned).
+- `crossapi/CrossFlight`,`CrossFreecam`,`CrossJesus`,`CrossNoFall` — `reward()` called unconditionally after flag → VL decays every tick while flagging.
+- `movement/Speed`,`Spider` — `onPredictionComplete` empty; check runs off `onPacketReceive` → blind to Grim prediction corrections.
+- `movement/Blink` — `blinkCount` never reset → flags every gap packet forever once past 5.
+- `sprint/SprintD` — `startedSprintingBeforeBlind` never set true → `!startedSprintingBeforeBlind` guard always true, flag ineffective.
+- `sprint/SprintA` — `food <= 6.0F` wrong boundary; MC stops sprint below 6 → flags legit sprinter at exactly 6 food.
+- `timer/*` — all 5 timer checks never call `reward()`; VL only grows.
+- `vehicle/VehicleC` — stub: no interface, no logic → registered but does nothing, silently passes all players.
+- `velocity/VectorPrecisionConverter` — `(short)` cast in `lpToLegacy` truncates velocities > ~4.096 m/tick → silent wrap to negative, wrong velocity to predictor.
 
 **Pervasive:** most checks never call `reward()` → `violations` ratchets up
 monotonically, decaying only via `@CheckData.decay` (often unset → 0.0).
@@ -40,21 +49,21 @@ This is the single most common finding across all directories.
 | chat | 4 | 4 | 0 | — |
 | combat | 16 | 14 | 2 | — |
 | crash | 9 | 9 | 0 | — |
-| crossapi | 54 | — | — | PENDING |
+| crossapi | 54 | 54 | 0 | — |
 | elytra | 9 | 9 | 0 | — |
 | exploit | 3 | 3 | 0 | — |
 | flight | 1 | 1 | 0 | — |
 | groundspoof | 1 | 1 | 0 | — |
 | misc | 10 | 9 | 1 | — |
-| movement | 17 | — | — | PENDING |
+| movement | 17 | 15 | 2 | — |
 | multiactions | 8 | 8 | 0 | — |
 | packetorder | 17 | 17 | 0 | — |
 | prediction | 4 | 4 | 0 | — |
 | scaffolding | 11 | 11 | 0 | — |
-| sprint | 7 | — | — | PENDING |
-| timer | 5 | — | — | PENDING |
-| vehicle | 6 | — | — | PENDING |
-| velocity | 3 | — | — | PENDING |
+| sprint | 7 | 7 | 0 | — |
+| timer | 5 | 5 | 0 | — |
+| vehicle | 6 | 6 | 0 | — |
+| velocity | 3 | 3 | 0 | — |
 
 ## All checks — audited
 
@@ -205,11 +214,98 @@ This is the single most common finding across all directories.
 | scaffolding | ScaffoldA | findings | `[BUG]` `reward()` only when `placeStreak<5` — never called above streak threshold, VL climbs L28-34 · `[FP]` no ladder/water/ice/wall-fill exemption — broad `dist<6.0`/Y`<2.0` · `[FP]` no elytra-glide exemption · `[CONFIG]` `0.1/6.0/2.0/streak 8` hardcoded L26-28 · `[STYLE]` `lastPlaceX/Z` init `0.0` — first placement near origin spurious streak |
 | scaffolding | ScaffoldB | findings | `[BUG]` `reward()` only when `towerCount<2` — inconsistent decay L37 · `[BUG]` `towerCount` resets to `1` not `0` L32 — off-by-one inflates sensitivity (3 placements trip `>3`) · `[FP]` no normal tower-jump-bridge exemption · `[FP]` no elytra/vehicle/world-change exemption · `[CONFIG]` `towerCount>3` + decay values hardcoded L29 |
 
-## Pending directories
-
-Not yet audited (subagent quota exhausted — resets 22:20 Asia/Jakarta):
-`crossapi` (54), `movement` (17), `sprint` (7), `timer` (5), `vehicle` (6),
-`velocity` (3). Re-run audit agents for these 6 directories to complete.
+| crossapi | AutoLoot | findings | `[BUG]` no `reward()` on flag path — buffer accumulates, VL never decays L44-48 · `[CONFIG]` `PICKUP_THRESHOLD 10`/`NETTY_RATE_THRESHOLD 15.0` hardcoded · `[FP]` no high-ping pickup-window exemption |
+| crossapi | AutoRespawn | findings | `[BUG]` no `reward()` on flag path L36-40 · `[CONFIG]` `gap<500` ms hardcoded L32 · `[FP]` no plugin-forced-respawn exemption |
+| crossapi | BackTrack | findings | `[CONFIG]` `mismatch<1.5` hardcoded L54 · `[FP]` no vehicle/gliding/elytra/teleport exemption before mismatch calc L44-48 |
+| crossapi | BedFucker | findings | `[BUG]` no `reward()` on flag path — only when `bedBreakCount<BED_THRESHOLD` L37 · `[CONFIG]` `BED_THRESHOLD 3`/`NETTY_RATE_THRESHOLD 18.0` hardcoded |
+| crossapi | BlockReach | findings | `[BUG]` eye-height hardcoded `1.62` L27 — wrong when crouching/swimming · `[CONFIG]` `MAX_BLOCK_REACH 5.5` hardcoded L13 · `[FP]` no teleport exemption |
+| crossapi | CrossAntiKB | findings | `[BUG]` no `reward()` on flag path L58-63 · `[STYLE]` `consecutiveFlags` instead of standard `buffer` — bypasses decay pattern |
+| crossapi | CrossAutoClicker | findings | `[BUG]` dual prune — `while` L47 + redundant `removeIf` L50 · `[CONFIG]` `NETTY_VARIANCE_THRESHOLD 10.0` + CPS `18/15/12/10` hardcoded · `[STYLE]` `variance` L86 is actually range (max-min) — misleading name |
+| crossapi | CrossCriticals | findings | `[BUG]` `attackedThisTick=false` L40 dead code (already returned L41) · `[FP]` no wind-burst exemption |
+| crossapi | CrossElytraMove | findings | `[CONFIG]` `SPEED_THRESHOLD 30.0` hardcoded L15 · `[FP]` no Slow-Falling/Levitation exemption — explosion-launched gliders exceed 30 briefly |
+| crossapi | CrossEntitySpeed | findings | `[CONFIG]` `MAX_RIDE_SPEED 0.35` hardcoded L14 — no entity-type distinction · `[FP]` no speed-potion/attribute-modifier exemption on mount |
+| crossapi | CrossFastBow | findings | `[CONFIG]` `MIN_CHARGE_TIME 100` ms hardcoded L18 · `[FP]` no ping leniency — RTT not subtracted, high-ping players appear short-charged |
+| crossapi | CrossFastBreak | findings | `[BUG]` no `reward()` on flag path — only when `breakCount<BREAK_THRESHOLD` L37 · `[CONFIG]` `BREAK_THRESHOLD 8`/`NETTY_RATE_THRESHOLD 18.0` hardcoded |
+| crossapi | CrossFastBreakB | findings | `[CONFIG]` `CONSISTENCY_THRESHOLD_MS 10` + interval bounds `20-200` hardcoded · `[STYLE]` `CONSISTENCY_THRESHOLD_MS` used for variance not ms — misleading name |
+| crossapi | CrossFastEat | findings | `[BUG]` `elapsed<100` path resets `isUsing` with no `reward()`/buffer decay L55-58 · `[CONFIG]` `MIN_EAT_TIME 1400` ms hardcoded · `[FP]` no food/non-food use-time distinction |
+| crossapi | CrossFastLadder | findings | `[BUG]` duplicate CREATIVE check L28 & L34 — L34 dead code · `[CONFIG]` `MAX_LADDER_SPEED 0.20` hardcoded · `[FP]` no Levitation exemption |
+| crossapi | CrossFastPlace | findings | `[BUG]` no `reward()` on flag path — only when `placeCount<PLACE_THRESHOLD` L33 · `[CONFIG]` `PLACE_THRESHOLD 6`/`NETTY_RATE_THRESHOLD 18.0` hardcoded |
+| crossapi | CrossFlight | findings | `[BUG]` `reward()` unconditional L62 after flag — decays VL every tick while flagging · `[CONFIG]` `PREDICTION_THRESHOLD 0.15`/`NETTY_RATE_THRESHOLD 18.0` hardcoded · `[FP]` no Slow-Falling exemption |
+| crossapi | CrossFlightB | findings | `[BUG]` `reward()` L38 only when `buffer<0.01` — `violations` barely decreases · `[FP]` no Slow-Falling exemption |
+| crossapi | CrossFoodSprint | findings | `[CONFIG]` `SPRINT_SPEED 0.28` hardcoded L17 · `[FP]` no Speed-potion exemption (Speed II exceeds 0.28) |
+| crossapi | CrossFreecam | findings | `[BUG]` `reward()` unconditional L72 after flag · `[CONFIG]` `OFFSET 0.8`/`CHUNK_GAP 1500`/`NETTY_RATE 15.0`/`NETTY_DELAY 50.0` hardcoded |
+| crossapi | CrossJesus | findings | `[BUG]` `reward()` unconditional L63 after flag · `[CONFIG]` `OFFSET_THRESHOLD 0.15`/`NETTY_RATE_THRESHOLD 18.0` hardcoded · `[FP]` `wasTouchingWater` set by normal swimming/exit |
+| crossapi | CrossJump | findings | `[CONFIG]` `JUMP_THRESHOLD 1.25` hardcoded L15 · `[FP]` no Slow-Falling/elytra exemption; `clientVelocity.getY()<=0.6` cutoff misses higher Jump Boost levels |
+| crossapi | CrossKillAura | findings | `[BUG]` `reward()` on every non-attack packet L33-35 (20+/sec) — VL massively suppressed, check near non-functional · `[CONFIG]` `ROTATION_THRESHOLD 30.0`/`ATTACK_INTERVAL 200.0` hardcoded |
+| crossapi | CrossKillAuraB | findings | `[CONFIG]` thresholds `30.0/10.0/25/15.0` hardcoded · `[FP]` `rotYaw>10.0` flags legit strafe-while-attack |
+| crossapi | CrossNoFall | findings | `[BUG]` `reward()` unconditional L72 after flag · `[CONFIG]` `OFFSET_THRESHOLD 0.06` hardcoded L14 · `[FP]` no lava exemption |
+| crossapi | CrossNoSlowdown | findings | `[CONFIG]` `SPRINT_SPEED 0.28` hardcoded L18 · `[STYLE]` near-duplicate of CrossFoodSprint — should merge · `[FP]` no Speed-potion exemption |
+| crossapi | CrossNoSwing | findings | `[BUG]` `reward()` L61 only when `buffer<2` — VL never decreases above 2 · `[FP]` Bedrock/Geyser/mods legitimately suppress swing — no explicit guard |
+| crossapi | CrossPhase | findings | `[BUG]` `(int)(2*multiplier)`/`(int)(1*multiplier)` L78-80 truncate to 0 at `multiplier=0.5` — buffer never increments, check inert >400ms ping · `[CONFIG]` `GAP 1000`/`OFFSET 0.1`/`NETTY_RATE 15.0` hardcoded |
+| crossapi | CrossPhaseB | findings | `[BUG]` no `reward()` on flag path L55-59 · `[BUG]` `lineIntersects` uses BB-union not trajectory sweep — FPs near corners · `[CONFIG]` `blocksPassed<2` hardcoded L49 |
+| crossapi | CrossReach | findings | `[CONFIG]` `REACH_MARGIN 0.5` hardcoded L17 · `[FP]` distance root-to-root L46 not nearest-BB-point — overestimates for tall/wide entities |
+| crossapi | CrossScaffold | findings | `[BUG]` no teleport exemption — teleport onto platform can flag · `[CONFIG]` `PLACE_THRESHOLD 5`/`NETTY_RATE_THRESHOLD 18.0` hardcoded |
+| crossapi | CrossSpeed | findings | `[BUG]` `else` branch L71 unreachable (both flags false already returned L52) · `[CONFIG]` `VELOCITY_MULTIPLIER 2.0`/`GROUND_FRICTION 0.6`/`AIR_FRICTION 0.91`/`NETTY_RATE 18.0` hardcoded |
+| crossapi | CrossSpeedB | findings | `[BUG]` `buffer>4.0` with cross-confirm false → neither flag nor reward, VL stagnates · `[CONFIG]` `NETTY_RATE 18.0`/`MAX_RATIO_DEVIATION 0.3`/`ratio>1.5` hardcoded |
+| crossapi | CrossSpider | findings | `[BUG]` `(int)(2*multiplier)`/`(int)(1*multiplier)` L73-75 truncate to 0 at high ping — dead increment · `[CONFIG]` `MIN_Y_DELTA 0.15`/`MAX_Y_DELTA 0.5`/`NETTY_RATE 18.0` hardcoded |
+| crossapi | CrossStep | findings | `[BUG]` `(int)(2*multiplier)`/`(int)(1*multiplier)` L61-63 truncate to 0 at high ping · `[CONFIG]` `STEP_THRESHOLD 0.6`/`NETTY_DELAY 40.0`/`NETTY_RATE 18.0` hardcoded |
+| crossapi | CrossTeleport | findings | `[BUG]` teleport-packet path L25-28 reduces buffer but no `reward()` — VL doesn't decay on legit teleport · `[CONFIG]` `TELEPORT_DIST 8.0`/`NETTY_RATE 18.0` hardcoded · `[FP]` ender-pearl/chorus/bed-respawn not detected as server teleport |
+| crossapi | CrossTimer | findings | `[BUG]` both branches of `if(nettyConfirms\|\|spartanConfirms)` L56-59 run identical `flagAndAlert` — cross-confirm dead code · `[CONFIG]` `BALANCE_LIMIT 15.0`/`balanceFlag>8.0`/`NETTY_RATE 15.0` hardcoded |
+| crossapi | CrossTower | findings | `[BUG]` `reward()` L39 only when `buffer<0.01` — `violations` rarely decays · `[CONFIG]` `TOWER_Y_THRESHOLD 0.3`/`NETTY_RATE 18.0` hardcoded |
+| crossapi | CrossVehicle | findings | `[BUG]` `MAX_BOAT_SPEED 0.40` defined L15 but never used — all vehicles checked vs `MAX_HORSE_SPEED 0.45` only L37 · `[FP]` no entity-type check before single threshold |
+| crossapi | DerpHead | findings | `[CONFIG]` `Math.abs(pitch)>80` hardcoded L30 · `[FP]` pitch 80-90 legit when looking down — threshold too tight (true derp is ±90) · `[BUG]` `reward()` L37 only when `buffer<2` |
+| crossapi | ExtraInventory | findings | `[CONFIG]` `MAX_SLOT 45`/`NETTY_RATE 15.0` hardcoded L16-17 · `[FP]` slot 45 is offhand in some impls — legit containers may exceed |
+| crossapi | FastFall | findings | `[CONFIG]` `FALL_THRESHOLD 0.15`/`NETTY_RATE 18.0` hardcoded L14-15 · `[FP]` no Slow-Falling/lava exemption |
+| crossapi | FastHeal | findings | `[FP]` `USE_ITEM` fires for any item use (bow/shield/bucket/trident) — rapid arrows flag this · `[CONFIG]` `HEAL_THRESHOLD 5`/`NETTY_RATE 15.0` hardcoded |
+| crossapi | FightBot | findings | `[CONFIG]` `normalizedDelta<2.0`/`peRotationDeltaYaw>5.0`/`perfectAimStreak<5` hardcoded · `[FP]` angle computed 2D only (ignores pitch) L58-59 · `[BUG]` `disableGrim` not checked in `onPacketReceive` L27-31 |
+| crossapi | ForceField | findings | `[BUG]` `reward()` L44 only when `buffer<2` · `[CONFIG]` `attacksThisTick>1` hardcoded L33 · `[FP]` hitting two mobs quickly increments — not cheating |
+| crossapi | Freecam | findings | `[BUG]` no Spartan cross-check / no `nettyConfirms` — `buffer+=2` unconditional L71 · `[BUG]` `velocityFlag\|\|(velocityFlag&&chunkFlag)` L63 simplifies to just `velocityFlag` — chunkFlag dead · `[CONFIG]` `CHUNK_ACK_TIMEOUT 3000`/`MOVE 20.0`/`VELOCITY 30.0` hardcoded |
+| crossapi | GhostHand | findings | `[CONFIG]` `wallBlocks<3` / ray-step `dist*4` hardcoded L50/65 · `[FP]` ray uses block center (floor) not AABB — misses thin diagonal walls; `dist>8.0` early-return misses long-range |
+| crossapi | IrregularMovements | findings | `[FP]` direction-reversal `dot<-0.95` flags legit knockback recovery/strafe — extremely tight, no KB/velocity exemption · `[CONFIG]` `DIRECTION_CHANGE_MIN_SPEED 0.3`/`THRESHOLD 0.95` hardcoded |
+| crossapi | Liquids | findings | `[FP]` no lava exemption — `wasTouchingLava` not considered · `[CONFIG]` `OFFSET_THRESHOLD 0.15`/`NETTY_RATE 18.0` hardcoded L14-15 |
+| crossapi | MorePackets | findings | `[BUG]` `rate>40.0` gives `buffer+=2` L44-48 with no `nettyConfirms` cross-check · `[CONFIG]` `RATE 30.0`/`BYTES 1024.0`/`NETTY_RATE 15.0` hardcoded |
+| crossapi | NoClip | findings | `[CONFIG]` `insideBuffer>2` hardcoded L86 — very low, one false collision flags fast · `[FP]` `newBox.isIntersected && !lastBox.isIntersected` L59 fires on server-placed adjacent blocks (race) |
+| crossapi | Nuker | findings | `[BUG]` `bps>12` L52 inconsistent with `MAX_BREAKS_PER_SEC 15` L17 — two effective thresholds · `[CONFIG]` `MAX_BREAKS_PER_SEC 15`/`avgInterval<70` hardcoded |
+| crossapi | PingSpoof | findings | `[FP]` `variance<0.05 && avgPing>200` L56 flags genuinely-stable fiber/LAN players with consistent high ping · `[CONFIG]` `pingGap>200`/`transactionPing>300`/`variance<0.05`/`avgPing>200`/`PING_SAMPLE_SIZE 10` hardcoded |
+| crossapi | PortalInventory | findings | `[FP]` `inPortal` = `abs(deltaY)<0.01 && !peOnGround` L38 matches any hover state, not portal blocks · `[CONFIG]` `NETTY_RATE 15.0` hardcoded L18 · `[BUG]` no isDead exemption in `onPredictionComplete` |
+| movement | Blink | findings | `[BUG]` `blinkCount` never reset on long gap — only increments, flags every gap packet forever past 5 L29-31 · `[BUG]` `reward()` only when `blinkCount<2` L35 — VL never decays once above 1 · `[FP]` no server-lag/GC/packet-batching exemption · `[CONFIG]` gap `500` ms, count `5`, decrement `1` hardcoded L28-34 |
+| movement | EntitySpeed | findings | `[BUG]` `MAX_HORSE_SPEED 0.50` single ceiling L13 — no entity-type distinction; no speed-effect exemption on mount · `[FP]` no teleport-after-mount grace; no soul-sand/slime/server-push exemption · `[CONFIG]` `0.50`/buffer `0.5`/`0.01` magic L13-37 |
+| movement | FastLadder | findings | `[BUG]` fires on any upward Y delta `0.20-0.50` without confirming player on ladder L28 — triggers during normal jump arcs · `[FP]` no water-current/levitation/scaffold-beneath exemption · `[CONFIG]` `MAX_LADDER_SPEED 0.20`/buffer `0.3`/`0.01` magic · `[STYLE]` `ladderBuffer` manual decay + `reward()` = double decay path |
+| movement | InventoryMove | findings | `[BUG]` `hasOpenContainer` set + checked same invocation — first tick after server opens inventory already flags L40-50 · `[BUG]` no `reward()`/buffer decay anywhere L58-62 · `[FP]` no knockback/velocity exemption with inventory open · `[BUG]` threshold `0.005` compared to squared dist but verbose prints `sqrt` — effective threshold ~0.07 not 0.005 |
+| movement | InventoryWalk | findings | `[BUG]` detects inventory open only via `CLICK_WINDOW` windowId==0 — client avoiding slot-clicks never trips L34-36 · `[BUG]` `inventoryOpen` set+used same invocation — same-tick confusion · `[FP]` `INVENTORY_TIMEOUT_MS 3000` flags closing-with-momentum · `[CONFIG]` `3000`/`0.001`/buffer `6` magic |
+| movement | Jesus | findings | `[BUG]` local `lastY` init 0 — first packet `deltaY = player.y - 0` = full world Y, spurious flag risk L29/33 · `[FP]` no boat/lily-pad/slime-bounce exemption; `frac 0.85-0.99` band L32 narrow, hits legit high-latency bobbing · `[CONFIG]` `0.85/0.99/0.005/8/5` magic · `[STYLE]` `lastY` duplicates `player.lastY` |
+| movement | NoRotate | findings | `[FP]` legit sustained sprint while staring at fixed target (mining wall) flags within 1.5s — 30-tick threshold L57 · `[FP]` no stairs/slab/ice auto-level exemption · `[CONFIG]` `0.3/30/3` magic · `[STYLE]` redundant `movesWithoutRotation` + `buffer` nested gating |
+| movement | NoSlow | findings | `[BUG]` `flaggedLastTick` persists across ticks when `isSlowedByUsingItem` false — stale `true` combines with future tick → false flag · `[CONFIG]` `offsetToFlag 0.001` default L55 very tight — FP on high-latency · `[STYLE]` `didSlotChangeLastTick` public, set externally, undocumented |
+| movement | NoWeb | findings | `[BUG]` fires whenever deltaH `0.08-0.5` with no cobweb verification L30-32 — normal walking (0.217) grows buffer · `[FP]` no Speed-potion/soul-speed/dolphin's-grace exemption · `[CONFIG]` `MAX_WEB_SPEED 0.08`/`0.15`/`0.005`/`0.01` magic |
+| movement | SafeWalk | findings | `[BUG]` `lastDeltaZ` tracked L40 but never used — only X axis checked L29, pure-Z SafeWalk undetected · `[FP]` legit sudden stops (lag/wall/mob-push/ledge) — 10-tick window L31 very short, no knockback exemption · `[CONFIG]` `0.05/0.001/10/2` magic · `[STYLE]` `lastDeltaZ` dead code |
+| movement | SetbackBlocker | findings | `[STYLE]` helper, no flag/reward · `[BUG]` in-vehicle check L38 re-checks `!lastPacketWasTeleport` already guarded L29 — redundant (harmless) · `[STYLE]` missing `@CheckData` — null `checkName`/`configName` → NPE risk if `reload`/`alert` called |
+| movement | Speed | findings | `[BUG]` `onPredictionComplete` empty L69-71 — runs off `onPacketReceive`, blind to Grim prediction corrections · `[FP]` no ice/soul-sand/slime/knockback/riptide exemption · `[FP]` `MAX_EFFECT_SPEED 0.45` too low for creative-flight/elytra-wind-burst · `[FP]` Speed-effect amplifier not accounted · `[CONFIG]` `0.217/0.281/0.45/0.01/1.0` magic L18-57 |
+| movement | Spider | findings | `[BUG]` `onPredictionComplete` empty L57-59 — runs off `onPacketReceive` · `[BUG]` `wasOnGround` set false only at L53 — first airborne tick increments `climbTicks` 1 tick early · `[FP]` no ladder/vine/water-current/scaffold/honey exemption · `[CONFIG]` `0.1/4/1` magic |
+| movement | Step | findings | `[BUG]` `stepFlags>1` triggers on 2nd consecutive step — stairs with 1.9+ step logic flags after 2 ticks L33 · `[FP]` no slime/honey/riptide exemption; `MAX_STEP 0.63` borderline vs 1.9+ slab step-assist · `[CONFIG]` `MAX_STEP 0.63`/`5.0`/`1` magic |
+| movement | Tower | findings | `[BUG]` `buffer` decremented only when `yDelta<-1.0` L71 — alternating small-neg/large-pos never decays · `[BUG]` `consecutiveJumps` never reset on legal interval — decrements 1/jump, reaches `>4` anyway L66 · `[FP]` `MIN_JUMP_INTERVAL 200` ms below vanilla min (~250) — contradicts comment L34, legit fast-jumpers caught · `[CONFIG]` `JUMP_THRESHOLD 0.35`/`200`/`4`/`2` magic |
+| movement | PredictionRunner | OK | — pure dispatcher helper, no check logic |
+| movement | VehiclePredictionRunner | OK | — pure dispatcher helper, no check logic |
+| sprint | SprintA | findings | `[BUG]` `food<=6.0F` should be `<6` — MC cancels sprint below 6, flags legit sprinter at exactly 6 food L26 · `[BUG]` `reward()` only inside `food<=6 && !isSprinting` — `food>6` never reaches reward path L36-38 · `[CONFIG]` `6.0F` magic L26 |
+| sprint | SprintB | findings | `[BUG]` `reward()` L47 only reachable when `wasTouchingWater && version>=1.13` — early `return` L41 skips reward otherwise · `[BUG]` missing `predictionComplete.isChecked()` guard L20 · `[CONFIG]` `sneakingSpeedMultiplier<0.8f` hardcoded L21 |
+| sprint | SprintC | findings | `[BUG]` `flaggedLastTick` never reset when `isSlowedByUsingItem()` false — stale `true` → immediate flag without 2 consecutive ticks L20/35 · `[BUG]` missing `predictionComplete.isChecked()` guard L20 · `[STYLE]` state leaks across prediction cycles |
+| sprint | SprintD | findings | `[BUG]` `startedSprintingBeforeBlind` only ever set false, never true — `!startedSprintingBeforeBlind` guard L33 always true, flag ineffective at protecting legit players L16/26/33 · `[BUG]` missing `predictionComplete.isChecked()` guard L32 · `[STYLE]` field `public` not `private` L16 |
+| sprint | SprintE | findings | `[BUG]` `lastVehicleSwitch.hasOccurredSince(0)` — `0` magic, vehicle-switch exemption always-on or always-off depending on impl L35 · `[FP]` water exemption overlaps SprintG — double-reward/gap risk · `[BUG]` `wasHardHorizontalCollision` updated L45 without `isChecked()` guard · `[CONFIG]` `0` magic L35 |
+| sprint | SprintF | findings | `[BUG]` `getClientVersion() == ClientVersion.V_1_21_4` reference equality not `.equals()` L18 · `[FP]` only fires on exactly 1.21.4 — other/future versions with bug uncovered · `[BUG]` missing `predictionComplete.isChecked()` guard L17 · `[STYLE]` `@CheckData` omits `setback` (inherits 0) — inconsistent with sibling checks |
+| sprint | SprintG | findings | `[BUG]` missing `predictionComplete.isChecked()` guard L18 · `[FP]` `player.wasWasTouchingWater` double-`was` — likely typo; if copy-paste error water-grace exemption wrong L19 · `[FP]` only CAMEL exempted — other water-mounts not, `inVehicle()` not guarded L22 · `[CONFIG]` `V_1_21_4` `==` version-pinned fragile L19 |
+| timer | Timer | findings | `[BUG]` `reward()` never called on clean tick — VL accumulates indefinitely L74-91 · `[CONFIG]` `50e6` (50ms ns) magic ×4 L68/88/95 · `[CONFIG]` default `clockDrift 120` ms hardcoded L110 · `[FP]` no lag/rubber-band exemption beyond teleport guard |
+| timer | NegativeTimer | findings | `[BUG]` `reward()` never called — VL only grows L28 · `[CONFIG]` default drift `1200` ms hardcoded L40 · `[FP]` `lastPointThree.hasOccurredSince(2)` reset overly narrow · `[STYLE]` constructor relies on polymorphic `onReload` order — fragile; verbose lacks units label L27 |
+| timer | TickTimer | findings | `[BUG]` `reward()` never called — VL only grows · `[BUG]` two flying packets before one tick-end can fire both `type=end` L33 and `type=flying` branches — double-counts VL for same offense · `[FP]` loss of `supportsEndTick` mid-session stops checking without resetting `receivedTickEnd`/`flyingPackets` — stale state L23-24 · `[CONFIG]` `flyingPackets>1` hardcoded L33 |
+| timer | TimerLimit | findings | `[BUG]` `reward()` never called · `[BUG]` `super.onReload` reads `TimerLimit.drift` config key not `TimerA.drift` — unintentional config-key split from Timer · `[CONFIG]` `1000L` ms ping-abuse default hardcoded L50 · `[STYLE]` manual `flagAndAlert()`+`shouldSetback()` L25-26 instead of `flagAndAlertWithSetback()` |
+| timer | VehicleTimer | findings | `[BUG]` `reward()` never called · `[FP]` `isDummy` never reset on dismount/world-change — stale flag → wrong branch on first STEER_VEHICLE of new ride · `[FP]` `isDummy` heuristic fragile for irregular-steering entities · `[STYLE]` `isDummy` non-descriptive name; no VehicleTimer-specific config surface |
+| vehicle | VehicleA | findings | `[BUG]` no `reward()` on clean path — VL accumulates on valid steer L22-27 · `[FP]` `>0.98f` boundary fragile — cheater at `0.981f` slips through, version serialisation rounding · `[CONFIG]` `0.98f` magic L22 |
+| vehicle | VehicleB | findings | `[BUG]` no `reward()` — non-flagging ticks never decay VL L18-26 · `[FP]` no mount/dismount transition exemption (server state lags client 1-2 ticks); no teleport-into-vehicle exemption |
+| vehicle | VehicleC | findings | `[BUG]` stub — no interface, no logic body, registered but does nothing, silently passes all players L1-12 · `[STYLE]` missing `description` in `@CheckData` |
+| vehicle | VehicleD | findings | `[BUG]` no `reward()` on non-flagging branch · `[FP]` `ABSTRACT_NAUTILUS` inclusion suspicious — may whitelist unintended entities; no null-vehicle guard before `isTypeInstanceOf` — `getVehicleType()` may return null L24 · `[STYLE]` long single-line condition L21 |
+| vehicle | VehicleE | findings | `[BUG]` no `reward()` — VL never decays on valid STEER_BOAT L20-30 · `[FP]` no mount/dismount grace; `isTypeInstanceOf(null, BOAT)` L23 may throw/false-flag player with no vehicle |
+| vehicle | VehicleF | findings | `[BUG]` no `reward()` on matching-paddle branch L45-51 · `[BUG]` `lastTickVehicle` `!=` reference equality L25 — if `getVehicle()` returns new wrapper each call, check always skipped · `[FP]` `supportsEndTick()` branch derives paddle state from possibly-stale `knownInput` after teleport L32-36 · `[STYLE]` single-tick-lag design undocumented |
+| velocity | ExplosionHandler | findings | `[STYLE]` velocity-tracking service not standalone check — asymmetric reward: `firstBreadExplosion` path never gets own `reward()` L207-209 · `[BUG]` comment L201 "Unsure knockback was taken" copy-paste from KnockbackHandler · `[BUG]` `forceExempt()` zeroes offsets L155-160 but never clears `firstBreadMap`/`lastExplosionsKnownTaken` — queued explosion survives teleport · `[FP]` no null-check on `player.firstBreadExplosion` L123-128 — NPE risk · `[FP]` no isDead guard on offset-write paths L192-202 · `[CONFIG]` `offsetToFlag 0.00001` L259 — 10× tighter than KnockbackHandler `0.001`, inconsistent |
+| velocity | KnockbackHandler | findings | `[BUG]` `firstBreadOnlyKnockback` set null L122 then checked `!=null` L131 same call — guard dead code, intent not enforced · `[BUG]` `else if(threshold>0.05)` L219 decays `threshold` without `reward()` on `violations` — legit non-flag ticks don't reduce VL · `[FP]` `forceExempt()` zeroes offsets L149-155 but doesn't drain `firstBreadMap`/`lastKnockbackKnownTaken` — stale flag after teleport · `[FP]` no dismount-lag exemption · `[CONFIG]` `threshold 4.0`/`immediate 0.1`/`maxAdv 1`/`multiplier 0.999` hardcoded — 0.999 decays ~0.1%/tick, extremely slow for high-ping · `[STYLE]` field `threshold` vs config `offsetToFlag` — confusing naming |
+| velocity | VectorPrecisionConverter | findings | `[BUG]` `SERVER_VERSION` static init at class-load L15 — caches null/wrong version if loaded before PacketEvents ready · `[BUG]` `lpToLegacy` `(short)` cast truncates velocities > ~4.096 m/tick — no clamp, silent wrap to negative, wrong velocity to predictor · `[FP]` `convert` version boundary skips client exactly `1.21.8` vs `>=1.21.9` server — returns raw unconverted vector L18-20 · `[STYLE]` `@UtilityClass` on class with mutable static `SERVER_VERSION` — misleading |
 
 ## Next steps
 
