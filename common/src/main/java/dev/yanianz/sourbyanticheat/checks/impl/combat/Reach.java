@@ -128,7 +128,7 @@ public class Reach extends Check implements PacketCheck {
         // Prevents Happy Ghast Reach false on 1.21.6+ servers with ViaBackwards set up
         if (entity.type == EntityTypes.HAPPY_GHAST && player.getClientVersion().isOlderThan(ClientVersion.V_1_21_6))
             return;
-        if (player.gamemode == GameMode.CREATIVE || player.gamemode == GameMode.SPECTATOR)
+        if (player.gamemode == GameMode.SPECTATOR)
             return;
         if (player.inVehicle()) return;
         if (entity.riding != null) return;
@@ -210,7 +210,7 @@ public class Reach extends Check implements PacketCheck {
         if ((blacklisted.contains(reachEntity.type) || !reachEntity.isLivingEntity) && reachEntity.type != EntityTypes.END_CRYSTAL)
             return false; // exempt
 
-        if (player.gamemode == GameMode.CREATIVE || player.gamemode == GameMode.SPECTATOR)
+        if (player.gamemode == GameMode.SPECTATOR)
             return false;
         if (player.inVehicle()) return false;
 

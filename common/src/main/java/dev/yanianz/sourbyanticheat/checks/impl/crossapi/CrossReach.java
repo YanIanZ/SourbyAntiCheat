@@ -40,8 +40,7 @@ public class CrossReach extends Check implements PacketCheck {
         if (player.compensatedEntities.self.isDead) return;
 
         if (event.getPacketType() != PacketType.Play.Client.INTERACT_ENTITY) return;
-        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
-                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR
                 || player.inVehicle()) return;
 
         WrapperPlayClientInteractEntity interact = new WrapperPlayClientInteractEntity(event);

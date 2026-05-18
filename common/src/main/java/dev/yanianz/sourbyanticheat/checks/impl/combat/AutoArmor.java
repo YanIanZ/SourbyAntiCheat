@@ -11,7 +11,6 @@ import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
-import com.github.retrooper.packetevents.protocol.player.GameMode;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientClickWindow;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientClickWindow.WindowClickType;
 
@@ -61,9 +60,6 @@ public class AutoArmor extends Check implements PacketCheck {
         // Only the player's own inventory (window 0). Chest/anvil/any open GUI is exempt —
         // moving armor around a container is normal.
         if (click.getWindowId() != 0) return;
-
-        // Creative-mode inventory edits are unrestricted; exempt.
-        if (player.gamemode == GameMode.CREATIVE) return;
 
         // Shift-click (quick-move) and hotbar-swap are legit one-action equips, not a
         // pick-up-then-place armor cycle — exempt.

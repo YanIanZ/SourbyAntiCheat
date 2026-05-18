@@ -44,8 +44,7 @@ public class CrossAutoClicker extends Check implements PacketCheck {
         if (player.disableGrim) return;
         if (player.compensatedEntities.self.isDead) return;
 
-        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
-                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
 
         boolean isAttack = false;
         if (event.getPacketType() == PacketType.Play.Client.ATTACK) {
