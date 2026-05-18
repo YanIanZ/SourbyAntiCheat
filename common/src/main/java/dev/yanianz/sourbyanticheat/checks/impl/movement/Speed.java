@@ -36,8 +36,9 @@ public class Speed extends Check implements PostPredictionCheck {
     // worth checking. Movement below this floor is rewarded outright and never
     // evaluated; it cannot trigger a flag regardless of how it compares to the
     // prediction. The actual speed cap is now Grim's per-tick predicted velocity:
-    // the flag decision is `actualH - predictedH > maxEffectSpeed`. Lowering these
-    // values widens scrutiny; it does not lower the cap.
+    // the flag decision is `offset > offsetThreshold` (offset = 3D distance between
+    // actual and predicted movement). Lowering these values widens scrutiny; it
+    // does not lower the cap.
     private double baseSpeed = 0.217;
     private double sprintSpeed = 0.281;
     // offsetThreshold is the prediction offset (the 3D distance between actual and
