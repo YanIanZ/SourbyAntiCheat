@@ -22,6 +22,8 @@ public class AntiVelocity extends Check implements PacketCheck {
     private double pendingVelocityX = 0;
     private double pendingVelocityZ = 0;
     private boolean velocityPending = false;
+    // Set by the latency lambda; consumed on the next receive to reset the window state.
+    private boolean newVelocityArmed = false;
     private int ticksSinceVelocity = 0;
     private int buffer = 0;
 
@@ -67,14 +69,18 @@ public class AntiVelocity extends Check implements PacketCheck {
         double magnitude = Math.sqrt(vx * vx + vz * vz);
 
         if (magnitude > minVelocity) {
-            // The latency task only captures the velocity value transaction-synced to the
-            // correct tick. It does NOT touch detection-window state (sampleIndex / buffer) —
-            // that is mutated solely on the check thread inside onPacketReceive.
+            // addRealTimeTask (non-async) runs this runnable synchronously on the same netty
+            // packet thread when the matching transaction is processed — there is no thread
+            // race here. The concern is ORDERING: the latency lambda fires interleaved with
+            // the flying-packet window logic. So the lambda only records the pending velocity
+            // and arms a flag; it does NOT reset window state (ticksSinceVelocity / sampleIndex)
+            // directly. The actual window reset happens on the receive path, so the lambda can
+            // never clobber an in-progress detection window.
             player.latencyUtils.addRealTimeTask(player.lastTransactionSent.get(), () -> {
                 pendingVelocityX = vx;
                 pendingVelocityZ = vz;
                 velocityPending = true;
-                ticksSinceVelocity = 0;
+                newVelocityArmed = true;
             });
         }
     }
@@ -101,6 +107,13 @@ public class AntiVelocity extends Check implements PacketCheck {
         }
 
         if (!velocityPending) return;
+
+        // A freshly-armed velocity starts a new window: reset window state here on the
+        // receive path (consistent with the sampleIndex reset below), never in the lambda.
+        if (newVelocityArmed) {
+            newVelocityArmed = false;
+            ticksSinceVelocity = 0;
+        }
 
         ticksSinceVelocity++;
 

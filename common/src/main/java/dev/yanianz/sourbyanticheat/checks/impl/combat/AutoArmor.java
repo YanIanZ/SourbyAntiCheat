@@ -36,6 +36,10 @@ public class AutoArmor extends Check implements PacketCheck {
     private int switchCountThreshold = 10;
     private int fastSwitchResetThreshold = 3;
 
+    // After this idle gap, one accumulated fast-switch unit is decayed per elapsed interval
+    // so a stale streak does not sit just under the threshold forever once the player stops.
+    private static final long DECAY_INTERVAL_MS = 1_000;
+
     public AutoArmor(SacPlayer player) {
         super(player);
     }
@@ -73,6 +77,14 @@ public class AutoArmor extends Check implements PacketCheck {
         long now = System.nanoTime();
         if (lastSwitchNanos > 0) {
             long elapsedMs = (now - lastSwitchNanos) / 1_000_000L;
+
+            // Time-based decay: a long idle gap between armor clicks decays the stale
+            // fast-switch streak so it cannot park just under the threshold indefinitely.
+            if (elapsedMs >= DECAY_INTERVAL_MS && fastSwitchCount > 0) {
+                int decay = (int) (elapsedMs / DECAY_INTERVAL_MS);
+                fastSwitchCount = Math.max(0, fastSwitchCount - decay);
+            }
+
             if (elapsedMs < minSwitchDelayMs) {
                 fastSwitchCount++;
                 if (fastSwitchCount > switchCountThreshold) {
