@@ -94,7 +94,19 @@ public class Spider extends Check implements PostPredictionCheck {
                 return;
             }
             reward();
+        } else if (deltaY > 0.0) {
+            // Slow upward airborne movement (0 < dY <= climbOffset) is still a climb:
+            // a spider hack can tune its ascent rate just under climbOffset to evade
+            // the fast branch. This must NOT be treated as clean movement — keep the
+            // climb streak alive (as the original pre-rearchitecture logic did) so a
+            // slow climb still accrues climbTicks and eventually flags.
+            climbTicks += bufferIncrement;
+            if (climbTicks > climbTicksThreshold) {
+                flagAndAlert("dY=" + String.format("%.3f", deltaY) + " ticks=" + climbTicks);
+                return;
+            }
         } else {
+            // Only genuine non-climbing movement (falling or level) decays the streak.
             climbTicks = Math.max(0, climbTicks - 2);
             reward();
         }

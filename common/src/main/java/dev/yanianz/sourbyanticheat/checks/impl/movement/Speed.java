@@ -29,8 +29,13 @@ public class Speed extends Check implements PostPredictionCheck {
     private double buffer = 0;
 
     // Config-wired thresholds (defaults equal prior hardcoded values).
-    // baseSpeed / sprintSpeed are the minimum horizontal movement worth scrutinising —
-    // anything slower than a walk cannot be a speed hack, so it is rewarded outright.
+    // SEMANTIC CHANGE (prediction re-architecture): baseSpeed / sprintSpeed are NO
+    // LONGER speed caps. They are a scrutiny floor — the minimum horizontal movement
+    // worth checking. Movement below this floor is rewarded outright and never
+    // evaluated; it cannot trigger a flag regardless of how it compares to the
+    // prediction. The actual speed cap is now Grim's per-tick predicted velocity:
+    // the flag decision is `actualH - predictedH > maxEffectSpeed`. Lowering these
+    // values widens scrutiny; it does not lower the cap.
     private double baseSpeed = 0.217;
     private double sprintSpeed = 0.281;
     // maxEffectSpeed is the margin by which actual horizontal movement may exceed the
@@ -68,7 +73,8 @@ public class Speed extends Check implements PostPredictionCheck {
         double actZ = player.actualMovement.getZ();
         double actualH = Math.sqrt(actX * actX + actZ * actZ);
 
-        // Movement below a walk cannot be a speed hack — reward outright.
+        // Scrutiny floor (NOT a speed cap): movement slower than a walk is skipped
+        // entirely. The cap that decides a flag is the prediction comparison below.
         double scrutinyFloor = player.isSprinting ? sprintSpeed : baseSpeed;
         if (actualH < scrutinyFloor) {
             buffer = Math.max(0, buffer - bufferDecay);
