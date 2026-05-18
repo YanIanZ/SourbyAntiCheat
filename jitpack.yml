@@ -1,0 +1,7 @@
+jdk:
+  - openjdk21
+before_install:
+  - sdk install java 25-open < /dev/null
+  - sdk use java 25-open
+install:
+  - ./gradlew build -x test publishToMavenLocal -Prelease=true

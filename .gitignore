@@ -77,3 +77,8 @@ fabric/run/
 .ignored/
 /workspace.gradle.kts
 libs/spartan-api.jar
+
+##############################
+## Project docs (internal — not published)
+##############################
+docs/
