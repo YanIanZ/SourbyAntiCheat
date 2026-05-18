@@ -13,7 +13,10 @@ import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 public class CrossNoSwing extends Check implements PacketCheck {
 
     private int buffer;
-    private boolean swingSent = false;
+    // Ticks for which a recent swing animation stays valid. A swing covers the attack
+    // in the same tick and the next, so attack/animation/flying packet interleaving
+    // cannot make a genuinely-swung attack look swing-less.
+    private int swingTicks = 0;
 
     // skipForBedrock defaults to true in Check — Bedrock/Geyser players legitimately suppress
     // swing animations, so they are exempted via the base class GeyserUtil check automatically.
@@ -32,12 +35,12 @@ public class CrossNoSwing extends Check implements PacketCheck {
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
 
         if (event.getPacketType() == PacketType.Play.Client.ANIMATION) {
-            swingSent = true;
+            swingTicks = 2;
             return;
         }
 
         if (com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) {
-            swingSent = false;
+            if (swingTicks > 0) swingTicks--;
             return;
         }
 
@@ -51,7 +54,7 @@ public class CrossNoSwing extends Check implements PacketCheck {
 
         if (!isAttack) return;
 
-        if (!swingSent) {
+        if (swingTicks <= 0) {
             boolean nettyConfirms = player.crossValidationData.nettyIntervalVariance < 15.0;
             SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "NoSwing");
             boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
