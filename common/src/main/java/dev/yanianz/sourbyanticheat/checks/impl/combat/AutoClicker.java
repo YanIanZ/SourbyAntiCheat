@@ -4,6 +4,7 @@
 
 package dev.yanianz.sourbyanticheat.checks.impl.combat;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
@@ -14,12 +15,17 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientIn
 
 import java.util.LinkedList;
 
-@CheckData(name = "AutoClicker", stableKey = "sac.combat.autoclicker", description = "Detects auto-clicker patterns via CPS analysis", setback = 10)
+@CheckData(name = "AutoClicker", stableKey = "sac.combat.autoclicker", description = "Detects auto-clicker patterns via CPS analysis", setback = 10, decay = 0.02)
 public class AutoClicker extends Check implements PacketCheck {
 
-    private static final int WINDOW_SIZE = 20;
-    private static final int MAX_LEGIT_CPS = 25;
-    private static final int MIN_LEGIT_VARIANCE = 2;
+    // Config-wired thresholds (defaults equal prior hardcoded values)
+    private int windowSize = 20;
+    // Raised from 25: legit jitter-clickers / drag-clickers can momentarily exceed 25 CPS.
+    private int maxLegitCps = 30;
+    private int minLegitVariance = 2;
+    private int cpsFlagThreshold = 18;
+    // Aligned with the 1000ms CPS window so variance is never computed from stale samples.
+    private long cleanupWindowMs = 1000;
 
     private final LinkedList<Long> clickTimestamps = new LinkedList<>();
     private int currentCPS = 0;
@@ -27,6 +33,16 @@ public class AutoClicker extends Check implements PacketCheck {
 
     public AutoClicker(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        this.windowSize = config.getIntElse(base + "window-size", 20);
+        this.maxLegitCps = config.getIntElse(base + "max-legit-cps", 30);
+        this.minLegitVariance = config.getIntElse(base + "min-variance", 2);
+        this.cpsFlagThreshold = config.getIntElse(base + "cps-flag-threshold", 18);
+        this.cleanupWindowMs = config.getIntElse(base + "cleanup-window-ms", 1000);
     }
 
     @Override
@@ -47,13 +63,15 @@ public class AutoClicker extends Check implements PacketCheck {
 
         clickTimestamps.add(now);
 
+        // Roll the CPS counter over cleanly at the window boundary: count this click in the
+        // window it starts (reset first, then increment) so a click at the boundary is not lost.
         if (now - lastCPSReset >= 1000) {
             currentCPS = 0;
             lastCPSReset = now;
         }
         currentCPS++;
 
-        if (clickTimestamps.size() >= WINDOW_SIZE) {
+        if (clickTimestamps.size() >= windowSize) {
             long intervalSum = 0;
             long intervalMin = Long.MAX_VALUE;
             long intervalMax = 0;
@@ -70,12 +88,11 @@ public class AutoClicker extends Check implements PacketCheck {
             }
 
             int sampleSize = clickTimestamps.size() - 1;
-            double avgInterval = (double) intervalSum / sampleSize;
             long varianceRange = intervalMax - intervalMin;
 
-            if (currentCPS > MAX_LEGIT_CPS) {
+            if (currentCPS > maxLegitCps) {
                 flagAndAlert("cps=" + currentCPS);
-            } else if (currentCPS > 18 && varianceRange < MIN_LEGIT_VARIANCE && sampleSize >= 10) {
+            } else if (currentCPS > cpsFlagThreshold && varianceRange < minLegitVariance && sampleSize >= 10) {
                 flagAndAlert("cps=" + currentCPS + " consistent=" + varianceRange + "ms");
             } else {
                 reward();
@@ -84,7 +101,7 @@ public class AutoClicker extends Check implements PacketCheck {
     }
 
     private void cleanupOldTimestamps(long now) {
-        while (!clickTimestamps.isEmpty() && now - clickTimestamps.getFirst() > 5000) {
+        while (!clickTimestamps.isEmpty() && now - clickTimestamps.getFirst() > cleanupWindowMs) {
             clickTimestamps.removeFirst();
         }
     }

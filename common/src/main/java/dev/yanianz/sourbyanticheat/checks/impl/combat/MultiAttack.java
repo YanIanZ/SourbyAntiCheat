@@ -10,7 +10,9 @@ import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientAttack;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientInteractEntity;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 
 /**
  * Detects KillAura multi-attack patterns — attacking multiple unique entities in a single tick.
@@ -31,8 +33,13 @@ public class MultiAttack extends Check implements PacketCheck {
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
         // Reset on movement tick
-        if (com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) {
-            if (attacksThisTick > 1) {
+        if (WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) {
+            // Teleport exemption — a setback can batch several attack packets into one tick,
+            // making legitimate single-target combat look like a multi-attack. Discarding the
+            // count here prevents it leaking into the next tick.
+            boolean exempt = player.packetStateData.lastPacketWasTeleport;
+
+            if (attacksThisTick > 1 && !exempt) {
                 buffer += attacksThisTick - 1;
                 if (buffer > 3) {
                     flagAndAlert("attacks=" + attacksThisTick + " buffer=" + buffer);
@@ -51,7 +58,7 @@ public class MultiAttack extends Check implements PacketCheck {
 
         if (event.getPacketType() == PacketType.Play.Client.ATTACK) {
             isAttack = true;
-            entityId = new com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientAttack(event).getEntityId();
+            entityId = new WrapperPlayClientAttack(event).getEntityId();
         } else if (event.getPacketType() == PacketType.Play.Client.INTERACT_ENTITY) {
             WrapperPlayClientInteractEntity packet = new WrapperPlayClientInteractEntity(event);
             if (packet.getAction() == WrapperPlayClientInteractEntity.InteractAction.ATTACK) {
@@ -60,6 +67,11 @@ public class MultiAttack extends Check implements PacketCheck {
             }
         }
 
+        // Intentional consecutive-duplicate de-dup: only count an attack when the target
+        // differs from the immediately previous one. A vanilla A->B->A sequence in one tick
+        // therefore counts as 2 attacks — that is the correct signal (the player did switch
+        // targets twice). Re-attacking the SAME entity twice in a row (A->A) is collapsed to
+        // 1, since that is a single legitimate hit, not a multi-attack.
         if (isAttack && entityId != lastAttackedEntity) {
             attacksThisTick++;
             lastAttackedEntity = entityId;
