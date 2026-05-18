@@ -30,7 +30,7 @@ public class Spider extends Check implements PostPredictionCheck {
     // Config-wired thresholds (defaults equal prior hardcoded values).
     private double climbOffset = 0.1;
     private int climbTicksThreshold = 4;
-    private int bufferIncrement = 1;
+    private int climbTickIncrement = 1;
 
     public Spider(SacPlayer player) {
         super(player);
@@ -41,7 +41,7 @@ public class Spider extends Check implements PostPredictionCheck {
         String base = getConfigName() + ".";
         this.climbOffset = config.getDoubleElse(base + "climb-offset", 0.1);
         this.climbTicksThreshold = config.getIntElse(base + "climb-ticks-threshold", 4);
-        this.bufferIncrement = config.getIntElse(base + "buffer-increment", 1);
+        this.climbTickIncrement = config.getIntElse(base + "climb-tick-increment", 1);
     }
 
     @Override
@@ -88,7 +88,7 @@ public class Spider extends Check implements PostPredictionCheck {
         }
 
         if (deltaY > climbOffset) {
-            climbTicks += bufferIncrement;
+            climbTicks += climbTickIncrement;
             if (climbTicks > climbTicksThreshold) {
                 flagAndAlert("dY=" + String.format("%.3f", deltaY) + " ticks=" + climbTicks);
                 return;
@@ -100,13 +100,17 @@ public class Spider extends Check implements PostPredictionCheck {
             // the fast branch. This must NOT be treated as clean movement — keep the
             // climb streak alive (as the original pre-rearchitecture logic did) so a
             // slow climb still accrues climbTicks and eventually flags.
-            climbTicks += bufferIncrement;
+            climbTicks += climbTickIncrement;
             if (climbTicks > climbTicksThreshold) {
                 flagAndAlert("dY=" + String.format("%.3f", deltaY) + " ticks=" + climbTicks);
                 return;
             }
         } else {
             // Only genuine non-climbing movement (falling or level) decays the streak.
+            // The -2 decay vs +1 increment asymmetry is intentional: a genuine
+            // wall-climb is sustained, so the 2:1 decay rate means a real spider
+            // hack cannot survive by alternating climb and non-climb ticks — the
+            // streak drains faster than it can be rebuilt.
             climbTicks = Math.max(0, climbTicks - 2);
             reward();
         }

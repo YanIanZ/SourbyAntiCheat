@@ -20,8 +20,10 @@ import com.github.retrooper.packetevents.protocol.player.GameMode;
  * bounces, knockback, riptide and Speed-effect amplifiers), this consumes Grim's
  * fully-simulated predicted velocity. The simulation already accounts for every
  * legitimate speed source — including the Speed-effect amplifier — so a sustained
- * excess of actual horizontal movement over the predicted horizontal movement is
- * genuine uncatchable speed.
+ * prediction offset (the 3D distance between actual and predicted movement) is
+ * genuine uncatchable movement. Using the offset rather than a scalar speed
+ * magnitude also catches directional hacks that move at the predicted speed but
+ * in the wrong direction.
  */
 @CheckData(name = "Speed", stableKey = "sac.movement.speed", description = "Detects horizontal speed hacks", setback = 10, decay = 0.01)
 public class Speed extends Check implements PostPredictionCheck {
@@ -38,10 +40,10 @@ public class Speed extends Check implements PostPredictionCheck {
     // values widens scrutiny; it does not lower the cap.
     private double baseSpeed = 0.217;
     private double sprintSpeed = 0.281;
-    // maxEffectSpeed is the margin by which actual horizontal movement may exceed the
-    // simulated prediction before contributing to the buffer. Raised above the prior
-    // 0.45 cap so creative-flight / elytra wind-burst prediction noise is tolerated.
-    private double maxEffectSpeed = 0.45;
+    // offsetThreshold is the prediction offset (the 3D distance between actual and
+    // predicted movement) a tick may carry before contributing to the buffer. Same
+    // semantics as CrossSpeed's offset threshold — defaulted to its proven 0.15.
+    private double offsetThreshold = 0.15;
     private double bufferDecay = 0.01;
     private double flagThreshold = 1.0;
 
@@ -54,7 +56,7 @@ public class Speed extends Check implements PostPredictionCheck {
         String base = getConfigName() + ".";
         this.baseSpeed = config.getDoubleElse(base + "base-speed", 0.217);
         this.sprintSpeed = config.getDoubleElse(base + "sprint-speed", 0.281);
-        this.maxEffectSpeed = config.getDoubleElse(base + "max-effect-speed", 0.45);
+        this.offsetThreshold = config.getDoubleElse(base + "offset-threshold", 0.15);
         this.bufferDecay = config.getDoubleElse(base + "buffer-decay", 0.01);
         this.flagThreshold = config.getDoubleElse(base + "flag-threshold", 1.0);
     }
@@ -82,24 +84,26 @@ public class Speed extends Check implements PostPredictionCheck {
             return;
         }
 
-        double predX = player.predictedVelocity.vector.getX();
-        double predZ = player.predictedVelocity.vector.getZ();
-        double predictedH = Math.sqrt(predX * predX + predZ * predZ);
-
         // The predicted velocity already incorporates ice, soul-sand, slime bounces,
-        // knockback, riptide and the Speed-effect amplifier — so the excess of actual
-        // over predicted horizontal movement is movement physics cannot explain.
-        double excess = actualH - predictedH;
-        if (excess <= maxEffectSpeed) {
+        // knockback, riptide and the Speed-effect amplifier. The true prediction
+        // offset — the 3D distance between actual and predicted movement — is what
+        // physics cannot explain. Unlike a scalar speed-magnitude residual, the
+        // offset also catches a hack moving at the predicted speed in the wrong
+        // direction (which would leave the magnitude residual near zero).
+        double offX = player.actualMovement.getX() - player.predictedVelocity.vector.getX();
+        double offY = player.actualMovement.getY() - player.predictedVelocity.vector.getY();
+        double offZ = player.actualMovement.getZ() - player.predictedVelocity.vector.getZ();
+        double offset = Math.sqrt(offX * offX + offY * offY + offZ * offZ);
+        if (offset <= offsetThreshold) {
             buffer = Math.max(0, buffer - bufferDecay);
             reward();
             return;
         }
 
-        buffer += excess - maxEffectSpeed;
+        buffer += offset - offsetThreshold;
         if (buffer > flagThreshold) {
             flagAndAlert("actH=" + String.format("%.3f", actualH)
-                    + " predH=" + String.format("%.3f", predictedH)
+                    + " offset=" + String.format("%.3f", offset)
                     + " buffer=" + String.format("%.3f", buffer));
             return;
         }
