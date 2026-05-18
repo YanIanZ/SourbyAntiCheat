@@ -55,7 +55,7 @@ This is the single most common finding across all directories.
 | flight | 1 | 1 | 0 | — |
 | groundspoof | 1 | 1 | 0 | — |
 | misc | 10 | 9 | 1 | — |
-| movement | 17 | 15 | 2 | — |
+| movement | 17 | 15 | 2 | fixed — see plan 2026-05-18-movement-check-fixes |
 | multiactions | 8 | 8 | 0 | — |
 | packetorder | 17 | 17 | 0 | — |
 | prediction | 4 | 4 | 0 | — |
@@ -270,6 +270,8 @@ This is the single most common finding across all directories.
 | crossapi | Nuker | findings | `[BUG]` `bps>12` L52 inconsistent with `MAX_BREAKS_PER_SEC 15` L17 — two effective thresholds · `[CONFIG]` `MAX_BREAKS_PER_SEC 15`/`avgInterval<70` hardcoded |
 | crossapi | PingSpoof | findings | `[FP]` `variance<0.05 && avgPing>200` L56 flags genuinely-stable fiber/LAN players with consistent high ping · `[CONFIG]` `pingGap>200`/`transactionPing>300`/`variance<0.05`/`avgPing>200`/`PING_SAMPLE_SIZE 10` hardcoded |
 | crossapi | PortalInventory | findings | `[FP]` `inPortal` = `abs(deltaY)<0.01 && !peOnGround` L38 matches any hover state, not portal blocks · `[CONFIG]` `NETTY_RATE 15.0` hardcoded L18 · `[BUG]` no isDead exemption in `onPredictionComplete` |
+> **movement — resolved.** All 15 movement findings below are fixed — see plan `docs/superpowers/plans/2026-05-18-movement-check-fixes.md` (config keys documented in `config/en.yml`).
+
 | movement | Blink | findings | `[BUG]` `blinkCount` never reset on long gap — only increments, flags every gap packet forever past 5 L29-31 · `[BUG]` `reward()` only when `blinkCount<2` L35 — VL never decays once above 1 · `[FP]` no server-lag/GC/packet-batching exemption · `[CONFIG]` gap `500` ms, count `5`, decrement `1` hardcoded L28-34 |
 | movement | EntitySpeed | findings | `[BUG]` `MAX_HORSE_SPEED 0.50` single ceiling L13 — no entity-type distinction; no speed-effect exemption on mount · `[FP]` no teleport-after-mount grace; no soul-sand/slime/server-push exemption · `[CONFIG]` `0.50`/buffer `0.5`/`0.01` magic L13-37 |
 | movement | FastLadder | findings | `[BUG]` fires on any upward Y delta `0.20-0.50` without confirming player on ladder L28 — triggers during normal jump arcs · `[FP]` no water-current/levitation/scaffold-beneath exemption · `[CONFIG]` `MAX_LADDER_SPEED 0.20`/buffer `0.3`/`0.01` magic · `[STYLE]` `ladderBuffer` manual decay + `reward()` = double decay path |
