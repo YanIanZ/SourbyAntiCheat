@@ -14,6 +14,10 @@ import java.util.LinkedList;
 
 @CheckData(name = "BadPacketsO", stableKey = "sac.badpackets.invalid_keepalive")
 public class BadPacketsO extends Check implements PacketCheck {
+    // Bound the pending list so it cannot grow unbounded if the client never responds.
+    // The server sends one keepalive every ~15s, so 64 entries covers ~16 minutes.
+    private static final int MAX_PENDING_KEEPALIVES = 64;
+
     private final LinkedList<Long> keepalives = new LinkedList<>();
 
     public BadPacketsO(SacPlayer player) {
@@ -24,6 +28,10 @@ public class BadPacketsO extends Check implements PacketCheck {
     public void onPacketSend(PacketSendEvent event) {
         if (event.getPacketType() == PacketType.Play.Server.KEEP_ALIVE) {
             keepalives.add(new WrapperPlayServerKeepAlive(event).getId());
+            // evict oldest entries if the client is not responding
+            while (keepalives.size() > MAX_PENDING_KEEPALIVES) {
+                keepalives.poll();
+            }
         }
     }
 
@@ -40,6 +48,7 @@ public class BadPacketsO extends Check implements PacketCheck {
                         data = keepalives.poll();
                     } while (data != null && data != id);
 
+                    reward();
                     return;
                 }
             }

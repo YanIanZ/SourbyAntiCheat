@@ -16,11 +16,18 @@ public class BadPacketsK extends Check implements PacketCheck {
 
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
-        if (event.getPacketType() == PacketType.Play.Client.SPECTATE
-                && player.gamemode != GameMode.SPECTATOR
-                && flagAndAlert() && shouldModifyPackets()) {
-            event.setCancelled(true);
-            player.onPacketCancel();
+        if (event.getPacketType() != PacketType.Play.Client.SPECTATE) return;
+
+        // Intentional difference from BadPacketsAH: both detect spectate while not in
+        // spectator mode, but K additionally cancels the packet (enforcement) whereas
+        // AH only flags. Keeping both lets servers pick flag-only or cancel behaviour.
+        if (player.gamemode != GameMode.SPECTATOR) {
+            if (flagAndAlert() && shouldModifyPackets()) {
+                event.setCancelled(true);
+                player.onPacketCancel();
+            }
+        } else {
+            reward();
         }
     }
 }

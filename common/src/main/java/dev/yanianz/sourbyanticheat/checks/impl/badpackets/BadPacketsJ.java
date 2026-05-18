@@ -39,6 +39,7 @@ public class BadPacketsJ extends Check implements PacketCheck {
         if (isTickPacket(event.getPacketType())) {
             // due to tick skipping, the rotations sent could be last tick's
             boolean allowLast = player.canSkipTicks() && (event.getPacketType() == PacketType.Play.Client.PLAYER_POSITION_AND_ROTATION || event.getPacketType() == PacketType.Play.Client.PLAYER_ROTATION);
+            boolean mismatch = false;
             for (HeadRotation rotation : rotations) {
                 if (rotation.yaw() == player.yaw && rotation.pitch() == player.pitch) {
                     allowLast = false;
@@ -49,7 +50,14 @@ public class BadPacketsJ extends Check implements PacketCheck {
                     continue;
                 }
 
+                mismatch = true;
+            }
+
+            // flag at most once per tick (buffered) instead of once per loop iteration
+            if (mismatch) {
                 flagAndAlert();
+            } else if (!rotations.isEmpty()) {
+                reward();
             }
 
             rotations.clear();

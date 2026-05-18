@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.badpackets;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
@@ -14,8 +15,19 @@ public class BadPacketsR extends Check implements PacketCheck {
     private long lastTransTime;
     private int oldTransId = 0;
 
+    // Config-wired thresholds (defaults equal prior hardcoded values)
+    private long realTimeThresholdMs = 2000;
+    private long clockThresholdMs = 2000;
+
     public BadPacketsR(final SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        realTimeThresholdMs = config.getIntElse(base + "real-time-threshold-ms", 2000);
+        clockThresholdMs = config.getIntElse(base + "clock-threshold-ms", 2000);
     }
 
     @Override
@@ -23,9 +35,9 @@ public class BadPacketsR extends Check implements PacketCheck {
         if (isTransaction(event.getPacketType()) && player.packetStateData.lastTransactionPacketWasValid) {
             long ms = (player.getPlayerClockAtLeast() - clock) / 1000000L;
             long diff = (System.currentTimeMillis() - lastTransTime);
-            if (diff > 2000 && ms > 2000) {
+            if (diff > realTimeThresholdMs && ms > clockThresholdMs) {
                 if (positions == 0 && clock != 0 && player.cameraEntity.isSelf() && !player.compensatedEntities.self.isDead) {
-                    flag("time=" + ms + "ms, " + "lst=" + diff + "ms, positions=" + positions);
+                    flagAndAlert("time=" + ms + "ms, " + "lst=" + diff + "ms, positions=" + positions);
                 } else {
                     reward();
                 }
