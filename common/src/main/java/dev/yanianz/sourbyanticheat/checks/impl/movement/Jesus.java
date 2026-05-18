@@ -16,8 +16,12 @@ public class Jesus extends Check implements PacketCheck {
 
     private int surfaceTicks = 0;
 
-    // Config-wired thresholds (defaults equal prior hardcoded values)
-    private double fracMin = 0.85;
+    // Config-wired thresholds.
+    // frac = fractional part of feet Y within a block; a water-walker rests right at the
+    // surface (frac ~0.92-0.99). The lower 0.85-0.92 region is where legit high-latency
+    // water bobbing drifts, so fracMin defaults to 0.92 to exclude those false positives
+    // while still catching a genuine surface-locked walker.
+    private double fracMin = 0.92;
     private double fracMax = 0.99;
     private double offsetThreshold = 0.005;
     private int bufferThreshold = 8;
@@ -30,7 +34,7 @@ public class Jesus extends Check implements PacketCheck {
     @Override
     public void onReload(ConfigManager config) {
         String base = getConfigName() + ".";
-        this.fracMin = config.getDoubleElse(base + "frac-min", 0.85);
+        this.fracMin = config.getDoubleElse(base + "frac-min", 0.92);
         this.fracMax = config.getDoubleElse(base + "frac-max", 0.99);
         this.offsetThreshold = config.getDoubleElse(base + "offset-threshold", 0.005);
         this.bufferThreshold = config.getIntElse(base + "buffer-threshold", 8);
