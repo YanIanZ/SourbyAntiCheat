@@ -25,6 +25,9 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPl
  * ticks — a player who rotates on (nearly) every attack tick but rarely otherwise
  * is suspicious.
  */
+// NOTE: setback=8 is intentional. @CheckData has no `enabled` field — whether this
+// check runs is controlled entirely via config (`checks.enabled.AimSuspicion`), so the
+// setback value here is independent of the check's enabled/disabled state.
 @CheckData(name = "AimSuspicion", stableKey = "sac.combat.aimsuspicion", description = "Detects suspicious rotation only on attack ticks", setback = 8, decay = 0.025)
 public class AimSuspicion extends Check implements PacketCheck {
 

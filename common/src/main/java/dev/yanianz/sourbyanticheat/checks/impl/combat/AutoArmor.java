@@ -77,15 +77,20 @@ public class AutoArmor extends Check implements PacketCheck {
                 fastSwitchCount++;
                 if (fastSwitchCount > switchCountThreshold) {
                     flagAndAlert("switch=" + fastSwitchCount + " delay=" + elapsedMs + "ms");
+                    // Flag path — return before the clean-tick reward below.
+                    lastSwitchNanos = now;
+                    return;
                 }
             } else {
                 fastSwitchCount = Math.max(0, fastSwitchCount - 2);
                 // Once the fast-switch streak has decayed below the reset threshold the
                 // sequence is considered fully clean again.
                 if (fastSwitchCount < fastSwitchResetThreshold) fastSwitchCount = 0;
-                reward();
             }
         }
         lastSwitchNanos = now;
+        // Every non-flagging armor-interaction path (first click of a session, slow
+        // switch, or a fast switch still under the count threshold) rewards exactly once.
+        reward();
     }
 }
