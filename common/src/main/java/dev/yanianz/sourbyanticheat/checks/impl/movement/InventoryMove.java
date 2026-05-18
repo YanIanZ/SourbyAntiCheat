@@ -4,6 +4,7 @@
 
 package dev.yanianz.sourbyanticheat.checks.impl.movement;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
@@ -17,16 +18,31 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPl
 public class InventoryMove extends Check implements PacketCheck {
 
     private boolean hasOpenContainer = false;
+    // Set when the server opens an inventory; promoted to hasOpenContainer on the NEXT flying
+    // packet so the same-invocation set+check race cannot flag the first post-open tick.
+    private boolean pendingOpen = false;
     private int buffer = 0;
+
+    // move-threshold is compared against a SQUARED horizontal distance (deltaX^2 + deltaZ^2).
+    // Default 0.0009 == (0.03 blocks)^2 — a small genuine wobble allowance. The prior code
+    // compared 0.005 against the squared distance while the verbose printed sqrt, giving an
+    // effective ~0.07-block threshold; this value restores the intended ~0.03-block gate.
+    private double moveThresholdSq = 0.0009;
 
     public InventoryMove(SacPlayer player) {
         super(player);
     }
 
     @Override
+    public void onReload(ConfigManager config) {
+        this.moveThresholdSq = config.getDoubleElse(getConfigName() + ".move-threshold", 0.0009);
+    }
+
+    @Override
     public void onPacketSend(PacketSendEvent event) {
         if (event.getPacketType() == PacketType.Play.Server.CLOSE_WINDOW) {
             hasOpenContainer = false;
+            pendingOpen = false;
         }
     }
 
@@ -34,11 +50,12 @@ public class InventoryMove extends Check implements PacketCheck {
     public void onPacketReceive(PacketReceiveEvent event) {
         if (event.getPacketType() == PacketType.Play.Client.CLOSE_WINDOW) {
             hasOpenContainer = false;
+            pendingOpen = false;
             return;
         }
 
         if (player.serverOpenedInventoryThisTick) {
-            hasOpenContainer = true;
+            pendingOpen = true;
         }
 
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
@@ -47,17 +64,39 @@ public class InventoryMove extends Check implements PacketCheck {
         if (player.packetStateData.lastPacketWasTeleport) return;
         if (player.inVehicle() || player.isFlying || player.canFly) return;
 
-        if (!hasOpenContainer) return;
+        // Promote a pending open one tick after it was registered.
+        if (pendingOpen && !hasOpenContainer) {
+            pendingOpen = false;
+            hasOpenContainer = true;
+            return;
+        }
+
+        if (!hasOpenContainer) {
+            reward();
+            return;
+        }
+
+        // Knockback/velocity exemption — server-pushed motion is not voluntary inventory walking.
+        if (player.likelyKB != null || player.likelyExplosions != null
+                || player.firstBreadKB != null || player.firstBreadExplosion != null) {
+            buffer = Math.max(0, buffer - 1);
+            reward();
+            return;
+        }
 
         double deltaX = Math.abs(player.packetStateData.lastClaimedPosition.getX() - player.x);
         double deltaZ = Math.abs(player.packetStateData.lastClaimedPosition.getZ() - player.z);
-        double horizontalDist = deltaX * deltaX + deltaZ * deltaZ;
+        double horizontalDistSq = deltaX * deltaX + deltaZ * deltaZ;
 
-        if (horizontalDist < 0.005) return;
+        if (horizontalDistSq < moveThresholdSq) {
+            buffer = Math.max(0, buffer - 1);
+            reward();
+            return;
+        }
 
         buffer++;
         if (buffer > 3) {
-            flagAndAlert("dist=" + String.format("%.4f", Math.sqrt(horizontalDist)) + " buffer=" + buffer);
+            flagAndAlert("distSq=" + String.format("%.4f", horizontalDistSq) + " buffer=" + buffer);
         }
     }
 }
