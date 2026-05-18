@@ -24,7 +24,15 @@ public class InventoryWalk extends Check implements PacketCheck {
 
     // Config-wired thresholds (defaults equal prior hardcoded values)
     private long inventoryTimeoutMs = 3000;
-    private double moveThreshold = 0.001;
+    // move-threshold is a config key expressed in BLOCKS (horizontal distance per tick).
+    // Default 0.0316 (== Math.sqrt(0.001)) preserves the historic shipped effective threshold:
+    // the prior code compared 0.001 against a SQUARED distance, so the real gate was always
+    // ~0.0316 blocks/tick. This fix only makes units consistent (config in blocks, verbose in
+    // blocks) — it does NOT change detection sensitivity.
+    private static final double DEFAULT_MOVE_THRESHOLD = Math.sqrt(0.001); // ~0.0316 blocks
+    private double moveThreshold = DEFAULT_MOVE_THRESHOLD;
+    // Squared once for the per-tick distance comparison (compared against deltaX^2 + deltaZ^2).
+    private double moveThresholdSq = DEFAULT_MOVE_THRESHOLD * DEFAULT_MOVE_THRESHOLD;
     private int bufferThreshold = 6;
     // Grace after a close: a player still carrying walking momentum is not cheating.
     private static final long CLOSE_GRACE_MS = 1000;
@@ -37,7 +45,8 @@ public class InventoryWalk extends Check implements PacketCheck {
     public void onReload(ConfigManager config) {
         String base = getConfigName() + ".";
         this.inventoryTimeoutMs = config.getIntElse(base + "inventory-timeout-ms", 3000);
-        this.moveThreshold = config.getDoubleElse(base + "move-threshold", 0.001);
+        this.moveThreshold = config.getDoubleElse(base + "move-threshold", DEFAULT_MOVE_THRESHOLD);
+        this.moveThresholdSq = moveThreshold * moveThreshold;
         this.bufferThreshold = config.getIntElse(base + "buffer-threshold", 6);
     }
 
@@ -63,8 +72,18 @@ public class InventoryWalk extends Check implements PacketCheck {
 
         if (event.getPacketType() == PacketType.Play.Client.CLOSE_WINDOW) {
             lastInventoryClose = System.currentTimeMillis();
+            lastInventoryPacket = 0;
             inventoryOpen = false;
             return;
+        }
+
+        // Latch a server-opened inventory the same way InventoryMove latches hasOpenContainer:
+        // serverOpenedInventoryThisTick is a per-tick flag (true only on the OPEN_WINDOW tick),
+        // so without this the open state would vanish before the defer-by-one can observe it.
+        // Stamping lastInventoryPacket keeps inventoryOpen true via the inventory-timeout window
+        // until a CLOSE_WINDOW arrives or the window expires.
+        if (player.serverOpenedInventoryThisTick) {
+            lastInventoryPacket = System.currentTimeMillis();
         }
 
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
@@ -98,9 +117,9 @@ public class InventoryWalk extends Check implements PacketCheck {
 
         double deltaX = player.x - player.lastX;
         double deltaZ = player.z - player.lastZ;
-        double horizontalDist = deltaX * deltaX + deltaZ * deltaZ;
+        double horizontalDistSq = deltaX * deltaX + deltaZ * deltaZ;
 
-        if (horizontalDist < moveThreshold) {
+        if (horizontalDistSq < moveThresholdSq) {
             buffer = Math.max(0, buffer - 1);
             reward();
             return;
@@ -108,7 +127,9 @@ public class InventoryWalk extends Check implements PacketCheck {
 
         buffer++;
         if (buffer > bufferThreshold) {
-            flagAndAlert("dist=" + String.format("%.4f", Math.sqrt(horizontalDist)) + " buffer=" + buffer);
+            // Verbose distance is reported in blocks, matching the unit of move-threshold.
+            flagAndAlert("dist=" + String.format("%.4f", Math.sqrt(horizontalDistSq))
+                    + " threshold=" + String.format("%.4f", moveThreshold) + " buffer=" + buffer);
         } else {
             reward();
         }
