@@ -53,7 +53,7 @@ import java.util.Collections;
 import java.util.List;
 
 // You may not copy the check unless you are licensed under GPL
-@CheckData(name = "Reach", stableKey = "sac.combat.reach", setback = 10)
+@CheckData(name = "Reach", stableKey = "sac.combat.reach", setback = 10, decay = 0.02)
 public class Reach extends Check implements PacketCheck {
 
     private static final List<EntityType> blacklisted = Arrays.asList(
@@ -68,8 +68,16 @@ public class Reach extends Check implements PacketCheck {
     private double threshold;
     private double cancelBuffer; // For the next 4 hits after using reach, we aggressively cancel reach
 
+    // Resolved per-connection (in the constructor) rather than at class-load time, so a
+    // runtime server version change / plugin reload does not leave these stale.
+    private final boolean attackRangeComponentExists;
+    private final boolean use18HitboxMargin;
+
     public Reach(SacPlayer player) {
         super(player);
+        ServerVersion serverVersion = PacketEvents.getAPI().getServerManager().getVersion();
+        this.attackRangeComponentExists = serverVersion.isNewerThanOrEquals(ServerVersion.V_1_21_11);
+        this.use18HitboxMargin = serverVersion.isOlderThanOrEquals(ServerVersion.V_1_8_8);
     }
 
     @Override
@@ -133,10 +141,10 @@ public class Reach extends Check implements PacketCheck {
         float hitboxMargin = 0f;
 
         boolean clientAttackRangeExists = player.getClientVersion().isNewerThanOrEquals(ClientVersion.V_1_21_11);
-        boolean clientAndServerAgrees = clientAttackRangeExists && ATTACK_RANGE_COMPONENT_EXISTS;
+        boolean clientAndServerAgrees = clientAttackRangeExists && attackRangeComponentExists;
 
         boolean viaVersionAvailable = false;
-        if (USE_1_8_HITBOX_MARGIN && ViaVersionUtil.isAvailable) {
+        if (use18HitboxMargin && ViaVersionUtil.isAvailable) {
             viaVersionAvailable = Via.getConfig().getValues().containsKey("use-1_8-hitbox-margin") && Via.getConfig().use1_8HitboxMargin();
         }
 
@@ -304,6 +312,11 @@ public class Reach extends Check implements PacketCheck {
                 return new CheckResult(ResultType.REACH, String.format("%.5f", minDistance) + " blocks");
             } else {
                 cancelBuffer = Math.max(0, cancelBuffer - 0.25);
+                // Clean hit within reach — reward only on the authoritative (non-prediction)
+                // pass so the real-time impossible-hit screen does not double-count.
+                if (!isPrediction) {
+                    reward();
+                }
             }
         }
 
@@ -316,9 +329,6 @@ public class Reach extends Check implements PacketCheck {
         }
         return reachEntity.getPossibleCollisionBoxes();
     }
-
-    private static final boolean ATTACK_RANGE_COMPONENT_EXISTS = PacketEvents.getAPI().getServerManager().getVersion().isNewerThanOrEquals(ServerVersion.V_1_21_11);
-    private static final boolean USE_1_8_HITBOX_MARGIN = PacketEvents.getAPI().getServerManager().getVersion().isOlderThanOrEquals(ServerVersion.V_1_8_8);
 
     private double applyReachModifiers(SimpleCollisionBox targetBox, boolean hasAttackRange, float itemMaxReach, float itemHitboxMargin, boolean giveMovementThreshold) {
         double maxReach;
@@ -353,7 +363,13 @@ public class Reach extends Check implements PacketCheck {
     @Override
     public void onReload(ConfigManager config) {
         this.cancelImpossibleHits = config.getBooleanElse("Reach.block-impossible-hits", true);
-        this.threshold = config.getDoubleElse("Reach.threshold", 0.0005);
+        // Static box expansion (in blocks) added on top of the movement-threshold and
+        // item-hitbox margins to absorb client-side sub-pixel interpolation rounding.
+        // The legacy 0.0005 was tighter than single-precision render interpolation noise
+        // (entity positions are interpolated as floats; rounding error accumulates to the
+        // order of ~1e-3 blocks). 0.001 matches the position-equality epsilon used
+        // elsewhere in the combat package and stays well inside any real reach hack.
+        this.threshold = config.getDoubleElse("Reach.threshold", 0.001);
     }
 
     private enum ResultType {

@@ -13,13 +13,19 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientIn
 
 import java.util.ArrayList;
 
-@CheckData(name = "MultiInteractB", stableKey = "sac.multiinteract.interact_at_position_changed")
+@CheckData(name = "MultiInteractB", stableKey = "sac.multiinteract.interact_at_position_changed", decay = 0.02)
 public class MultiInteractB extends Check implements PostPredictionCheck {
     private final ArrayList<String> flags = new ArrayList<>();
     private Vector3d lastPos;
     private boolean hasInteracted;
+    // Deferred reset: clearing hasInteracted directly in onPacketReceive can wipe a flag
+    // set earlier in the same packet invocation. We instead arm the reset and apply it
+    // at the start of the next invocation.
+    private boolean pendingReset;
 
     private static final double EPSILON = 0.001;
+    // Minimum reliable ticking window before deferred flags may be raised.
+    private static final int MIN_RELIABLE_TICKS = 3;
 
     private static boolean positionEquals(Vector3d a, Vector3d b) {
         return Math.abs(a.x - b.x) < EPSILON
@@ -33,6 +39,13 @@ public class MultiInteractB extends Check implements PostPredictionCheck {
 
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
+        // Apply the deferred reset armed by the previous invocation, before processing
+        // this packet — so a flag and its reset never collapse into one invocation.
+        if (pendingReset) {
+            hasInteracted = false;
+            pendingReset = false;
+        }
+
         if (event.getPacketType() == PacketType.Play.Client.INTERACT_ENTITY) {
             WrapperPlayClientInteractEntity packet = new WrapperPlayClientInteractEntity(event);
             if (packet.getAction() != WrapperPlayClientInteractEntity.InteractAction.INTERACT_AT) return;
@@ -56,18 +69,25 @@ public class MultiInteractB extends Check implements PostPredictionCheck {
             hasInteracted = true;
         }
 
+        // Arm the reset for the next invocation rather than clearing immediately,
+        // so a set+reset within this same invocation cannot lose a flag.
         if (!player.cameraEntity.isSelf() || isTickPacket(event.getPacketType())) {
-            hasInteracted = false;
+            pendingReset = true;
         }
     }
 
     @Override
     public void onPredictionComplete(PredictionComplete predictionComplete) {
+        // When ticks aren't skippable, flagging happens inline in onPacketReceive.
         if (!player.canSkipTicks()) return;
 
-        if (player.isTickingReliablyFor(3)) {
-            for (String verbose : flags) {
-                flagAndAlert(verbose);
+        if (player.isTickingReliablyFor(MIN_RELIABLE_TICKS)) {
+            if (flags.isEmpty()) {
+                reward();
+            } else {
+                for (String verbose : flags) {
+                    flagAndAlert(verbose);
+                }
             }
         }
 
