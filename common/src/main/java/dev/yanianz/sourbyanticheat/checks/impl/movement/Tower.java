@@ -4,6 +4,7 @@
 
 package dev.yanianz.sourbyanticheat.checks.impl.movement;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
@@ -28,13 +29,25 @@ public class Tower extends Check implements PacketCheck {
     private long lastJumpTime = 0;
     private int buffer = 0;
 
-    // A standard vanilla jump is ~0.42 blocks on the first tick
-    private static final double JUMP_THRESHOLD = 0.35;
-    // Minimum time between jumps in ms (5 ticks = 250ms minimum for vanilla)
-    private static final long MIN_JUMP_INTERVAL = 200;
+    // A standard vanilla jump is ~0.42 blocks on the first tick.
+    private double jumpThreshold = 0.35;
+    // Minimum time between jumps in ms — 5 ticks = 250ms is the vanilla minimum.
+    // The prior 200ms default sat below this and caught legit fast-jumpers.
+    private long minJumpIntervalMs = 250;
+    private int consecutiveJumpsThreshold = 4;
+    private int bufferThreshold = 2;
 
     public Tower(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        this.jumpThreshold = config.getDoubleElse(base + "jump-threshold", 0.35);
+        this.minJumpIntervalMs = config.getIntElse(base + "min-jump-interval-ms", 250);
+        this.consecutiveJumpsThreshold = config.getIntElse(base + "consecutive-jumps-threshold", 4);
+        this.bufferThreshold = config.getIntElse(base + "buffer-threshold", 2);
     }
 
     @Override
@@ -49,28 +62,39 @@ public class Tower extends Check implements PacketCheck {
 
         double yDelta = player.y - player.lastY;
         long now = System.currentTimeMillis();
+        boolean bufferGrewThisTick = false;
 
         // Detect jump (positive Y delta above threshold, followed by a previous negative delta)
-        if (yDelta > JUMP_THRESHOLD && lastYDelta < 0) {
+        if (yDelta > jumpThreshold && lastYDelta < 0) {
             long jumpInterval = now - lastJumpTime;
 
-            if (jumpInterval < MIN_JUMP_INTERVAL && jumpInterval > 0) {
+            if (jumpInterval < minJumpIntervalMs && jumpInterval > 0) {
                 consecutiveJumps++;
-                if (consecutiveJumps > 4) {
+                if (consecutiveJumps > consecutiveJumpsThreshold) {
                     buffer++;
-                    if (buffer > 2) {
+                    bufferGrewThisTick = true;
+                    if (buffer > bufferThreshold) {
                         flagAndAlert("jumps=" + consecutiveJumps + " interval=" + jumpInterval + "ms");
+                        lastJumpTime = now;
+                        lastYDelta = yDelta;
+                        return;
                     }
                 }
             } else {
-                consecutiveJumps = Math.max(0, consecutiveJumps - 1);
+                // Legal jump interval ends the suspicious streak — reset, don't merely decrement.
+                consecutiveJumps = 0;
             }
             lastJumpTime = now;
         }
 
         if (yDelta < -1.0) {
-            // Falling significantly, reset
             consecutiveJumps = 0;
+        }
+
+        // Decay the buffer on every clean tick (one that did not grow it), not only on a
+        // large fall — otherwise an alternating small-negative / large-positive pattern
+        // never decays.
+        if (!bufferGrewThisTick) {
             buffer = Math.max(0, buffer - 1);
             if (buffer < 1) reward();
         }
