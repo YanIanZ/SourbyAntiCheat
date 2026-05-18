@@ -16,7 +16,6 @@ import java.util.List;
 public class CrossPhaseB extends Check implements PostPredictionCheck {
 
     private int buffer;
-    private SimpleCollisionBox lastBox;
     private final List<SimpleCollisionBox> collisionBoxes = new ArrayList<>();
 
     // Config-wired thresholds (defaults equal prior hardcoded values)
@@ -25,7 +24,6 @@ public class CrossPhaseB extends Check implements PostPredictionCheck {
 
     public CrossPhaseB(SacPlayer player) {
         super(player);
-        lastBox = player.boundingBox.copy();
     }
 
     @Override
@@ -41,21 +39,18 @@ public class CrossPhaseB extends Check implements PostPredictionCheck {
         if (player.packetStateData.lastPacketWasTeleport || player.compensatedEntities.self.isDead
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) {
-            lastBox = player.boundingBox.copy();
             return;
         }
 
-        SimpleCollisionBox newBox = player.boundingBox.copy();
+        SimpleCollisionBox playerBox = player.boundingBox.copy();
         List<SimpleCollisionBox> boxes = collisionBoxes;
         boxes.clear();
-        Collisions.getCollisionBoxes(player, lastBox, boxes, false);
+        Collisions.getCollisionBoxes(player, playerBox, boxes, false);
 
         int blocksPassed = 0;
         for (SimpleCollisionBox box : boxes) {
-            if (lineIntersects(newBox, lastBox, box)) { blocksPassed++; }
+            if (isEmbeddedIn(playerBox, box)) { blocksPassed++; }
         }
-
-        lastBox = newBox;
 
         if (blocksPassed < blocksPassedThreshold) { buffer = Math.max(0, buffer - 1); reward(); return; }
 
@@ -73,65 +68,20 @@ public class CrossPhaseB extends Check implements PostPredictionCheck {
     }
 
     /**
-     * Swept-AABB test: does the player's bounding box, travelling in a straight line from
-     * {@code oldBox} to {@code newBox}, pass through {@code block}?
+     * Phase test: is the player's bounding box genuinely embedded inside a solid block?
      *
-     * The player box has constant extents, so the swept volume is found by expanding the block
-     * by the player box's half-extents (Minkowski sum) and ray-casting the player box centre
-     * from its old position to its new position against that expanded block (slab method).
+     * Returns true only when {@code playerBox} overlaps {@code block} with positive volume on
+     * every axis (beyond a small epsilon). A player resting on a floor or pressed against a
+     * wall only *touches* the block — zero overlap on the contact axis — and is NOT counted.
+     * Only a box that has penetrated a solid block's interior, i.e. actual phasing, matches.
+     *
+     * This replaces a Minkowski swept-AABB test that reported true for mere contact, flagging
+     * every player walking near walls or standing on the ground.
      */
-    private static boolean lineIntersects(SimpleCollisionBox newBox, SimpleCollisionBox oldBox, SimpleCollisionBox block) {
-        double halfX = (oldBox.maxX - oldBox.minX) / 2.0;
-        double halfY = (oldBox.maxY - oldBox.minY) / 2.0;
-        double halfZ = (oldBox.maxZ - oldBox.minZ) / 2.0;
-
-        double ox = (oldBox.minX + oldBox.maxX) / 2.0;
-        double oy = (oldBox.minY + oldBox.maxY) / 2.0;
-        double oz = (oldBox.minZ + oldBox.maxZ) / 2.0;
-        double nx = (newBox.minX + newBox.maxX) / 2.0;
-        double ny = (newBox.minY + newBox.maxY) / 2.0;
-        double nz = (newBox.minZ + newBox.maxZ) / 2.0;
-
-        // Block expanded by the player half-extents.
-        double exMinX = block.minX - halfX, exMaxX = block.maxX + halfX;
-        double exMinY = block.minY - halfY, exMaxY = block.maxY + halfY;
-        double exMinZ = block.minZ - halfZ, exMaxZ = block.maxZ + halfZ;
-
-        double dx = nx - ox, dy = ny - oy, dz = nz - oz;
-
-        double tMin = 0.0, tMax = 1.0;
-
-        // X slab
-        if (Math.abs(dx) < 1e-9) {
-            if (ox < exMinX || ox > exMaxX) return false;
-        } else {
-            double t1 = (exMinX - ox) / dx, t2 = (exMaxX - ox) / dx;
-            if (t1 > t2) { double tmp = t1; t1 = t2; t2 = tmp; }
-            tMin = Math.max(tMin, t1);
-            tMax = Math.min(tMax, t2);
-            if (tMin > tMax) return false;
-        }
-        // Y slab
-        if (Math.abs(dy) < 1e-9) {
-            if (oy < exMinY || oy > exMaxY) return false;
-        } else {
-            double t1 = (exMinY - oy) / dy, t2 = (exMaxY - oy) / dy;
-            if (t1 > t2) { double tmp = t1; t1 = t2; t2 = tmp; }
-            tMin = Math.max(tMin, t1);
-            tMax = Math.min(tMax, t2);
-            if (tMin > tMax) return false;
-        }
-        // Z slab
-        if (Math.abs(dz) < 1e-9) {
-            if (oz < exMinZ || oz > exMaxZ) return false;
-        } else {
-            double t1 = (exMinZ - oz) / dz, t2 = (exMaxZ - oz) / dz;
-            if (t1 > t2) { double tmp = t1; t1 = t2; t2 = tmp; }
-            tMin = Math.max(tMin, t1);
-            tMax = Math.min(tMax, t2);
-            if (tMin > tMax) return false;
-        }
-
-        return true;
+    private static boolean isEmbeddedIn(SimpleCollisionBox playerBox, SimpleCollisionBox block) {
+        final double eps = 1.0e-3;
+        return playerBox.minX < block.maxX - eps && playerBox.maxX > block.minX + eps
+            && playerBox.minY < block.maxY - eps && playerBox.maxY > block.minY + eps
+            && playerBox.minZ < block.maxZ - eps && playerBox.maxZ > block.minZ + eps;
     }
 }
