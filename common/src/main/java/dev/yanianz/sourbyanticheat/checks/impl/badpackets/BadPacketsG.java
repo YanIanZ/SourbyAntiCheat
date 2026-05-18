@@ -8,7 +8,7 @@ import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientEntityAction;
 
-@CheckData(name = "BadPacketsG", stableKey = "sac.badpackets.duplicate_sneak", description = "Sent duplicate sneaking status")
+@CheckData(name = "BadPacketsG", stableKey = "sac.badpackets.duplicate_sneak", description = "Sent duplicate sneaking status", decay = 0.01)
 public class BadPacketsG extends Check implements PacketCheck {
     private boolean lastSneaking, respawn;
 
@@ -29,8 +29,11 @@ public class BadPacketsG extends Check implements PacketCheck {
                         player.onPacketCancel();
                     }
                 } else {
-                    lastSneaking = true;
+                    reward();
                 }
+                // Always sync state — otherwise a missed STOP_SNEAKING makes every
+                // subsequent START_SNEAKING flag forever
+                lastSneaking = true;
                 respawn = false;
             } else if (packet.getAction() == WrapperPlayClientEntityAction.Action.STOP_SNEAKING) {
                 if (!lastSneaking && !respawn) {
@@ -39,8 +42,9 @@ public class BadPacketsG extends Check implements PacketCheck {
                         player.onPacketCancel();
                     }
                 } else {
-                    lastSneaking = false;
+                    reward();
                 }
+                lastSneaking = false;
                 respawn = false;
             }
         }

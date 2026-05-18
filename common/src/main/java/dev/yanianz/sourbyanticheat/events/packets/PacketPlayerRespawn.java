@@ -188,6 +188,7 @@ public class PacketPlayerRespawn extends PacketListenerAbstract {
                     }
                 }
 
+                player.checkManager.getPacketCheck(BadPacketsA.class).handleRespawn(); // Held-slot reset
                 player.checkManager.getPacketCheck(BadPacketsE.class).handleRespawn(); // Reminder ticks reset
                 player.checkManager.getPacketCheck(BadPacketsG.class).handleRespawn();
 

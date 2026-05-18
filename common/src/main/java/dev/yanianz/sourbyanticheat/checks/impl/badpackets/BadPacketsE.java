@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.badpackets;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
@@ -11,14 +12,21 @@ import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 
-@CheckData(name = "BadPacketsE", stableKey = "sac.badpackets.invalid_position")
+@CheckData(name = "BadPacketsE", stableKey = "sac.badpackets.invalid_position", decay = 0.01)
 public class BadPacketsE extends Check implements PacketCheck {
     private int noReminderTicks;
-    private final int maxNoReminderTicks = player.getClientVersion().isOlderThanOrEquals(ClientVersion.V_1_8) ? 20 : 19;
+    // default = prior hardcoded value (20 for <=1.8 clients, 19 otherwise)
+    private int maxNoReminderTicks = player.getClientVersion().isOlderThanOrEquals(ClientVersion.V_1_8) ? 20 : 19;
     private final boolean isViaPleaseStopUsingProtocolHacksOnYourServer = player.getClientVersion().isNewerThanOrEquals(ClientVersion.V_1_21_2) || PacketEvents.getAPI().getServerManager().getVersion().isNewerThanOrEquals(ServerVersion.V_1_21_2);
 
     public BadPacketsE(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        int defaultMax = player.getClientVersion().isOlderThanOrEquals(ClientVersion.V_1_8) ? 20 : 19;
+        this.maxNoReminderTicks = config.getIntElse(getConfigName() + ".max-no-reminder-ticks", defaultMax);
     }
 
     @Override
@@ -29,6 +37,8 @@ public class BadPacketsE extends Check implements PacketCheck {
         } else if (WrapperPlayClientPlayerFlying.isFlying(event.getPacketType()) && !player.packetStateData.lastPacketWasTeleport) {
             if (++noReminderTicks > maxNoReminderTicks) {
                 flagAndAlert("ticks=" + noReminderTicks);
+            } else {
+                reward();
             }
         } else if (event.getPacketType() == PacketType.Play.Client.STEER_VEHICLE
                 || (isViaPleaseStopUsingProtocolHacksOnYourServer && player.inVehicle())) {
