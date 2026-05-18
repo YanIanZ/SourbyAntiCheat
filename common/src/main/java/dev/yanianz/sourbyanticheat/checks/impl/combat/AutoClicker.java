@@ -72,7 +72,6 @@ public class AutoClicker extends Check implements PacketCheck {
         currentCPS++;
 
         if (clickTimestamps.size() >= windowSize) {
-            long intervalSum = 0;
             long intervalMin = Long.MAX_VALUE;
             long intervalMax = 0;
             Long previous = null;
@@ -80,7 +79,6 @@ public class AutoClicker extends Check implements PacketCheck {
             for (long ts : clickTimestamps) {
                 if (previous != null) {
                     long diff = ts - previous;
-                    intervalSum += diff;
                     if (diff < intervalMin) intervalMin = diff;
                     if (diff > intervalMax) intervalMax = diff;
                 }
