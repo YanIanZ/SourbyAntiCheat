@@ -1,6 +1,7 @@
 package dev.yanianz.sourbyanticheat.checks.impl.movement;
 
 import dev.yanianz.sourbyanticheat.checks.Check;
+import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
@@ -8,6 +9,7 @@ import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.util.Vector3d;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 
+@CheckData(name = "SetbackBlocker", configName = "SetbackBlocker", stableKey = "sac.movement.setbackblocker", description = "Enforces setbacks by blocking movement packets")
 public class SetbackBlocker extends Check implements PacketCheck {
     public SetbackBlocker(SacPlayer playerData) {
         super(playerData);
@@ -35,7 +37,8 @@ public class SetbackBlocker extends Check implements PacketCheck {
             }
 
             // Look is the only valid packet to send while in a vehicle
-            if (player.inVehicle() && event.getPacketType() != PacketType.Play.Client.PLAYER_ROTATION && !player.packetStateData.lastPacketWasTeleport) {
+            // (teleport packets already returned above, so no need to re-check here)
+            if (player.inVehicle() && event.getPacketType() != PacketType.Play.Client.PLAYER_ROTATION) {
                 event.setCancelled(true);
             }
 
