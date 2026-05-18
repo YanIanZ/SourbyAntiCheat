@@ -27,9 +27,11 @@ public class Spider extends Check implements PostPredictionCheck {
     private int climbTicks = 0;
     private boolean wasOnGround = true;
 
-    // Config-wired thresholds (defaults equal prior hardcoded values).
-    private double climbOffset = 0.1;
-    private int climbTicksThreshold = 4;
+    // Config-wired thresholds.
+    // climb-ticks-threshold defaults to 10: a normal jump arc rises for only ~5-7 ticks
+    // (even with Jump Boost) before gravity ends it, so a continuous-ascent streak above
+    // this can only be an unbounded wall climb.
+    private int climbTicksThreshold = 10;
     private int climbTickIncrement = 1;
 
     public Spider(SacPlayer player) {
@@ -39,8 +41,7 @@ public class Spider extends Check implements PostPredictionCheck {
     @Override
     public void onReload(ConfigManager config) {
         String base = getConfigName() + ".";
-        this.climbOffset = config.getDoubleElse(base + "climb-offset", 0.1);
-        this.climbTicksThreshold = config.getIntElse(base + "climb-ticks-threshold", 4);
+        this.climbTicksThreshold = config.getIntElse(base + "climb-ticks-threshold", 10);
         this.climbTickIncrement = config.getIntElse(base + "climb-tick-increment", 1);
     }
 
@@ -87,31 +88,21 @@ public class Spider extends Check implements PostPredictionCheck {
             return;
         }
 
-        if (deltaY > climbOffset) {
+        // A spider / wall-climb is CONTINUOUS upward movement while pressed against a
+        // wall. A normal jump rises in open air (no horizontal collision) or, next to
+        // a wall, rises for only a handful of ticks before gravity ends the arc.
+        // Require BOTH wall contact and a strictly ascending tick; any non-ascending
+        // tick or loss of wall contact resets the streak to zero, so a bounded jump
+        // arc can never reach the threshold while an unbounded climb does.
+        if (player.horizontalCollision && deltaY > 0.0) {
             climbTicks += climbTickIncrement;
             if (climbTicks > climbTicksThreshold) {
                 flagAndAlert("dY=" + String.format("%.3f", deltaY) + " ticks=" + climbTicks);
                 return;
             }
             reward();
-        } else if (deltaY > 0.0) {
-            // Slow upward airborne movement (0 < dY <= climbOffset) is still a climb:
-            // a spider hack can tune its ascent rate just under climbOffset to evade
-            // the fast branch. This must NOT be treated as clean movement — keep the
-            // climb streak alive (as the original pre-rearchitecture logic did) so a
-            // slow climb still accrues climbTicks and eventually flags.
-            climbTicks += climbTickIncrement;
-            if (climbTicks > climbTicksThreshold) {
-                flagAndAlert("dY=" + String.format("%.3f", deltaY) + " ticks=" + climbTicks);
-                return;
-            }
         } else {
-            // Only genuine non-climbing movement (falling or level) decays the streak.
-            // The -2 decay vs +1 increment asymmetry is intentional: a genuine
-            // wall-climb is sustained, so the 2:1 decay rate means a real spider
-            // hack cannot survive by alternating climb and non-climb ticks — the
-            // streak drains faster than it can be rebuilt.
-            climbTicks = Math.max(0, climbTicks - 2);
+            climbTicks = 0;
             reward();
         }
     }

@@ -16,7 +16,6 @@ public class CrossFastBreak extends Check implements BlockBreakCheck {
     private int buffer;
 
     private int breakThreshold = 8;
-    private double nettyRateThreshold = 18.0;
 
     public CrossFastBreak(SacPlayer player) {
         super(player);
@@ -26,13 +25,14 @@ public class CrossFastBreak extends Check implements BlockBreakCheck {
     @Override
     public void onReload(ConfigManager config) {
         String base = getConfigName() + ".";
-        this.breakThreshold      = config.getIntElse(base + "break-threshold",       8);
-        this.nettyRateThreshold  = config.getDoubleElse(base + "netty-rate-threshold", 18.0);
+        this.breakThreshold = config.getIntElse(base + "break-threshold", 8);
     }
 
     @Override
     public void onBlockBreak(BlockBreak blockBreak) {
-        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
+        // Break RATE is meaningless in creative (every break is instant) — exempt.
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE) return;
         if (player.compensatedEntities.self.isDead) return;
 
         long now = System.currentTimeMillis();
@@ -43,21 +43,26 @@ public class CrossFastBreak extends Check implements BlockBreakCheck {
         breakCount++;
 
         if (breakCount < breakThreshold) {
+            buffer = Math.max(0, buffer - 1);
             reward();
             return;
         }
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > nettyRateThreshold;
-
+        // Raw break-rate is unreliable on its own — instant-break blocks (crops, torches,
+        // soft blocks with an efficient tool) let a legitimate miner exceed the threshold.
+        // Only alert when Spartan independently confirms fast-break.
         SpartanCrossCheck.CrossCheckResult spartanResult =
             SpartanCrossCheck.checkSpartan(player.uuid, "FastBreak");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 
-        buffer += (nettyConfirms || spartanConfirms) ? 2 : 1;
-        if (buffer > 3) {
-            flagAndAlert(String.format("breaks=%d/s netty=%.1f/s spartan=%s",
-                breakCount, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
-            return;
+        if (spartanConfirms) {
+            buffer++;
+            if (buffer > 3) {
+                flagAndAlert(String.format("breaks=%d/s spartan=%s", breakCount, spartanResult.type()));
+                return;
+            }
+        } else {
+            buffer = Math.max(0, buffer - 1);
         }
         reward();
     }

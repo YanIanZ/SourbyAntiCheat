@@ -32,7 +32,9 @@ public class CrossFastBreakB extends Check implements BlockBreakCheck {
 
     @Override
     public void onBlockBreak(BlockBreak blockBreak) {
-        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
+        // Break timing is meaningless in creative (every break is instant) — exempt.
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE) return;
         if (player.compensatedEntities.self.isDead) return;
 
         long now = System.currentTimeMillis();

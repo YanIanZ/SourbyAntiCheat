@@ -52,6 +52,13 @@ public class FastBreak extends Check implements BlockBreakCheck {
 
     @Override
     public void onBlockBreak(BlockBreak blockBreak) {
+        // Creative breaking is instant by design — predicted break time has nothing to
+        // measure against, so the balance would climb on every legitimate creative break.
+        if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
+                || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) {
+            return;
+        }
+
         if (blockBreak.action == DiggingAction.START_DIGGING) {
             if (!ViaVersionUtil.isAvailable) {
                 // Exempt all blocks that do not exist in the player version
