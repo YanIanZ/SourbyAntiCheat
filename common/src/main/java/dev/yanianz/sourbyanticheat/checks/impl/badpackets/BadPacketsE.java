@@ -37,6 +37,10 @@ public class BadPacketsE extends Check implements PacketCheck {
         } else if (WrapperPlayClientPlayerFlying.isFlying(event.getPacketType()) && !player.packetStateData.lastPacketWasTeleport) {
             if (++noReminderTicks > maxNoReminderTicks) {
                 flagAndAlert("ticks=" + noReminderTicks);
+                // Reset to threshold so we flag once per over-threshold episode
+                // rather than every flying packet; a cheat genuinely withholding
+                // position packets will re-accumulate and flag again.
+                noReminderTicks = maxNoReminderTicks;
             } else {
                 reward();
             }

@@ -47,8 +47,12 @@ public class BadPacketsH extends BlockPlaceCheck {
                 }
             }
             case CANCELLED_DIGGING -> { // other actions will be checked by BadPacketsL
-                if (blockBreak.sequence != 0 && flagAndAlert("expected=0, id=" + blockBreak.sequence) && shouldModifyPackets()) {
-                    blockBreak.cancel();
+                if (blockBreak.sequence != 0) {
+                    if (flagAndAlert("expected=0, id=" + blockBreak.sequence) && shouldModifyPackets()) {
+                        blockBreak.cancel();
+                    }
+                } else {
+                    reward();
                 }
             }
         }
