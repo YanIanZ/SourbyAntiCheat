@@ -12,7 +12,7 @@ import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientUseItem;
 
-@CheckData(name = "BadPacketsH", stableKey = "sac.badpackets.unexpected_sequence", description = "Sent unexpected sequence id", decay = 0.01)
+@CheckData(name = "BadPacketsH", stableKey = "sac.badpackets.unexpected_sequence", description = "Sent unexpected sequence id")
 public class BadPacketsH extends BlockPlaceCheck {
     private int lastSequence;
     private boolean acceptNextSequence;

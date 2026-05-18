@@ -8,7 +8,7 @@ import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientHeldItemChange;
 
-@CheckData(name = "BadPacketsA", stableKey = "sac.badpackets.duplicate_slot", description = "Sent duplicate slot id", decay = 0.01)
+@CheckData(name = "BadPacketsA", stableKey = "sac.badpackets.duplicate_slot", description = "Sent duplicate slot id")
 public class BadPacketsA extends Check implements PacketCheck {
     private int lastSlot = -1;
 

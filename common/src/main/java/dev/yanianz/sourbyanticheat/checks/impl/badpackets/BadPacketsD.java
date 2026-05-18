@@ -8,7 +8,7 @@ import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 
-@CheckData(name = "BadPacketsD", stableKey = "sac.badpackets.invalid_pitch", description = "Impossible pitch", decay = 0.01)
+@CheckData(name = "BadPacketsD", stableKey = "sac.badpackets.invalid_pitch", description = "Impossible pitch")
 public class BadPacketsD extends Check implements PacketCheck {
     private static final float MAX_PITCH = 90.0f;
 

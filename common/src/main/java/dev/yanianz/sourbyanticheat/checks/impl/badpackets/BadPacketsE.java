@@ -12,7 +12,7 @@ import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 
-@CheckData(name = "BadPacketsE", stableKey = "sac.badpackets.invalid_position", decay = 0.01)
+@CheckData(name = "BadPacketsE", stableKey = "sac.badpackets.invalid_position")
 public class BadPacketsE extends Check implements PacketCheck {
     private int noReminderTicks;
     // default = prior hardcoded value (20 for <=1.8 clients, 19 otherwise)

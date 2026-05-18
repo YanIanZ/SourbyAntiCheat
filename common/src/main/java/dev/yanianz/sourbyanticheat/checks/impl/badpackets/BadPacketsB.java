@@ -6,7 +6,7 @@ import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 
-@CheckData(name = "BadPacketsB", stableKey = "sac.badpackets.ignored_rotation", description = "Ignored set rotation packet", decay = 0.01)
+@CheckData(name = "BadPacketsB", stableKey = "sac.badpackets.ignored_rotation", description = "Ignored set rotation packet")
 public class BadPacketsB extends Check implements PacketCheck {
 
     public BadPacketsB(final SacPlayer player) {
