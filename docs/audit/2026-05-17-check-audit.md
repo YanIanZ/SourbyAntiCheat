@@ -47,7 +47,7 @@ This is the single most common finding across all directories.
 | baritone | 1 | 1 | 0 | — |
 | breaking | 10 | 10 | 0 | — |
 | chat | 4 | 4 | 0 | — |
-| combat | 16 | 14 | 2 | — |
+| combat | 16 | 14 | 2 | fixed — see plan 2026-05-19-combat-check-fixes |
 | crash | 9 | 9 | 0 | — |
 | crossapi | 54 | 54 | 0 | fixed — see plan 2026-05-17-crossapi-check-fixes |
 | elytra | 9 | 9 | 0 | — |
@@ -124,6 +124,8 @@ This is the single most common finding across all directories.
 | chat | ChatB | findings | `[BUG]` L29 unconditional `event.setCancelled(true)` for CHAT_MESSAGE bypasses `shouldModifyPackets()` · `[BUG]` no `reward()` on clean message · `[FP]` click-event FP acknowledged L15, no exemption · `[CONFIG]` `V_1_19` hardcoded L57 |
 | chat | ChatC | findings | `[BUG]` no `reward()` · `[FP]` chat after landing/boat-ride can trigger — no vehicle/post-teleport exemption · `[FP]` no-op for pre-1.21.2 clients (no CLIENT_TICK_END) · `[STYLE]` malformed regex config → uncaught `PatternSyntaxException` at reload |
 | chat | ChatD | findings | `[BUG]` `hidden` defaults false — join-with-chat-hidden window not caught · `[BUG]` no `reward()` · `[BUG]` Play-phase `WrapperPlayClientSettings` decodes Configuration-phase packet L33 — possible garbage values · `[FP]` legit chat-visibility toggle accumulates VL permanently · `[STYLE]` inconsistent Lombok usage |
+> **combat — resolved.** All 14 combat findings below are fixed — see plan `docs/superpowers/plans/2026-05-19-combat-check-fixes.md` (config keys documented in `config/en.yml`).
+
 | combat | AimSnap | findings | `[BUG]` `buffer` never resets on `hadAttack=false` path L93-96 — VL/buffer drift · `[BUG]` `snapYaw` compares attack-tick yaw vs previous tick — inverted semantics L81 · `[FP]` no `lastPacketWasTeleport` guard on snap-back path · `[CONFIG]` `SNAP/RETURN/DIFF_THRESHOLD`, `MAX_SNAP_BACK_PACKETS`, buffer `>3` hardcoded L31-89 · `[STYLE]` raw `int buffer` parallel to `violations` |
 | combat | AimSuspicion | findings | `[BUG]` `hadRotationThisTick` measures same-packet not tick-boundary L55-81 · `[BUG]` `rotOnAttackOnly` never tracks non-attack-tick rotation → ratio test invalid L61-69 · `[FP]` no teleport/lag/vehicle exemption — legit always-rotate-on-click hits 95% · `[CONFIG]` `ratio>0.95`, `totalAttackTicks>=15`, buffer `>3` hardcoded · `[STYLE]` disabled-by-default but declares `setback=8` |
 | combat | AntiVelocity | findings | `[BUG]` `ratioSamples` len 3 but window yields up to 6 → silent overwrite L25/85 · `[BUG]` `sampleIndex` reset in async lambda L54 — corrupts window · `[FP]` no boat/levitation/slow-fall/Riptide/elytra exemption · `[FP]` `avgRatio<0.1` flags wall-pressing players · `[CONFIG]` `VELOCITY_RESPONSE_TICKS/MIN_VELOCITY/frictions/avgRatio/buffer` hardcoded L29-100 |

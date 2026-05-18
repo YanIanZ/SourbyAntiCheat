@@ -223,6 +223,16 @@ spartanapi:
 AutoClicker:
     setbackvl: 10
     decay: 0.025
+    # Number of recent clicks sampled for CPS/variance analysis
+    window-size: 20
+    # CPS above which clicking is considered impossible for a human
+    max-legit-cps: 30
+    # Minimum click-interval variance below which clicking looks automated
+    min-variance: 2
+    # CPS above which a violation is flagged
+    cps-flag-threshold: 18
+    # Age (ms) above which buffered click samples are discarded
+    cleanup-window-ms: 1000
 
 AimAssist:
     setbackvl: 5
@@ -363,18 +373,40 @@ ScaffoldB:
 Criticals:
     setbackvl: 5
     decay: 0.02
+    # Buffer count at which a critical-hit violation is flagged
+    flag-threshold: 5
+    # Vertical delta below which a "fake critical" is detected
+    delta-y-threshold: 0.01
 
 FastBow:
     setbackvl: 5
     decay: 0.02
+    # Minimum bow charge time (ms) before a shot is considered legitimate
+    min-charge-time: 120
+    # Buffer count at which a fast-bow violation is flagged
+    flag-threshold: 3
 
 FastEat:
     setbackvl: 5
     decay: 0.02
+    # Minimum eat time (ms) before consumption is considered legitimate
+    min-eat-time: 1400
+    # Minimum drink time (ms) before consumption is considered legitimate
+    min-drink-time: 1400
+    # Buffer count at which a fast-eat violation is flagged
+    flag-threshold: 3
+    # Minimum buffer count below which clean behaviour resets the buffer
+    min-flag: 1
 
 AutoArmor:
     setbackvl: 5
     decay: 0.02
+    # Armor-switch delay (ms) below which a switch is considered automated
+    min-switch-delay: 50
+    # Number of fast switches counted before flagging
+    switch-count-threshold: 10
+    # Consecutive fast switches that reset the violation counter
+    fast-switch-threshold: 3
 
 FastSwitch:
     setbackvl: 5
@@ -391,6 +423,58 @@ BadPacketsAE:
 BadPacketsAF:
     setbackvl: 10
     decay: 0.005
+
+AimSnap:
+    # Number of recent rotation packets retained for snap-back analysis
+    max-snap-back-packets: 3
+    # Rotation delta (degrees) above which a snap is detected
+    snap-threshold: 30.0
+    # Rotation delta (degrees) below which a return-to-target is detected
+    return-threshold: 25.0
+    # Difference (degrees) between snap and return used to confirm aim snap
+    diff-threshold: 15.0
+    # Buffer count at which an aim-snap violation is flagged
+    buffer-threshold: 3
+
+AimSuspicion:
+    # Fraction of attack ticks with suspicious rotation above which it is flagged
+    ratio-threshold: 0.95
+    # Minimum number of attack ticks sampled before the ratio is evaluated
+    total-attack-ticks-min: 15
+    # Buffer count at which an aim-suspicion violation is flagged
+    buffer-threshold: 3
+
+AttackFrequency:
+    # Minimum interval (ms) between attacks before timing looks automated
+    min-attack-interval: 25
+    # Number of rapid attacks counted before flagging
+    rapid-attacks-threshold: 5
+    # Attacks per tick above which a violation is flagged
+    attacks-per-tick-threshold: 4
+    # Buffer count at which an attack-frequency violation is flagged
+    buffer-threshold: 2
+
+AntiVelocity:
+    # Ticks after a velocity packet during which knockback response is checked
+    velocity-response-ticks: 5
+    # Minimum velocity magnitude below which knockback is ignored
+    min-velocity: 0.1
+    # Ground friction coefficient used for velocity prediction
+    ground-friction: 0.91
+    # Air friction coefficient used for velocity prediction
+    air-friction: 0.98
+    # Average velocity ratio below which anti-knockback is flagged
+    avg-ratio-threshold: 0.1
+    # Buffer count at which an anti-velocity violation is flagged
+    buffer-threshold: 2
+
+NoSwing:
+    # Window (ms) within which a swing must precede an attack
+    swing-window: 50
+    # Buffer count at which a no-swing violation is flagged
+    flag-threshold: 3
+    # Minimum buffer count below which clean behaviour resets the buffer
+    min-flag: 2
 
 reset-item-usage-on-item-update: true
 reset-item-usage-on-attack: true
