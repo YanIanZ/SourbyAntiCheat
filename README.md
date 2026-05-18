@@ -1,125 +1,148 @@
 <div align="center">
- <h1>SourbyAntiCheat</h1>
 
- <div>
-  <a href="https://github.com/YanIanZ/SourbyAntiCheat/actions/workflows/gradle-publish.yml">
-   <img alt="Workflow" src="https://img.shields.io/github/actions/workflow/status/YanIanZ/SourbyAntiCheat/gradle-publish.yml?style=flat&logo=github"/>
-  </a>&nbsp;&nbsp;
-  <a href="https://modrinth.com/plugin/sourbyanticheat">
-   <img alt="Modrinth" src="https://img.shields.io/modrinth/v/LJNGWSvH?style=flat&label=version&logo=modrinth">
-  </a>&nbsp;&nbsp;
-  <a href="https://modrinth.com/plugin/sourbyanticheat#download">
-   <img alt="Downloads" src="https://img.shields.io/modrinth/dt/LJNGWSvH?style=flat&logo=modrinth&label=downloads&link=https%3A%2F%2Fmodrinth.com%2Fplugin%2Fsourbyanticheat%23download">
-  </a>&nbsp;&nbsp;
-  <a href="https://discord.example.com">
-   <img alt="Discord" src="https://img.shields.io/discord/811396969670901800?style=flat&label=discord&logo=discord">
-  </a>
- </div>
- <br>
+# SourbyAntiCheat
+
+**A packet-based, prediction-driven anticheat for modern Minecraft servers.**
+
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/YanIanZ/SourbyAntiCheat?include_prereleases&label=release)](https://github.com/YanIanZ/SourbyAntiCheat/releases)
+[![JitPack](https://img.shields.io/jitpack/version/com.github.YanIanZ/SourbyAntiCheat?label=jitpack)](https://jitpack.io/#YanIanZ/SourbyAntiCheat)
+
 </div>
 
-SourbyAntiCheat is an open source Minecraft anticheat designed to support the latest versions of Minecraft.
-It currently supports minecraft versions 1.8–26.1. Geyser players are fully exempt from the anticheat to prevent false positives.
-This project is considered feature-complete for the 2.0 (open-source) branch. If you would like a bug fix or enhancement and cannot sponsor the work, pull requests are welcome.
-A premium version is planned, which will offer additional subscription-based paid checks, such as heuristics.
+---
 
-## Downloads
+## Overview
 
-- Latest updates:
-  - **[Modrinth](https://modrinth.com/plugin/sourbyanticheat)** *(recommended)*
-  - GitHub
-  artifacts: [Bukkit](https://nightly.link/YanIanZ/SourbyAntiCheat/workflows/gradle-publish/2.0/sourbyanticheat-bukkit.zip), [Fabric](https://nightly.link/YanIanZ/SourbyAntiCheat/workflows/gradle-publish/2.0/sourbyanticheat-fabric.zip) *(bleeding edge)*
-- Major releases only:
-  - ~~[Hangar](https://hangar.papermc.io/YanIanZ/SourbyAntiCheatAnticheat)~~
-  - ~~[SpigotMC](https://www.spigotmc.org/resources/sourbyanticheat.99923/)~~
+SourbyAntiCheat (SAC) is an open-source Minecraft anticheat built on a movement
+**prediction engine** (a fork of the Grim anticheat API) and raw packet inspection
+via PacketEvents. Rather than relying on static thresholds alone, SAC simulates each
+player's physically possible movement every tick and flags deviations, backed by a
+large suite of packet, combat, and exploit checks.
 
-## Requirements & Installation
+Bedrock players connecting through Geyser are exempt by default to avoid false
+positives from the Bedrock movement model.
 
-- Java 17 or higher. *For more details, see [Updating-to-Java-17](https://github.com/YanIanZ/SourbyAntiCheat/wiki/Updating-to-Java-17).*
-- A Spigot, Paper, Folia, or Fabric server environment. *For more details, see [Supported-environments](https://github.com/YanIanZ/SourbyAntiCheat/wiki/Supported-environments).*
+## Features
 
-If you use a proxy such as Velocity or Bungeecord:
-- If you use Geyser, Floodgate must be installed on the backend server (where SourbyAntiCheat is) so SourbyAntiCheat can access the Floodgate API.
-- If you use ViaVersion, it must be installed on the backend server (where SourbyAntiCheat is) ONLY.
-  SourbyAntiCheat does not support having ViaVersion installed on the proxy, even if it is also installed on the backend.
+- **Prediction-based movement detection** — per-tick simulation of legal movement,
+  with latency compensation and per-player world replication.
+- **236+ checks across 22 categories** — aim, badpackets, baritone, breaking, chat,
+  combat, crash, crossapi, elytra, exploit, flight, groundspoof, misc, movement,
+  multiactions, packetorder, prediction, scaffolding, sprint, timer, vehicle and
+  velocity.
+- **Cross-anticheat correlation** — the `crossapi` checks can cross-confirm
+  violations with [Spartan](https://www.spigotmc.org/resources/spartan.118226/) via
+  SpartanAPI; alerts agreed by both are tagged accordingly.
+- **Multi-platform** — a shared `common` core with thin platform modules for
+  Bukkit/Spigot/Paper, BungeeCord and Velocity.
+- **Fully configurable** — every check threshold is exposed in `config/en.yml`;
+  defaults are tuned so no key is required to get sensible behaviour.
+- **Localised messages** — alert and command messages ship in multiple languages
+  under `messages/`.
 
-## Resources
+## Supported platforms
 
-- For documentation and examples visit the [Wiki](https://github.com/YanIanZ/SourbyAntiCheat/wiki).
-- For answers to commonly asked questions visit the [FAQ](https://github.com/YanIanZ/SourbyAntiCheat/wiki/FAQ).
-- For community support and project discussion join our [Discord](https://discord.example.com).
+| Platform | Module | Notes |
+|----------|--------|-------|
+| Bukkit / Spigot / Paper | `bukkit` | Primary platform — runs the full check suite. |
+| BungeeCord | `bungee` | Proxy module — alert relay and cross-server coordination. |
+| Velocity | `velocity` | Proxy module — alert relay and cross-server coordination. |
 
-## Pull Requests
+Checks run on the backend (Bukkit) server. The proxy modules handle alert
+forwarding between servers on a network.
 
-See [Contributing](CONTRIBUTING.md) for more information about contributing and what our guidelines
-are.
+## Installation
 
-## Developer Plugin API
+1. Download the jar for your platform from the
+   [Releases](https://github.com/YanIanZ/SourbyAntiCheat/releases) page:
+   - `SourbyAntiCheat.jar` — Bukkit / Spigot / Paper
+   - `SAC-Bungee.jar` — BungeeCord
+   - `SAC-Velocity.jar` — Velocity
+2. Place the jar in the `plugins/` folder of the corresponding server/proxy.
+3. Restart the server. Configuration files are generated on first run.
 
-SourbyAntiCheat plugin API allows you to integrate SourbyAntiCheat into your own plugins. Visit
-the [plugin API repository](https://github.com/YanIanZ/SourbyAntiCheatAPI) for the source code and more
-information.
+**Requirements**
 
-## Compiling From Source
+- Java **21** or newer.
+- A reasonably modern Spigot/Paper server for the backend.
+- If using Geyser, install Floodgate on the backend server so SAC can identify
+  Bedrock players.
+- If using ViaVersion, install it on the **backend server only** — not on the proxy.
 
-1. `git clone https://github.com/YanIanZ/SourbyAntiCheat.git`
-2. `cd SourbyAntiCheat`
-3. `./gradlew build`
-4. The final jars will compile into the `<platform>/build/libs` folders
+## Configuration
 
-## SourbyAntiCheat Features
+Configuration lives in the plugin's data folder:
 
-What makes SourbyAntiCheat stand out against other anticheats?
+- `config/en.yml` — global settings and every check's tunable thresholds. Each
+  check has a block named after its config name (e.g. `crossphase:`, `reach:`),
+  with one commented key per threshold.
+- `messages/<lang>.yml` — alert and command message localisation.
 
-### Movement Simulation Engine
+Every threshold defaults to a sane built-in value, so keys are optional — add a
+key only to override its default. Disable a check via `checks.enabled.<CheckName>`.
 
-* We have a 1:1 replication of the player's possible movements
-    * This covers everything from basic walking, swimming, knockback, cobwebs, to bubble columns
-    * It even covers riding entities from boats to pigs to striders
-* Built upon covering edge cases to confirm accuracy
-* 1.13+ clients on 1.13+ servers, 1.12- clients on 1.13+ servers, 1.13+ clients on 1.12- servers,
-  and 1.12- clients on 1.12- servers are all supported regardless of the large technical changes
-  between these versions.
-* The order of collisions depends on the client version and is correct
-* Accounts for minor bounding box differences between versions, for example:
-    * Single glass panes will be a + shape for 1.7-1.8 players and * for 1.9+ players
-    * 1.13+ clients on 1.8 servers see the + glass pane hitbox due to ViaVersion
-    * Many other blocks have this extreme attention to detail.
-    * Waterlogged blocks do not exist for 1.12 or below players
-    * Blocks that do not exist in the client's version use ViaVersion's replacement block
-    * Block data that cannot be translated to previous versions is replaced correctly
-    * All vanilla collision boxes have been implemented
+## Building from source
 
-### Fully asynchronous and multithreaded design
+```bash
+git clone https://github.com/YanIanZ/SourbyAntiCheat.git
+cd SourbyAntiCheat
+./gradlew build -x test
+```
 
-* All movement checks and the overwhelming majority of listeners run on the netty thread
-* The anticheat can scale to many hundreds of players, if not more
-* Thread safety is carefully thought out
-* The next core allows for this design
+The build toolchain uses JDK 25; Gradle provisions it automatically. Output jars
+land in each module's `build/libs/` folder:
 
-### Full world replication
+- `bukkit/build/libs/SourbyAntiCheat.jar`
+- `bungee/build/libs/SAC-Bungee.jar`
+- `velocity/build/libs/SAC-Velocity.jar`
 
-* The anticheat keeps a replica of the world for each player
-* The replica is created by listening to chunk data packets, block places, and block changes
-* On all versions, chunks are compressed to 16-64 kb per chunk using palettes
-* Using this cache, the anticheat can safely access the world state
-* Per player, the cache allows for multithreaded design
-* Sending players fake blocks with packets is safe and does not lead to falses
-* The world is recreated for each player to allow lag compensation
-* Client sided blocks cause no issues with packet based blocks. Block glitching does not false the
-  anticheat.
+Pass `-Prelease=true` for a clean release version string.
 
-### Latency compensation
+## Using SAC as a dependency
 
-* World changes are queued until they reach the player
-* This means breaking blocks under a player does not false the anticheat
-* Everything from flying status to movement speed will be latency compensated
+The API is published via [JitPack](https://jitpack.io/#YanIanZ/SourbyAntiCheat).
 
-### Inventory compensation
+**Gradle (Kotlin DSL)**
 
-* The player's inventory is tracked to prevent ghost blocks at high latency, and other errors
+```kotlin
+repositories {
+    maven("https://jitpack.io")
+}
 
-### Secure by design, not obscurity
+dependencies {
+    compileOnly("com.github.YanIanZ:SourbyAntiCheat:build-1")
+}
+```
 
-* All systems are designed to be highly secure and mathematically impossible to bypass
-* For example, the prediction engine knows all possible movements and cannot be bypassed
+**Maven**
+
+```xml
+<repository>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
+</repository>
+
+<dependency>
+    <groupId>com.github.YanIanZ</groupId>
+    <artifactId>SourbyAntiCheat</artifactId>
+    <version>build-1</version>
+    <scope>provided</scope>
+</dependency>
+```
+
+Replace the version with a release tag or commit hash.
+
+## Contributing
+
+Issues and pull requests are welcome. Keep changes focused, match the existing
+code style, and ensure `./gradlew build -x test` passes before opening a PR.
+
+## License
+
+SourbyAntiCheat is licensed under the **GNU General Public License v3.0**.
+See [LICENSE](LICENSE) for the full text.
+
+Modified binaries, or plugins reusing SAC source, must remain private or make
+their full source available to recipients at no additional cost, in accordance
+with the GPLv3.
