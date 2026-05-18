@@ -20,8 +20,8 @@ public class NoWeb extends Check implements PacketCheck {
     // Config-wired thresholds (defaults equal prior hardcoded values)
     private double maxWebSpeed = 0.08;
     private double secondaryThreshold = 0.15;
-    private double offsetThreshold = 0.005;
-    private double bufferDecay = 0.01;
+    private double bufferDecay = 0.005;
+    private double rewardGateThreshold = 0.01;
 
     public NoWeb(SacPlayer player) {
         super(player);
@@ -32,8 +32,8 @@ public class NoWeb extends Check implements PacketCheck {
         String base = getConfigName() + ".";
         this.maxWebSpeed = config.getDoubleElse(base + "max-web-speed", 0.08);
         this.secondaryThreshold = config.getDoubleElse(base + "secondary-threshold", 0.15);
-        this.offsetThreshold = config.getDoubleElse(base + "offset-threshold", 0.005);
-        this.bufferDecay = config.getDoubleElse(base + "buffer-decay", 0.01);
+        this.bufferDecay = config.getDoubleElse(base + "buffer-decay", 0.005);
+        this.rewardGateThreshold = config.getDoubleElse(base + "reward-gate-threshold", 0.01);
     }
 
     @Override
@@ -73,8 +73,8 @@ public class NoWeb extends Check implements PacketCheck {
                 flagAndAlert("h=" + String.format("%.3f", deltaH) + " buf=" + String.format("%.3f", webBuffer));
             }
         } else {
-            webBuffer = Math.max(0, webBuffer - offsetThreshold);
-            if (webBuffer < bufferDecay) reward();
+            webBuffer = Math.max(0, webBuffer - bufferDecay);
+            if (webBuffer < rewardGateThreshold) reward();
         }
     }
 }

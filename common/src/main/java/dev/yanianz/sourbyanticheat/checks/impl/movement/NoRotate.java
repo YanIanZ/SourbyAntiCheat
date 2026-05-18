@@ -69,6 +69,10 @@ public class NoRotate extends Check implements PacketCheck {
         // Only care about significant movement (0.3 blocks/tick = sprint speed)
         if (horizontalDist < minSpeed) {
             suspiciousTicks = Math.max(0, suspiciousTicks - 1);
+            directionChanges = Math.max(0, directionChanges - 1);
+            // Drop the pre-gap heading so the next significant tick doesn't
+            // register a spurious direction change across the slow gap.
+            lastMoveAngle = Double.NaN;
             if (suspiciousTicks < bufferThreshold) reward();
             return;
         }
