@@ -4,6 +4,7 @@
 
 package dev.yanianz.sourbyanticheat.checks.impl.combat;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
@@ -11,6 +12,7 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityVelocity;
 
@@ -22,16 +24,35 @@ public class AntiVelocity extends Check implements PacketCheck {
     private boolean velocityPending = false;
     private int ticksSinceVelocity = 0;
     private int buffer = 0;
-    private double[] ratioSamples = new double[3];
-    private int sampleIndex = 0;
 
-    private static final int VELOCITY_RESPONSE_TICKS = 5;
-    private static final double MIN_VELOCITY = 0.1;
-    private static final double HORIZONTAL_FRICTION_GROUND = 0.91;
-    private static final double HORIZONTAL_FRICTION_AIR = 0.98;
+    // Config-wired thresholds (defaults equal prior hardcoded values)
+    private int velocityResponseTicks = 5;
+    private double minVelocity = 0.1;
+    private double groundFriction = 0.91;
+    private double airFriction = 0.98;
+    private double avgRatioThreshold = 0.1;
+    private int bufferThreshold = 2;
+
+    // Ring of ratio samples. The detection window spans ticksSinceVelocity 2..(responseTicks+2),
+    // which yields up to (responseTicks + 1) samples — size the array to that real maximum.
+    private double[] ratioSamples = new double[velocityResponseTicks + 1];
+    private int sampleIndex = 0;
 
     public AntiVelocity(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        this.velocityResponseTicks = config.getIntElse(base + "velocity-response-ticks", 5);
+        this.minVelocity = config.getDoubleElse(base + "min-velocity", 0.1);
+        this.groundFriction = config.getDoubleElse(base + "ground-friction", 0.91);
+        this.airFriction = config.getDoubleElse(base + "air-friction", 0.98);
+        this.avgRatioThreshold = config.getDoubleElse(base + "avg-ratio-threshold", 0.1);
+        this.bufferThreshold = config.getIntElse(base + "buffer-threshold", 2);
+        this.ratioSamples = new double[velocityResponseTicks + 1];
+        this.sampleIndex = 0;
     }
 
     @Override
@@ -45,13 +66,15 @@ public class AntiVelocity extends Check implements PacketCheck {
         double vz = velocity.getVelocity().getZ();
         double magnitude = Math.sqrt(vx * vx + vz * vz);
 
-        if (magnitude > MIN_VELOCITY) {
+        if (magnitude > minVelocity) {
+            // The latency task only captures the velocity value transaction-synced to the
+            // correct tick. It does NOT touch detection-window state (sampleIndex / buffer) —
+            // that is mutated solely on the check thread inside onPacketReceive.
             player.latencyUtils.addRealTimeTask(player.lastTransactionSent.get(), () -> {
                 pendingVelocityX = vx;
                 pendingVelocityZ = vz;
                 velocityPending = true;
                 ticksSinceVelocity = 0;
-                sampleIndex = 0;
             });
         }
     }
@@ -61,6 +84,15 @@ public class AntiVelocity extends Check implements PacketCheck {
         if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
         if (player.packetStateData.lastPacketWasTeleport) return;
         if (player.inVehicle() || player.isFlying || player.canFly || player.isGliding) return;
+
+        // Effects/states that legitimately alter knockback response — a player rowing a
+        // boat, levitating, slow-falling or riptiding will not move the "expected" amount.
+        if (player.riptideSpinAttackTicks > 0
+                || player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)
+                || player.compensatedEntities.self.hasPotionEffect(PotionTypes.SLOW_FALLING)) {
+            velocityPending = false;
+            return;
+        }
 
         // Reset on death/respawn
         if (player.packetStateData.lastPacketWasOnePointSeventeenDuplicate) {
@@ -72,12 +104,18 @@ public class AntiVelocity extends Check implements PacketCheck {
 
         ticksSinceVelocity++;
 
-        if (ticksSinceVelocity >= 2 && ticksSinceVelocity <= VELOCITY_RESPONSE_TICKS + 2) {
+        // Start of a fresh detection window — clear the sample buffer here, on the check
+        // thread, so window state is never mutated from a deferred latency task.
+        if (ticksSinceVelocity == 2) {
+            sampleIndex = 0;
+        }
+
+        if (ticksSinceVelocity >= 2 && ticksSinceVelocity <= velocityResponseTicks + 2) {
             double deltaX = player.x - player.lastX;
             double deltaZ = player.z - player.lastZ;
             double horizontalDelta = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
 
-            double friction = player.onGround ? HORIZONTAL_FRICTION_GROUND : HORIZONTAL_FRICTION_AIR;
+            double friction = player.onGround ? groundFriction : airFriction;
             double expectedAfterFriction = Math.sqrt(pendingVelocityX * pendingVelocityX + pendingVelocityZ * pendingVelocityZ) * friction;
             double ratio = horizontalDelta / Math.max(expectedAfterFriction, 0.001);
 
@@ -86,7 +124,7 @@ public class AntiVelocity extends Check implements PacketCheck {
             }
         }
 
-        if (ticksSinceVelocity > VELOCITY_RESPONSE_TICKS + 2) {
+        if (ticksSinceVelocity > velocityResponseTicks + 2) {
             double avgRatio = 0;
             int validSamples = 0;
             for (int i = 0; i < sampleIndex; i++) {
@@ -95,14 +133,19 @@ public class AntiVelocity extends Check implements PacketCheck {
             }
             if (validSamples > 0) avgRatio /= validSamples;
 
-            if (avgRatio < 0.1 && validSamples >= 2) {
+            // A near-zero response ratio can also be a player simply pressed against a wall —
+            // the collision absorbs the knockback legitimately. Require the player NOT to be
+            // horizontally colliding before treating a low ratio as anti-knockback.
+            boolean lowResponse = avgRatio < avgRatioThreshold && validSamples >= 2 && !player.horizontalCollision;
+
+            if (lowResponse) {
                 buffer++;
-                if (buffer > 2) {
+                if (buffer > bufferThreshold) {
                     flagAndAlert("ratio=" + String.format("%.3f", avgRatio) + " samples=" + validSamples);
                 }
             } else {
                 buffer = Math.max(0, buffer - 1);
-                if (buffer < 2) reward();
+                reward();
             }
 
             velocityPending = false;

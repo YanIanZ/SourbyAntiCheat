@@ -4,6 +4,7 @@
 
 package dev.yanianz.sourbyanticheat.checks.impl.combat;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
@@ -24,17 +25,32 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPl
 public class AimSnap extends Check implements PacketCheck {
 
     private float preAttackYaw = 0;
-    private float preAttackPitch = 0;
+    // Yaw turned through on the way *into* the attack tick — captured at the attack packet
+    // while player.yaw/player.lastYaw still hold the correct pair of consecutive ticks.
+    private float snapYawIntoAttack = 0;
     private boolean hadAttack = false;
     private int buffer = 0;
     private int flyingPacketsSinceAttack = 0;
-    private static final int MAX_SNAP_BACK_PACKETS = 3;
-    private static final float SNAP_THRESHOLD = 30f;
-    private static final float RETURN_THRESHOLD = 25f;
-    private static final float DIFF_THRESHOLD = 15f;
+
+    // Config-wired thresholds (defaults equal prior hardcoded values)
+    private int maxSnapBackPackets = 3;
+    private float snapThreshold = 30f;
+    private float returnThreshold = 25f;
+    private float diffThreshold = 15f;
+    private int bufferThreshold = 3;
 
     public AimSnap(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        this.maxSnapBackPackets = config.getIntElse(base + "max-snap-back-packets", 3);
+        this.snapThreshold = (float) config.getDoubleElse(base + "snap-threshold", 30.0);
+        this.returnThreshold = (float) config.getDoubleElse(base + "return-threshold", 25.0);
+        this.diffThreshold = (float) config.getDoubleElse(base + "diff-threshold", 15.0);
+        this.bufferThreshold = config.getIntElse(base + "buffer-threshold", 3);
     }
 
     @Override
@@ -50,49 +66,66 @@ public class AimSnap extends Check implements PacketCheck {
 
         if (isAttack) {
             preAttackYaw = player.yaw;
-            preAttackPitch = player.pitch;
+            // Turn-in magnitude: previous tick's yaw vs the attack-tick yaw, captured now
+            // before later flying packets advance player.lastYaw and make this stale.
+            float turnIn = Math.abs(player.yaw - player.lastYaw);
+            if (turnIn > 180) turnIn = 360 - turnIn;
+            snapYawIntoAttack = turnIn;
             hadAttack = true;
             flyingPacketsSinceAttack = 0;
             return;
         }
 
-        if (player.packetStateData.lastPacketWasTeleport) return;
-        if (player.inVehicle()) return;
+        // Teleport/vehicle exemption — a setback yaw or mount rotation is not a snap.
+        if (player.packetStateData.lastPacketWasTeleport || player.inVehicle()) {
+            if (hadAttack) {
+                // End the suspicious session cleanly so buffer/state cannot drift.
+                hadAttack = false;
+                buffer = Math.max(0, buffer - 1);
+                reward();
+            }
+            return;
+        }
 
         // On next movement packet, check if the aim snapped back
         if (WrapperPlayClientPlayerFlying.isFlying(event.getPacketType()) && hadAttack) {
             flyingPacketsSinceAttack++;
-            if (flyingPacketsSinceAttack > MAX_SNAP_BACK_PACKETS) {
+            if (flyingPacketsSinceAttack > maxSnapBackPackets) {
                 hadAttack = false;
+                buffer = Math.max(0, buffer - 1);
+                reward();
                 return;
             }
 
             WrapperPlayClientPlayerFlying flying = new WrapperPlayClientPlayerFlying(event);
             if (!flying.hasRotationChanged()) {
-                if (flyingPacketsSinceAttack >= MAX_SNAP_BACK_PACKETS) {
+                if (flyingPacketsSinceAttack >= maxSnapBackPackets) {
                     hadAttack = false;
+                    buffer = Math.max(0, buffer - 1);
+                    reward();
                 }
                 return;
             }
 
             float postYaw = flying.getLocation().getYaw();
-            float postPitch = flying.getLocation().getPitch();
 
-            float snapYaw = Math.abs(preAttackYaw - player.lastYaw);
-            if (snapYaw > 180) snapYaw = 360 - snapYaw;
+            // Snap = the turn-in measured at the attack tick (previous tick -> attack tick).
+            float snapYaw = snapYawIntoAttack;
 
+            // Return = how far the player turned back after the attack (attack-tick yaw vs
+            // this post-attack movement-packet yaw).
             float returnYaw = Math.abs(postYaw - preAttackYaw);
             if (returnYaw > 180) returnYaw = 360 - returnYaw;
 
-            if (snapYaw > SNAP_THRESHOLD && returnYaw > RETURN_THRESHOLD && Math.abs(snapYaw - returnYaw) < DIFF_THRESHOLD) {
+            if (snapYaw > snapThreshold && returnYaw > returnThreshold && Math.abs(snapYaw - returnYaw) < diffThreshold) {
                 buffer++;
-                if (buffer > 3) {
+                if (buffer > bufferThreshold) {
                     flagAndAlert("snap=" + String.format("%.1f", snapYaw) + " return=" + String.format("%.1f", returnYaw));
                 }
                 hadAttack = false;
-            } else if (flyingPacketsSinceAttack >= MAX_SNAP_BACK_PACKETS) {
+            } else if (flyingPacketsSinceAttack >= maxSnapBackPackets) {
                 buffer = Math.max(0, buffer - 1);
-                if (buffer < 2) reward();
+                reward();
                 hadAttack = false;
             }
         }

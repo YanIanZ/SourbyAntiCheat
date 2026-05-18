@@ -4,6 +4,7 @@
 
 package dev.yanianz.sourbyanticheat.checks.impl.combat;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
@@ -20,18 +21,35 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPl
  * <p>
  * Legit players have continuous rotation across all ticks. KillAura modules
  * often only rotate on attack ticks, leaving "flat" rotation on non-attack ticks.
+ * We compare the rotation rate on attack ticks against the rate on non-attack
+ * ticks — a player who rotates on (nearly) every attack tick but rarely otherwise
+ * is suspicious.
  */
 @CheckData(name = "AimSuspicion", stableKey = "sac.combat.aimsuspicion", description = "Detects suspicious rotation only on attack ticks", setback = 8, decay = 0.025)
 public class AimSuspicion extends Check implements PacketCheck {
 
-    private boolean hadRotationThisTick = false;
     private boolean hadAttackThisTick = false;
-    private int rotOnAttackOnly = 0;
+    private int rotOnAttackTicks = 0;
     private int totalAttackTicks = 0;
+    private int rotOnNonAttackTicks = 0;
+    private int totalNonAttackTicks = 0;
     private int buffer = 0;
+
+    // Config-wired thresholds (defaults equal prior hardcoded values)
+    private double ratioThreshold = 0.95;
+    private int totalAttackTicksMin = 15;
+    private int bufferThreshold = 3;
 
     public AimSuspicion(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        this.ratioThreshold = config.getDoubleElse(base + "ratio-threshold", 0.95);
+        this.totalAttackTicksMin = config.getIntElse(base + "total-attack-ticks-min", 15);
+        this.bufferThreshold = config.getIntElse(base + "buffer-threshold", 3);
     }
 
     @Override
@@ -50,39 +68,57 @@ public class AimSuspicion extends Check implements PacketCheck {
             return;
         }
 
-        if (WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) {
-            WrapperPlayClientPlayerFlying flying = new WrapperPlayClientPlayerFlying(event);
-            hadRotationThisTick = flying.hasRotationChanged();
+        if (!WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) return;
 
-            // Analyze the previous tick
-            if (hadAttackThisTick) {
-                totalAttackTicks++;
-                if (hadRotationThisTick) {
-                    rotOnAttackOnly++;
-                }
-
-                // After enough samples, check the ratio
-                if (totalAttackTicks >= 15) {
-                    double ratio = (double) rotOnAttackOnly / totalAttackTicks;
-                    // If rotation happens on >95% of attack ticks but rarely on non-attack ticks,
-                    // this indicates automated aim
-                    if (ratio > 0.95) {
-                        buffer++;
-                        if (buffer > 3) {
-                            flagAndAlert("ratio=" + String.format("%.2f", ratio) + " samples=" + totalAttackTicks);
-                        }
-                    } else {
-                        buffer = Math.max(0, buffer - 1);
-                        if (buffer < 2) reward();
-                    }
-                    // Reset for next window
-                    totalAttackTicks = 0;
-                    rotOnAttackOnly = 0;
-                }
-            }
-
+        // Teleport/lag/vehicle exemption — a setback rotation or unreliable ticking
+        // distorts the per-tick rotation accounting. Drop the sample without analysis.
+        if (player.packetStateData.lastPacketWasTeleport || player.inVehicle()
+                || !player.isTickingReliablyFor(3)) {
             hadAttackThisTick = false;
-            hadRotationThisTick = false;
+            return;
         }
+
+        WrapperPlayClientPlayerFlying flying = new WrapperPlayClientPlayerFlying(event);
+        // Rotation measured at the tick boundary (this movement packet) for the tick
+        // the attack (if any) belongs to.
+        boolean hadRotation = flying.hasRotationChanged();
+
+        if (hadAttackThisTick) {
+            totalAttackTicks++;
+            if (hadRotation) rotOnAttackTicks++;
+        } else {
+            totalNonAttackTicks++;
+            if (hadRotation) rotOnNonAttackTicks++;
+        }
+
+        // After enough attack-tick samples, evaluate the window.
+        if (totalAttackTicks >= totalAttackTicksMin) {
+            double attackRate = (double) rotOnAttackTicks / totalAttackTicks;
+            // Non-attack-tick rotation rate; if the player never had a non-attack tick
+            // we cannot distinguish, so treat it as fully rotating (no flag).
+            double nonAttackRate = totalNonAttackTicks > 0
+                    ? (double) rotOnNonAttackTicks / totalNonAttackTicks
+                    : 1.0;
+
+            // Suspicious: rotates on almost every attack tick but rarely otherwise.
+            if (attackRate > ratioThreshold && nonAttackRate < ratioThreshold) {
+                buffer++;
+                if (buffer > bufferThreshold) {
+                    flagAndAlert("attackRate=" + String.format("%.2f", attackRate)
+                            + " nonAttackRate=" + String.format("%.2f", nonAttackRate)
+                            + " samples=" + totalAttackTicks);
+                }
+            } else {
+                buffer = Math.max(0, buffer - 1);
+                reward();
+            }
+            // Reset for next window.
+            totalAttackTicks = 0;
+            rotOnAttackTicks = 0;
+            totalNonAttackTicks = 0;
+            rotOnNonAttackTicks = 0;
+        }
+
+        hadAttackThisTick = false;
     }
 }
