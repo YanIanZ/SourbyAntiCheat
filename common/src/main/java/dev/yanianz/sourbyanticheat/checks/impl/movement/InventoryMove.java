@@ -23,11 +23,16 @@ public class InventoryMove extends Check implements PacketCheck {
     private boolean pendingOpen = false;
     private int buffer = 0;
 
-    // move-threshold is compared against a SQUARED horizontal distance (deltaX^2 + deltaZ^2).
-    // Default 0.0009 == (0.03 blocks)^2 — a small genuine wobble allowance. The prior code
-    // compared 0.005 against the squared distance while the verbose printed sqrt, giving an
-    // effective ~0.07-block threshold; this value restores the intended ~0.03-block gate.
-    private double moveThresholdSq = 0.0009;
+    // move-threshold is a config key expressed in BLOCKS (horizontal distance per tick).
+    // Default 0.0707 (== Math.sqrt(0.005)) preserves the historic shipped effective threshold:
+    // the prior code compared 0.005 against a SQUARED distance, so the real gate was always
+    // ~0.0707 blocks/tick. The mismatch fix here is purely making units consistent (config in
+    // blocks, verbose in blocks) and the value tunable — it does NOT change detection
+    // sensitivity. A server can tighten it via config if desired.
+    private static final double DEFAULT_MOVE_THRESHOLD = Math.sqrt(0.005); // ~0.0707 blocks
+    private double moveThreshold = DEFAULT_MOVE_THRESHOLD;
+    // Squared once for the per-tick distance comparison (compared against deltaX^2 + deltaZ^2).
+    private double moveThresholdSq = DEFAULT_MOVE_THRESHOLD * DEFAULT_MOVE_THRESHOLD;
 
     public InventoryMove(SacPlayer player) {
         super(player);
@@ -35,7 +40,8 @@ public class InventoryMove extends Check implements PacketCheck {
 
     @Override
     public void onReload(ConfigManager config) {
-        this.moveThresholdSq = config.getDoubleElse(getConfigName() + ".move-threshold", 0.0009);
+        this.moveThreshold = config.getDoubleElse(getConfigName() + ".move-threshold", DEFAULT_MOVE_THRESHOLD);
+        this.moveThresholdSq = moveThreshold * moveThreshold;
     }
 
     @Override
@@ -96,7 +102,9 @@ public class InventoryMove extends Check implements PacketCheck {
 
         buffer++;
         if (buffer > 3) {
-            flagAndAlert("distSq=" + String.format("%.4f", horizontalDistSq) + " buffer=" + buffer);
+            // Verbose distance is reported in blocks, matching the unit of move-threshold.
+            flagAndAlert("dist=" + String.format("%.4f", Math.sqrt(horizontalDistSq))
+                    + " threshold=" + String.format("%.4f", moveThreshold) + " buffer=" + buffer);
         }
     }
 }
