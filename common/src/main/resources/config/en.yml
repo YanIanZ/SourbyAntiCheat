@@ -1020,3 +1020,19 @@ BadPacketsAJ:
     max-delta-pitch: 170.0
     # Spin-buffer count at which an impossible-rotation violation is flagged
     spin-buffer-threshold: 3
+
+FastBreak:
+    # Break delay (ms) at or above which the delay balance is rewarded
+    delay-reward-ms: 275
+    # Base value (ms) used to penalise an over-fast break delay
+    delay-penalty-base-ms: 300
+    # Accumulated balance (ms) at which a fast-break violation is flagged
+    balance-flag-ms: 1000
+    # Predicted-vs-real break-time difference (ms) treated as "close enough"
+    close-enough-diff-ms: 25
+    # Grace (ms) applied to the start-break timestamp
+    start-break-grace-ms: 50
+
+PositionBreakB:
+    # Mismatched-face occurrences buffered before a violation is flagged
+    flag-threshold: 3
