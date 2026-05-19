@@ -415,6 +415,8 @@ FastSwitch:
 BadPacketsAD:
     setbackvl: 5
     decay: 0.01
+    # Use-without-swing occurrences buffered before a violation is flagged
+    flag-threshold: 3
 
 BadPacketsAE:
     setbackvl: 5
@@ -423,6 +425,8 @@ BadPacketsAE:
 BadPacketsAF:
     setbackvl: 10
     decay: 0.005
+    # Vertical delta beyond which a claimed-ground mismatch is suspected
+    ground-spoof-threshold: 0.05
 
 AimSnap:
     # Number of recent rotation packets retained for snap-back analysis
@@ -984,3 +988,35 @@ Tower:
     consecutive-jumps-threshold: 4
     # Buffer count required before raising a violation
     buffer-threshold: 2
+
+BadPacketsE:
+    # Flying packets allowed before a position packet must arrive
+    max-no-reminder-ticks: 20
+
+BadPacketsP:
+    # Highest valid window button id for a pickup click
+    max-pickup-button: 2
+    # Highest valid window button id for a hotbar-swap click
+    max-swap-button: 8
+    # Window button id used for an offhand swap
+    swap-offhand-button: 40
+    # Highest valid window button id for a quick-craft click
+    max-quick-craft-button: 10
+
+BadPacketsQ:
+    # Maximum jump-boost amplifier a client may legitimately report
+    max-jump-boost: 100
+
+BadPacketsR:
+    # Real-time drift (ms) tolerated before flagging
+    real-time-threshold-ms: 2000
+    # Clock drift (ms) tolerated before flagging
+    clock-threshold-ms: 2000
+
+BadPacketsAJ:
+    # Max yaw change (degrees) in one tick before it counts toward the spin buffer
+    max-delta-yaw: 200.0
+    # Max pitch change (degrees) in one tick before it counts toward the spin buffer
+    max-delta-pitch: 170.0
+    # Spin-buffer count at which an impossible-rotation violation is flagged
+    spin-buffer-threshold: 3
