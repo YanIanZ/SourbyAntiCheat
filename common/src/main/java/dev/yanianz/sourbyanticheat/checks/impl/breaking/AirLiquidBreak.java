@@ -57,15 +57,20 @@ public class AirLiquidBreak extends Check implements BlockBreakCheck {
                 || block == StateTypes.LAVA
                 || block == StateTypes.BUBBLE_COLUMN
                 || block == StateTypes.MOVING_PISTON
-                || block == StateTypes.FIRE && noFireHitbox
+                || (block == StateTypes.FIRE || block == StateTypes.SOUL_FIRE) && noFireHitbox
                 // or the client claims to have broken an unbreakable block
                 || block.getHardness() == -1.0f && blockBreak.action == DiggingAction.FINISHED_DIGGING;
 
-        if (invalid && flagAndAlert("block=" + block.getName() + ", type=" + blockBreak.action) && shouldModifyPackets()) {
-            didLastFlag = true;
-            blockBreak.cancel();
-        } else {
+        if (!invalid) {
             didLastFlag = false;
+            reward();
+            return;
+        }
+
+        boolean flagged = flagAndAlert("block=" + block.getName() + ", type=" + blockBreak.action);
+        didLastFlag = flagged;
+        if (flagged && shouldModifyPackets()) {
+            blockBreak.cancel();
         }
     }
 }

@@ -41,8 +41,12 @@ public class MultiBreak extends Check implements BlockBreakCheck {
                     blockBreak.cancel();
                 }
             } else {
+                // Defer the flag; it cannot be cancelled inline because the player is
+                // not ticking reliably — it is enforced via setback in onPredictionComplete.
                 flags.add(verbose);
             }
+        } else {
+            reward();
         }
 
         lastFace = blockBreak.face;
@@ -52,7 +56,10 @@ public class MultiBreak extends Check implements BlockBreakCheck {
 
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
-        if (!player.cameraEntity.isSelf() || isTickPacket(event.getPacketType())) {
+        // Only reset accumulation on a genuine tick boundary. A camera-entity transition
+        // (cameraEntity not self) must not by itself wipe hasBroken, otherwise a
+        // spectator-camera swap mid-tick would suppress multi-break accumulation.
+        if (isTickPacket(event.getPacketType())) {
             hasBroken = false;
         }
     }
@@ -61,10 +68,13 @@ public class MultiBreak extends Check implements BlockBreakCheck {
     public void onPredictionComplete(PredictionComplete predictionComplete) {
         if (!player.canSkipTicks()) return;
 
-        if (player.isTickingReliablyFor(3)) {
-            for (String verbose : flags) {
-                flagAndAlert(verbose);
-            }
+        // Only process and clear deferred flags once the player is ticking reliably.
+        // If not, keep the flags queued so they are not silently dropped.
+        if (!player.isTickingReliablyFor(3)) return;
+
+        for (String verbose : flags) {
+            // Deferred flags get a cancel path via setback (the break packet is long gone).
+            flagAndAlertWithSetback(verbose);
         }
 
         flags.clear();

@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.breaking;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.BlockBreakCheck;
@@ -32,8 +33,26 @@ public class FastBreak extends Check implements BlockBreakCheck {
     private static final Set<StateType> EXEMPT_STATES = Set.of();
     private final boolean clientOlderThanServer = PacketEvents.getAPI().getServerManager().getVersion().getProtocolVersion() > player.getClientVersion().getProtocolVersion();
 
+    // Config-wired thresholds (defaults equal prior hardcoded values).
+    // Timing windows are stored in nanoseconds; the *Ms fields keep the documented ms value.
+    private long delayRewardMs = 275;       // breakDelay >= this -> reduce delay balance
+    private long delayPenaltyBaseMs = 300;  // penalty = this - breakDelay
+    private long balanceFlagMs = 1000;      // balance threshold to flag
+    private long closeEnoughDiffMs = 25;    // FINISHED diff < this -> reduce break balance
+    private long startBreakGraceMs = 50;    // grace applied to the first START_DIGGING
+
     public FastBreak(SacPlayer playerData) {
         super(playerData);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        this.delayRewardMs      = config.getIntElse(base + "delay-reward-ms", 275);
+        this.delayPenaltyBaseMs = config.getIntElse(base + "delay-penalty-base-ms", 300);
+        this.balanceFlagMs      = config.getIntElse(base + "balance-flag-ms", 1000);
+        this.closeEnoughDiffMs  = config.getIntElse(base + "close-enough-diff-ms", 25);
+        this.startBreakGraceMs  = config.getIntElse(base + "start-break-grace-ms", 50);
     }
 
     // The block the player is currently breaking
@@ -41,9 +60,9 @@ public class FastBreak extends Check implements BlockBreakCheck {
     // The maximum amount of damage the player deals to the block
     //
     double maximumBlockDamage = 0;
-    // The last time a finish digging packet was sent, to enforce 0.3-second delay after non-instabreak
+    // The last time a finish digging packet was sent (nanoTime), to enforce delay after non-instabreak
     long lastFinishBreak = 0;
-    // The time the player started to break the block, to know how long the player waited until they finished breaking the block
+    // The time the player started to break the block (nanoTime)
     long startBreak = 0;
 
     // The buffer to this check
@@ -56,6 +75,16 @@ public class FastBreak extends Check implements BlockBreakCheck {
         // measure against, so the balance would climb on every legitimate creative break.
         if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) {
+            return;
+        }
+
+        // Lag-spike exemption beyond the ping clamp: when the server cannot process the
+        // player's ticks reliably, the elapsed-time measurement is unreliable, so reset
+        // timing state instead of measuring a (falsely) fast break.
+        if (player.canSkipTicks()) {
+            long now = System.nanoTime();
+            startBreak = now;
+            lastFinishBreak = now;
             return;
         }
 
@@ -74,23 +103,28 @@ public class FastBreak extends Check implements BlockBreakCheck {
             //  * can we translate back "up" to server version and run check against server version to avoid loading older registries?
             WrappedBlockState block = clientOlderThanServer ? WrappedBlockState.getByGlobalId(player.getClientVersion(), player.getViaTranslatedClientBlockID(blockBreak.block.getGlobalId())) : blockBreak.block;
 
-            startBreak = System.currentTimeMillis() - (targetBlockPosition == null ? 50 : 0); // ???
+            // Deterministic grace: always credit the player the START_DIGGING grace window.
+            // It compensates for the gap between the client deciding to dig and the
+            // packet reaching the server, so the predicted break time isn't measured short.
+            startBreak = System.nanoTime() - msToNanos(startBreakGraceMs);
             targetBlockPosition = blockBreak.position;
 
             maximumBlockDamage = BlockBreakSpeed.getBlockDamage(player, block);
 
-            double breakDelay = System.currentTimeMillis() - lastFinishBreak;
+            double breakDelay = nanosToMs(System.nanoTime() - lastFinishBreak);
 
-            if (breakDelay >= 275) { // Reduce buffer if "close enough"
+            if (breakDelay >= delayRewardMs) { // Reduce buffer if "close enough"
                 blockDelayBalance *= 0.9;
             } else { // Otherwise, increase buffer
-                blockDelayBalance += 300 - breakDelay;
+                blockDelayBalance += delayPenaltyBaseMs - breakDelay;
             }
 
-            if (blockDelayBalance > 1000) { // If more than a second of advantage
+            if (blockDelayBalance > balanceFlagMs) { // If more than a second of advantage
                 if (flagAndAlert("delay=" + breakDelay + "ms, type=" + blockBreak.block.getType()) && shouldModifyPackets()) {
                     blockBreak.cancel();
                 }
+            } else {
+                reward();
             }
 
             clampBalance();
@@ -98,26 +132,36 @@ public class FastBreak extends Check implements BlockBreakCheck {
 
         if (blockBreak.action == DiggingAction.FINISHED_DIGGING && targetBlockPosition != null) {
             double predictedTime = Math.ceil(1 / maximumBlockDamage) * 50;
-            double realTime = System.currentTimeMillis() - startBreak;
+            double realTime = nanosToMs(System.nanoTime() - startBreak);
             double diff = predictedTime - realTime;
 
             clampBalance();
 
-            if (diff < 25) {  // Reduce buffer if "close enough"
+            if (diff < closeEnoughDiffMs) {  // Reduce buffer if "close enough"
                 blockBreakBalance *= 0.9;
             } else { // Otherwise, increase buffer
                 blockBreakBalance += diff;
             }
 
-            if (blockBreakBalance > 1000) { // If more than a second of advantage
+            if (blockBreakBalance > balanceFlagMs) { // If more than a second of advantage
                 if (flagAndAlert("diff=" + diff + "ms, balance=" + blockBreakBalance + "ms, type=" + blockBreak.block.getType()) && shouldModifyPackets()) {
                     blockBreak.cancel();
                 }
+            } else {
+                reward();
             }
 
             // also set start time because the breaking netcode is fucked on 1.14.4+
-            lastFinishBreak = startBreak = System.currentTimeMillis();
+            lastFinishBreak = startBreak = System.nanoTime();
         }
+    }
+
+    private static long msToNanos(long ms) {
+        return ms * 1_000_000L;
+    }
+
+    private static double nanosToMs(long nanos) {
+        return nanos / 1_000_000.0;
     }
 
     @Override

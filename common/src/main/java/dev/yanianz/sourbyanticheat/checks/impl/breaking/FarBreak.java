@@ -19,8 +19,17 @@ public class FarBreak extends Check implements BlockBreakCheck {
 
     @Override
     public void onBlockBreak(BlockBreak blockBreak) {
-        if (!player.cameraEntity.isSelf() || player.inVehicle() || blockBreak.action == DiggingAction.CANCELLED_DIGGING)
+        if (!player.cameraEntity.isSelf() || player.inVehicle()
+                || blockBreak.action == DiggingAction.CANCELLED_DIGGING
+                // DROP_ITEM / SWAP_ITEM_WITH_OFFHAND are not block breaks — they share the digging packet
+                || blockBreak.action == DiggingAction.DROP_ITEM
+                || blockBreak.action == DiggingAction.SWAP_ITEM_WITH_OFFHAND)
             return; // falses
+
+        // Teleport-lag exemption: a recent teleport leaves the player position stale,
+        // which would inflate the measured break distance.
+        if (player.packetStateData.lastPacketWasTeleport)
+            return;
 
         double min = Double.MAX_VALUE;
         for (double d : player.getPossibleEyeHeights()) {
@@ -37,7 +46,12 @@ public class FarBreak extends Check implements BlockBreakCheck {
             maxReach += Math.hypot(threshold, threshold);
         }
 
-        if (min > maxReach * maxReach && flagAndAlert(String.format("distance=%.2f", Math.sqrt(min))) && shouldModifyPackets()) {
+        if (min <= maxReach * maxReach) {
+            reward();
+            return;
+        }
+
+        if (flagAndAlert(String.format("distance=%.2f", Math.sqrt(min))) && shouldModifyPackets()) {
             blockBreak.cancel();
         }
     }
