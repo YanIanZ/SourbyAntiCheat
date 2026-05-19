@@ -51,13 +51,17 @@ public class SpartanCrossCheck {
             Object player = getBukkitPlayer(playerUuid);
             if (player == null) return CrossCheckResult.NOT_FOUND;
 
-            int totalVL = API.getVL((org.bukkit.entity.Player) player);
+            // Per-check VL only. A cross-check for "Speed" must confirm against Spartan's
+            // Speed violation level, NOT the player's total VL across every check —
+            // using total VL made every crossapi check cross-confirm (and flag) the
+            // moment a player had any Spartan violation of any unrelated type.
+            int perCheckVL = getSpartanPerCheckVL(playerUuid, checkType);
 
             CrossCheckStats s = stats.computeIfAbsent(playerUuid, k -> new CrossCheckStats());
-            if (totalVL > 0) {
+            if (perCheckVL > 0) {
                 s.agreements++;
                 spartanAgreements++;
-                return new CrossCheckResult(CrossCheckResult.Type.SPARTAN_FLAGGED, totalVL);
+                return new CrossCheckResult(CrossCheckResult.Type.SPARTAN_FLAGGED, perCheckVL);
             }
             s.disagreements++;
             return new CrossCheckResult(CrossCheckResult.Type.SPARTAN_CLEAN, 0);
@@ -83,9 +87,10 @@ public class SpartanCrossCheck {
                     return vl;
                 }
             }
-            int totalVL = API.getVL((org.bukkit.entity.Player) player);
-            updateCache(playerUuid, checkType, totalVL);
-            return totalVL;
+            // No Spartan HackType matches this check — Spartan does not detect it, so it
+            // cannot cross-confirm. Return 0 (clean) rather than the player's total VL.
+            updateCache(playerUuid, checkType, 0);
+            return 0;
         } catch (Exception e) {
             return 0;
         }

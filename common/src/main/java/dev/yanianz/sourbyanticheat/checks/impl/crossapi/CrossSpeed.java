@@ -17,7 +17,6 @@ public class CrossSpeed extends Check implements PostPredictionCheck {
     private double velocityMultiplier = 2.0;
     private double groundFriction     = 0.6;
     private double airFriction        = 0.91;
-    private double nettyRateThreshold = 18.0;
 
     public CrossSpeed(SacPlayer player) {
         super(player);
@@ -29,7 +28,6 @@ public class CrossSpeed extends Check implements PostPredictionCheck {
         velocityMultiplier = config.getDoubleElse(base + "velocity-multiplier", 2.0);
         groundFriction     = config.getDoubleElse(base + "ground-friction", 0.6);
         airFriction        = config.getDoubleElse(base + "air-friction", 0.91);
-        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 18.0);
     }
 
     @Override
@@ -70,12 +68,6 @@ public class CrossSpeed extends Check implements PostPredictionCheck {
         int ping = player.getTransactionPing();
         double pingMultiplier = ping > 400 ? 0.5 : 1.0;
 
-        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > nettyRateThreshold;
-        SpartanCrossCheck.CrossCheckResult spartanResult =
-            SpartanCrossCheck.checkSpartan(player.uuid, "Speed");
-        boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
-        boolean crossConfirm = nettyConfirms || spartanConfirms;
-
         // Both flags false is unreachable here — the !velocityFlag && !predictionFlag clean
         // path returns above — so at least one of the two branches always applies.
         if (velocityFlag && predictionFlag) {
@@ -85,10 +77,19 @@ public class CrossSpeed extends Check implements PostPredictionCheck {
         }
 
         if (buffer > 4.0) {
-            flagAndAlert(String.format("act=%.3f vel=%.3f off=%.3f netty=%.1f/s spartan=%s",
-                actualH, velH, offset,
-                player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
-            return;
+            // The velocity/prediction heuristic is noisy on its own — clientVelocity and
+            // pePositionDelta are not tick-synchronised. Only alert when Spartan
+            // independently confirms Speed for this player; otherwise decay and reward
+            // so the heuristic alone cannot false-ban.
+            SpartanCrossCheck.CrossCheckResult spartanResult =
+                SpartanCrossCheck.checkSpartan(player.uuid, "Speed");
+            if (spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED) {
+                flagAndAlert(String.format("act=%.3f vel=%.3f off=%.3f netty=%.1f/s spartan=%s",
+                    actualH, velH, offset,
+                    player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
+                return;
+            }
+            buffer = Math.max(0, buffer - 0.5);
         }
         reward();
     }
