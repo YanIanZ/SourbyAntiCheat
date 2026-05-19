@@ -7,16 +7,19 @@ import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
+import dev.yanianz.sourbyanticheat.utils.viaversion.ViaVersionUtil;
 
 @CheckData(name = "CrossSpeed", configName = "crossspeed", decay = 0.05, setback = 25, stableKey = "cross.speed")
 public class CrossSpeed extends Check implements PostPredictionCheck {
 
     private double buffer;
 
-    // Config-wired thresholds (defaults equal prior hardcoded values)
-    private double velocityMultiplier = 2.0;
-    private double groundFriction     = 0.6;
-    private double airFriction        = 0.91;
+    // Config-wired: the prediction offset (blocks the actual movement deviates from
+    // what Grim's engine predicts) above which a tick is suspicious.
+    private double offsetThreshold = 0.15;
+
+    private static final double CROSS_VERSION_LENIENCY = 1.5;
+    private static final double VIA_BACKWARDS_SPRINT_LENIENCY = 1.3;
 
     public CrossSpeed(SacPlayer player) {
         super(player);
@@ -24,10 +27,7 @@ public class CrossSpeed extends Check implements PostPredictionCheck {
 
     @Override
     public void onReload(ConfigManager config) {
-        String base = getConfigName() + ".";
-        velocityMultiplier = config.getDoubleElse(base + "velocity-multiplier", 2.0);
-        groundFriction     = config.getDoubleElse(base + "ground-friction", 0.6);
-        airFriction        = config.getDoubleElse(base + "air-friction", 0.91);
+        offsetThreshold = config.getDoubleElse(getConfigName() + ".offset-threshold", 0.15);
     }
 
     @Override
@@ -38,28 +38,22 @@ public class CrossSpeed extends Check implements PostPredictionCheck {
         if (player.inVehicle() || player.compensatedEntities.self.isDead
                 || player.packetStateData.lastPacketWasTeleport) return;
 
-        double actualX = player.crossValidationData.pePositionDeltaX;
-        double actualZ = player.crossValidationData.pePositionDeltaZ;
-        double actualH = Math.sqrt(actualX * actualX + actualZ * actualZ);
+        // Detection is the prediction OFFSET only — Grim's authoritative measure of how
+        // far the player's actual movement deviated from physically possible movement.
+        // The previous actualH/velH heuristic compared clientVelocity against
+        // pePositionDelta, which are NOT tick-synchronised — it was noisy and
+        // false-flagged legitimate players, which is the false positive this fixes.
+        double offset = player.crossValidationData.offsetFromPrediction;
 
-        if (actualH < 0.01) {
-            buffer = Math.max(0, buffer - 0.05);
-            reward();
-            return;
+        double effectiveOffsetThreshold = offsetThreshold;
+        if (ViaVersionUtil.isCrossVersion(player)) {
+            effectiveOffsetThreshold *= CROSS_VERSION_LENIENCY;
+        }
+        if (ViaVersionUtil.isViaBackwardsPre1_9(player)) {
+            effectiveOffsetThreshold *= VIA_BACKWARDS_SPRINT_LENIENCY;
         }
 
-        double velX = player.clientVelocity.getX();
-        double velZ = player.clientVelocity.getZ();
-        double velH = Math.sqrt(velX * velX + velZ * velZ);
-
-        double friction = player.crossValidationData.peOnGround ? groundFriction : airFriction;
-        double maxExpectedH = velH * velocityMultiplier;
-
-        double offset = player.crossValidationData.offsetFromPrediction;
-        boolean velocityFlag = actualH > maxExpectedH && velH > 0.01;
-        boolean predictionFlag = offset > 0.15;
-
-        if (!velocityFlag && !predictionFlag) {
+        if (offset <= effectiveOffsetThreshold) {
             buffer = Math.max(0, buffer - 0.05);
             reward();
             return;
@@ -67,25 +61,16 @@ public class CrossSpeed extends Check implements PostPredictionCheck {
 
         int ping = player.getTransactionPing();
         double pingMultiplier = ping > 400 ? 0.5 : 1.0;
-
-        // Both flags false is unreachable here — the !velocityFlag && !predictionFlag clean
-        // path returns above — so at least one of the two branches always applies.
-        if (velocityFlag && predictionFlag) {
-            buffer += 1.5 * pingMultiplier;
-        } else {
-            buffer += 0.75 * pingMultiplier;
-        }
+        buffer += 1.0 * pingMultiplier;
 
         if (buffer > 4.0) {
-            // The velocity/prediction heuristic is noisy on its own — clientVelocity and
-            // pePositionDelta are not tick-synchronised. Only alert when Spartan
-            // independently confirms Speed for this player; otherwise decay and reward
-            // so the heuristic alone cannot false-ban.
+            // Only alert when Spartan independently confirms Speed; otherwise decay
+            // and reward so a borderline-offset legitimate player is not false-banned.
             SpartanCrossCheck.CrossCheckResult spartanResult =
                 SpartanCrossCheck.checkSpartan(player.uuid, "Speed");
             if (spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED) {
-                flagAndAlert(String.format("act=%.3f vel=%.3f off=%.3f netty=%.1f/s spartan=%s",
-                    actualH, velH, offset,
+                flagAndAlert(String.format("offset=%.3f buffer=%.1f netty=%.1f/s spartan=%s",
+                    offset, buffer,
                     player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
                 return;
             }

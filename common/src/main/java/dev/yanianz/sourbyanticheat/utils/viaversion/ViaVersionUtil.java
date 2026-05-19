@@ -30,11 +30,15 @@ public class ViaVersionUtil {
         return protocolVersion >= 767;
     }
 
-    /**
-     * Returns true when the player connects through ViaVersion/ViaBackwards on a
-     * non-native protocol — i.e. their movement/packets are version-translated.
-     */
     public static boolean isCrossVersion(dev.yanianz.sourbyanticheat.player.SacPlayer player) {
         return !isNativeVersion(player.getClientVersion().getProtocolVersion());
+    }
+
+    public static boolean isPre1_9(dev.yanianz.sourbyanticheat.player.SacPlayer player) {
+        return player.getClientVersion().getProtocolVersion() < 107;
+    }
+
+    public static boolean isViaBackwardsPre1_9(dev.yanianz.sourbyanticheat.player.SacPlayer player) {
+        return hasViaBackwards && isPre1_9(player);
     }
 }
