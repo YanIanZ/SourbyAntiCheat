@@ -24,7 +24,10 @@ import java.util.List;
 
 @CheckData(name = "RotationBreak", stableKey = "sac.breaking.rotation_break")
 public class RotationBreak extends Check implements BlockBreakCheck {
-    private double flagBuffer = 0; // If the player flags once, force them to play legit, or we will cancel the tick before.
+    // Discrete step counter of recent misses. Pre-flying cancelling only kicks in once this
+    // crosses PRE_CANCEL_THRESHOLD, so a single lag-miss does not pre-cancel a legit run.
+    private static final int PRE_CANCEL_THRESHOLD = 4;
+    private int flagBuffer = 0;
     private boolean ignorePost = false;
 
     public RotationBreak(SacPlayer player) {
@@ -38,7 +41,9 @@ public class RotationBreak extends Check implements BlockBreakCheck {
         if (player.inVehicle()) return; // falses
         if (blockBreak.action == DiggingAction.CANCELLED_DIGGING) return; // falses
 
-        if (flagBuffer > 0 && !didRayTraceHit(blockBreak)) {
+        // Only pre-cancel once the player has missed repeatedly — a single miss is treated
+        // leniently (could be lag) and handled in the post-flying pass instead.
+        if (flagBuffer >= PRE_CANCEL_THRESHOLD && !didRayTraceHit(blockBreak)) {
             ignorePost = true;
             // If the player hit and has flagged this check recently
             if (flagAndAlert("pre-flying, action=" + blockBreak.action) && shouldModifyPackets()) {
@@ -61,10 +66,12 @@ public class RotationBreak extends Check implements BlockBreakCheck {
         }
 
         if (didRayTraceHit(blockBreak)) {
-            flagBuffer = Math.max(0, flagBuffer - 0.1);
+            flagBuffer = Math.max(0, flagBuffer - 1);
+            reward();
         } else {
-            flagBuffer = 1;
-            flagAndAlert("post-flying, action=" + blockBreak.action);
+            // Accumulate rather than hard-set: one lag-miss must not be treated as a repeat offender.
+            flagBuffer++;
+            flagAndAlert("post-flying, action=" + blockBreak.action + ", buffer=" + flagBuffer);
         }
     }
 
