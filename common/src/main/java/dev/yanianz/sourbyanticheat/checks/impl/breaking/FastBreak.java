@@ -64,6 +64,10 @@ public class FastBreak extends Check implements BlockBreakCheck {
     long lastFinishBreak = 0;
     // The time the player started to break the block (nanoTime)
     long startBreak = 0;
+    // nanoTime()'s origin is arbitrary (and may be negative), so a raw 0-initialized
+    // baseline would produce a bogus delay/diff on the very first break. Treat the
+    // first break as clean and only establish the baseline timestamps.
+    boolean firstBreak = true;
 
     // The buffer to this check
     double blockBreakBalance = 0;
@@ -111,20 +115,26 @@ public class FastBreak extends Check implements BlockBreakCheck {
 
             maximumBlockDamage = BlockBreakSpeed.getBlockDamage(player, block);
 
-            double breakDelay = nanosToMs(System.nanoTime() - lastFinishBreak);
-
-            if (breakDelay >= delayRewardMs) { // Reduce buffer if "close enough"
-                blockDelayBalance *= 0.9;
-            } else { // Otherwise, increase buffer
-                blockDelayBalance += delayPenaltyBaseMs - breakDelay;
-            }
-
-            if (blockDelayBalance > balanceFlagMs) { // If more than a second of advantage
-                if (flagAndAlert("delay=" + breakDelay + "ms, type=" + blockBreak.block.getType()) && shouldModifyPackets()) {
-                    blockBreak.cancel();
-                }
-            } else {
+            // First break: lastFinishBreak has never been set to a real nanoTime
+            // value, so skip the delay computation and treat it as clean.
+            if (firstBreak) {
                 reward();
+            } else {
+                double breakDelay = nanosToMs(System.nanoTime() - lastFinishBreak);
+
+                if (breakDelay >= delayRewardMs) { // Reduce buffer if "close enough"
+                    blockDelayBalance *= 0.9;
+                } else { // Otherwise, increase buffer
+                    blockDelayBalance += delayPenaltyBaseMs - breakDelay;
+                }
+
+                if (blockDelayBalance > balanceFlagMs) { // If more than a second of advantage
+                    if (flagAndAlert("delay=" + breakDelay + "ms, type=" + blockBreak.block.getType()) && shouldModifyPackets()) {
+                        blockBreak.cancel();
+                    }
+                } else {
+                    reward();
+                }
             }
 
             clampBalance();
@@ -153,6 +163,8 @@ public class FastBreak extends Check implements BlockBreakCheck {
 
             // also set start time because the breaking netcode is fucked on 1.14.4+
             lastFinishBreak = startBreak = System.nanoTime();
+            // Baseline established; subsequent breaks measure real delay.
+            firstBreak = false;
         }
     }
 

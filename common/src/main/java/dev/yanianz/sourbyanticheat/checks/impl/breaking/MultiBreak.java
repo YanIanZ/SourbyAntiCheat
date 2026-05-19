@@ -17,6 +17,10 @@ import java.util.List;
 
 @CheckData(name = "MultiBreak", stableKey = "sac.breaking.multi_break")
 public class MultiBreak extends Check implements BlockBreakCheck {
+    // Upper bound on deferred flags. If the player never ticks reliably,
+    // onPredictionComplete keeps early-returning, so without a cap this list
+    // would grow unbounded — discard the oldest entries beyond this limit.
+    private static final int MAX_DEFERRED_FLAGS = 32;
     private final List<String> flags = new ArrayList<>();
     private boolean hasBroken;
     private BlockFace lastFace;
@@ -43,6 +47,9 @@ public class MultiBreak extends Check implements BlockBreakCheck {
             } else {
                 // Defer the flag; it cannot be cancelled inline because the player is
                 // not ticking reliably — it is enforced via setback in onPredictionComplete.
+                if (flags.size() >= MAX_DEFERRED_FLAGS) {
+                    flags.remove(0);
+                }
                 flags.add(verbose);
             }
         } else {
