@@ -13,6 +13,8 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPl
 @CheckData(name = "BadPacketsV", stableKey = "sac.badpackets.slow_move", description = "Did not move far enough")
 public class BadPacketsV extends Check implements PacketCheck {
     private int noReminderTicks;
+    // Buffer so a single slow-move packet does not alert — only a sustained pattern does.
+    private double buffer;
 
     public BadPacketsV(SacPlayer player) {
         super(player);
@@ -27,8 +29,17 @@ public class BadPacketsV extends Check implements PacketCheck {
                 if (noReminderTicks < positionAtLeastEveryNTicks && !player.uncertaintyHandler.lastTeleportTicks.hasOccurredSince(1)) {
                     final double deltaSq = new WrapperPlayClientPlayerFlying(event).getLocation().getPosition()
                             .distanceSquared(new Vector3d(player.lastX, player.lastY, player.lastZ));
-                    if (deltaSq <= player.getMovementThreshold() * player.getMovementThreshold()) {
-                        flagAndAlert("delta=" + Math.sqrt(deltaSq));
+                    final boolean knockback = player.likelyKB != null || player.firstBreadKB != null;
+                    if (deltaSq <= player.getMovementThreshold() * player.getMovementThreshold() && !knockback) {
+                        // Below-threshold move: accumulate, alert only once the buffer builds up,
+                        // instead of flagging every single slow-move packet.
+                        buffer += 1.0;
+                        if (buffer > 4.0) {
+                            flagAndAlert("delta=" + Math.sqrt(deltaSq));
+                        }
+                    } else {
+                        buffer = Math.max(0, buffer - 1.0);
+                        reward();
                     }
                 }
 

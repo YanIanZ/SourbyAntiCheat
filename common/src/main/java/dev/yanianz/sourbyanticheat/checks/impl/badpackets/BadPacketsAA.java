@@ -10,6 +10,9 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPl
 @CheckData(name = "BadPacketsAA", stableKey = "sac.badpackets.invalid_pitch", description = "Detects impossible pitch angles", setback = 5)
 public class BadPacketsAA extends Check implements PacketCheck {
 
+    // Vanilla clamps pitch to [-90, 90]; the 0.1 tolerance absorbs float noise.
+    private static final float MAX_PITCH = 90.1f;
+
     public BadPacketsAA(SacPlayer player) {
         super(player);
     }
@@ -21,8 +24,10 @@ public class BadPacketsAA extends Check implements PacketCheck {
         if (!packet.hasRotationChanged()) return;
 
         float pitch = packet.getLocation().getPitch();
-        if (Math.abs(pitch) > 90.1f) {
+        if (Math.abs(pitch) > MAX_PITCH) {
             flagAndAlert("pitch=" + String.format("%.1f", pitch));
+        } else {
+            reward();
         }
     }
 }

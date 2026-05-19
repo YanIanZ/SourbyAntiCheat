@@ -23,8 +23,10 @@ public class BadPacketsZ extends Check implements PacketCheck {
             sent = false;
         }
 
-        // Pre-1.21.2 clients don't send CLIENT_TICK_END, so reset on flying packets
-        if (player.getClientVersion().isOlderThanOrEquals(ClientVersion.V_1_21_2)
+        // Clients older than 1.21.2 do not send CLIENT_TICK_END, so reset on flying
+        // packets instead. 1.21.2+ clients are excluded here (isOlderThan, not
+        // isOlderThanOrEquals) so 1.21.2 is not double-reset by both branches.
+        if (player.getClientVersion().isOlderThan(ClientVersion.V_1_21_2)
                 && WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) {
             sent = false;
         }
@@ -32,6 +34,8 @@ public class BadPacketsZ extends Check implements PacketCheck {
         if (event.getPacketType() == PacketType.Play.Client.PLAYER_INPUT) {
             if (sent) {
                 flagAndAlert();
+            } else {
+                reward();
             }
 
             sent = true;

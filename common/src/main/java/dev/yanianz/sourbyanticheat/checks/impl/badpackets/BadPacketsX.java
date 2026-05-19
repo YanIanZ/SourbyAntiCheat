@@ -24,6 +24,8 @@ public class BadPacketsX extends Check implements PostPredictionCheck {
         if (!player.canSkipTicks()) {
             if (flags > 0) {
                 setbackIfAboveSetbackVL();
+            } else {
+                reward();
             }
 
             flags = 0;

@@ -16,6 +16,12 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPl
 
 @CheckData(name = "BadPacketsU", stableKey = "sac.badpackets.invalid_block_placement", description = "Sent impossible use item packet")
 public class BadPacketsU extends Check implements PacketCheck {
+
+    // The USE_ITEM placement packet is always sent at (-1, -1, -1); the y component is
+    // wrapped to this protocol-defined value (differs between modern and legacy clients).
+    private static final int EXPECTED_Y_MODERN = 4095;
+    private static final int EXPECTED_Y_LEGACY = 255;
+
     public BadPacketsU(SacPlayer player) {
         super(player);
     }
@@ -29,7 +35,7 @@ public class BadPacketsU extends Check implements PacketCheck {
 
                 // This packet is always sent at (-1, -1, -1) at (0, 0, 0) on the block
                 // except y gets wrapped?
-                final int expectedY = player.getClientVersion().isNewerThanOrEquals(ClientVersion.V_1_8) ? 4095 : 255;
+                final int expectedY = player.getClientVersion().isNewerThanOrEquals(ClientVersion.V_1_8) ? EXPECTED_Y_MODERN : EXPECTED_Y_LEGACY;
 
                 final boolean failedItemCheck = packet.getItemStack().isPresent() && isEmpty(packet.getItemStack().get())
                         // ViaVersion can sometimes cause this part of the check to false
@@ -55,6 +61,8 @@ public class BadPacketsU extends Check implements PacketCheck {
                         player.onPacketCancel();
                         event.setCancelled(true);
                     }
+                } else {
+                    reward();
                 }
             }
         }

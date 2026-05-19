@@ -23,6 +23,8 @@ public class BadPacketsY extends Check implements PacketCheck {
                     event.setCancelled(true);
                     player.onPacketCancel();
                 }
+            } else {
+                reward();
             }
         }
     }
