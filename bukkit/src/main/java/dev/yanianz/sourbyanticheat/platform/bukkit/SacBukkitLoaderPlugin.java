@@ -122,14 +122,20 @@ public final class SacBukkitLoaderPlugin extends JavaPlugin implements PlatformL
             if (!SacNettyInjector.isInjectionFailed()) {
                 Player player = event.getPlayer();
                 try {
-                    Object craftPlayer = player.getClass().getMethod("getHandle").invoke(player);
-                    Object connection = craftPlayer.getClass().getField("connection").get(craftPlayer);
-                    Object networkManager = connection.getClass().getField("connection").get(connection);
-                    Channel channel = (Channel) networkManager.getClass().getField("channel").get(networkManager);
-                    SacNettyInjector.inject(player.getName(), channel);
+                    // Resolve the netty Channel via PacketEvents — version-robust, unlike
+                    // raw NMS reflection (obfuscated field names + getField only finds
+                    // public fields, which the NMS connection fields are not).
+                    Object channelObj = com.github.retrooper.packetevents.PacketEvents.getAPI()
+                            .getProtocolManager().getChannel(player.getUniqueId());
+                    if (channelObj instanceof Channel channel) {
+                        SacNettyInjector.inject(player.getUniqueId(), player.getName(), channel);
+                    } else {
+                        LogUtil.warn("Netty inject: no channel resolved for " + player.getName());
+                    }
                 } catch (Exception e) {
-                    LogUtil.warn("Netty inject failed for " + player.getName());
-                    SacNettyInjector.markInjectionFailed();
+                    // A per-player failure must NOT disable netty globally — only a
+                    // genuine netty-absent error does (handled inside the injector).
+                    LogUtil.warn("Netty inject failed for " + player.getName() + ": " + e.getMessage());
                 }
             }
             var sp = SacAPI.INSTANCE.getPlayerDataManager().getPlayer(event.getPlayer().getUniqueId());
