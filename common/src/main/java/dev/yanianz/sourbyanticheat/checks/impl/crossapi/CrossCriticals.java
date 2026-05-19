@@ -17,7 +17,7 @@ public class CrossCriticals extends Check implements PostPredictionCheck {
 
     private int buffer;
     private boolean attackedThisTick = false;
-    private static final double NETTY_RATE_THRESHOLD = 15.0;
+    private static final double NETTY_RATE_THRESHOLD = 120.0;
 
     // Fall-cancel boundary: deltaY above -FALL_CANCEL_THRESHOLD counts as "not falling".
     // For ViaVersion/ViaBackwards clients, translated Y motion can jitter a genuine fall

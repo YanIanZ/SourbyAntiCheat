@@ -18,7 +18,7 @@ public class CrossVehicle extends Check implements PostPredictionCheck {
     // Config-wired thresholds (defaults equal prior hardcoded values)
     private double maxHorseSpeed       = 0.45;
     private double maxBoatSpeed        = 0.40;
-    private double nettyRateThreshold  = 15.0;
+    private double nettyRateThreshold  = 120.0;
 
     public CrossVehicle(SacPlayer player) {
         super(player);
@@ -29,7 +29,7 @@ public class CrossVehicle extends Check implements PostPredictionCheck {
         String base = getConfigName() + ".";
         maxHorseSpeed      = config.getDoubleElse(base + "max-horse-speed",      0.45);
         maxBoatSpeed       = config.getDoubleElse(base + "max-boat-speed",       0.40);
-        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 15.0);
+        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 120.0);
     }
 
     @Override

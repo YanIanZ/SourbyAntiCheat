@@ -16,7 +16,7 @@ public class MorePackets extends Check implements PacketCheck {
     // Config-wired thresholds (defaults equal prior hardcoded values)
     private double rateThreshold = 30.0;
     private double bytesThreshold = 1024.0;
-    private double nettyRateThreshold = 15.0;
+    private double nettyRateThreshold = 120.0;
 
     public MorePackets(SacPlayer player) {
         super(player);
@@ -27,7 +27,7 @@ public class MorePackets extends Check implements PacketCheck {
         String base = getConfigName() + ".";
         rateThreshold      = config.getDoubleElse(base + "rate-threshold", 30.0);
         bytesThreshold     = config.getDoubleElse(base + "bytes-threshold", 1024.0);
-        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 15.0);
+        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 120.0);
     }
 
     @Override

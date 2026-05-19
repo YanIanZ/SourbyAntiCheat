@@ -20,7 +20,7 @@ public class FastHeal extends Check implements PacketCheck {
 
     // Config-wired thresholds (defaults equal prior hardcoded values)
     private int healThreshold          = 5;
-    private double nettyRateThreshold  = 15.0;
+    private double nettyRateThreshold  = 120.0;
 
     public FastHeal(SacPlayer player) {
         super(player);
@@ -31,7 +31,7 @@ public class FastHeal extends Check implements PacketCheck {
     public void onReload(ConfigManager config) {
         String base = getConfigName() + ".";
         healThreshold      = config.getIntElse(base + "heal-threshold",          5);
-        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 15.0);
+        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 120.0);
     }
 
     /** True only for items whose use restores health/hunger — food, potions, milk, honey. */

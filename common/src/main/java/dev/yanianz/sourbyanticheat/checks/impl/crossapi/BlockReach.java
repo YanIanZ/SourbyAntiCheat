@@ -14,7 +14,7 @@ public class BlockReach extends BlockPlaceCheck {
 
     private int buffer;
     private double maxBlockReach = 5.5;
-    private static final double NETTY_RATE_THRESHOLD = 18.0;
+    private static final double NETTY_RATE_THRESHOLD = 120.0;
 
     // Protocol/physics constants — not configurable
     private static final double STANDING_EYE_HEIGHT = 1.62;

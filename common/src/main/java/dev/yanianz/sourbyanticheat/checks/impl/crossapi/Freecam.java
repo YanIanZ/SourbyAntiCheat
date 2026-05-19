@@ -3,6 +3,7 @@ package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 import ac.grim.grimac.api.config.ConfigManager;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
@@ -21,7 +22,7 @@ public class Freecam extends Check implements PostPredictionCheck {
     private long chunkAckTimeoutMs = 3000L;
     private double moveThreshold = 20.0;
     private double velocityThreshold = 30.0;
-    private static final double NETTY_RATE_THRESHOLD = 15.0;
+    private static final double NETTY_RATE_THRESHOLD = 120.0;
 
     public Freecam(SacPlayer player) {
         super(player);
@@ -49,8 +50,20 @@ public class Freecam extends Check implements PostPredictionCheck {
     public void onPredictionComplete(PredictionComplete complete) {
         if (player.disableGrim) return;
 
+        // CHUNK_BATCH_ACK is a 1.20.2+ packet. Clients older than that — including
+        // ViaVersion-translated clients — never send it, so lastChunkAck never
+        // advances and chunkGap grows unbounded. The chunk-gap signal is meaningless
+        // for them; skip the check entirely.
+        if (player.getClientVersion().isOlderThan(ClientVersion.V_1_20_2)) return;
+
         if (player.packetStateData.lastPacketWasTeleport) {
             buffer = Math.max(0, buffer - 1);
+            // A teleport reloads chunks — reset the anchor and gap so they don't
+            // carry a stale value across the teleport.
+            lastChunkAck = System.currentTimeMillis();
+            anchorX = player.x;
+            anchorY = player.y;
+            anchorZ = player.z;
             return;
         }
         if (player.inVehicle() || player.isGliding || player.canFly || player.isFlying

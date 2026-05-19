@@ -19,7 +19,7 @@ public class CrossSpider extends Check implements PacketCheck {
     // Config-wired thresholds (defaults equal prior hardcoded values)
     private double minYDelta          = 0.15;
     private double maxYDelta          = 0.5;
-    private double nettyRateThreshold = 18.0;
+    private double nettyRateThreshold = 120.0;
 
     public CrossSpider(SacPlayer player) {
         super(player);
@@ -30,7 +30,7 @@ public class CrossSpider extends Check implements PacketCheck {
         String base = getConfigName() + ".";
         minYDelta          = config.getDoubleElse(base + "min-y-delta", 0.15);
         maxYDelta          = config.getDoubleElse(base + "max-y-delta", 0.5);
-        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 18.0);
+        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 120.0);
     }
 
     @Override

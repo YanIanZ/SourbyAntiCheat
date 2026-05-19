@@ -16,7 +16,7 @@ public class CrossScaffold extends BlockPlaceCheck {
 
     // Config-wired thresholds (defaults equal prior hardcoded values)
     private int placeThreshold        = 5;
-    private double nettyRateThreshold = 18.0;
+    private double nettyRateThreshold = 120.0;
 
     public CrossScaffold(SacPlayer player) {
         super(player);
@@ -27,7 +27,7 @@ public class CrossScaffold extends BlockPlaceCheck {
     public void onReload(ConfigManager config) {
         String base = getConfigName() + ".";
         placeThreshold     = config.getIntElse(base + "place-threshold", 5);
-        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 18.0);
+        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 120.0);
     }
 
     @Override

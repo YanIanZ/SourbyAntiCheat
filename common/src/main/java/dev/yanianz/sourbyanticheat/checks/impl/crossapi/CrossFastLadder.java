@@ -18,7 +18,7 @@ public class CrossFastLadder extends Check implements PacketCheck {
     private double buffer;
 
     private double maxLadderSpeed = 0.20;
-    private static final double NETTY_RATE_THRESHOLD = 18.0;
+    private static final double NETTY_RATE_THRESHOLD = 120.0;
 
     public CrossFastLadder(SacPlayer player) {
         super(player);

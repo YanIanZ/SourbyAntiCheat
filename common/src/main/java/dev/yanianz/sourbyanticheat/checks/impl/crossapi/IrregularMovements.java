@@ -19,7 +19,7 @@ public class IrregularMovements extends Check implements PostPredictionCheck {
     // Config-wired thresholds (defaults equal prior hardcoded values)
     private double directionChangeMinSpeed = 0.3;
     private double directionChangeThreshold = 0.95;
-    private static final double NETTY_RATE_THRESHOLD = 15.0;
+    private static final double NETTY_RATE_THRESHOLD = 120.0;
 
     public IrregularMovements(SacPlayer player) {
         super(player);

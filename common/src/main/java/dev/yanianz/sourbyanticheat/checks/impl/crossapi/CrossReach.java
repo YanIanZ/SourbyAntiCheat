@@ -21,7 +21,7 @@ public class CrossReach extends Check implements PacketCheck {
 
     // Config-wired thresholds (defaults equal prior hardcoded values)
     private double reachMargin        = 0.5;
-    private double nettyRateThreshold = 15.0;
+    private double nettyRateThreshold = 120.0;
 
     public CrossReach(SacPlayer player) {
         super(player);
@@ -31,7 +31,7 @@ public class CrossReach extends Check implements PacketCheck {
     public void onReload(ConfigManager config) {
         String base = getConfigName() + ".";
         reachMargin        = config.getDoubleElse(base + "reach-margin", 0.5);
-        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 15.0);
+        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 120.0);
     }
 
     @Override

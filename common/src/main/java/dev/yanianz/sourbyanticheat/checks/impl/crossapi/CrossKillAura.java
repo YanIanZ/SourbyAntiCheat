@@ -18,7 +18,7 @@ public class CrossKillAura extends Check implements PacketCheck {
     // Config-wired thresholds (defaults equal prior hardcoded values)
     private double rotationThreshold       = 30.0;
     private double attackIntervalThreshold = 200.0;
-    private static final double NETTY_RATE_THRESHOLD     = 15.0;  // physics constant
+    private static final double NETTY_RATE_THRESHOLD     = 120.0;  // physics constant
     private static final double NETTY_VARIANCE_THRESHOLD = 25.0;  // physics constant
 
     public CrossKillAura(SacPlayer player) {

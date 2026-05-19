@@ -17,7 +17,7 @@ public class CrossTower extends Check implements PostPredictionCheck {
 
     // Config-wired thresholds (defaults equal prior hardcoded values)
     private double towerYThreshold     = 0.3;
-    private double nettyRateThreshold  = 18.0;
+    private double nettyRateThreshold  = 120.0;
 
     public CrossTower(SacPlayer player) { super(player); }
 
@@ -25,7 +25,7 @@ public class CrossTower extends Check implements PostPredictionCheck {
     public void onReload(ConfigManager config) {
         String base = getConfigName() + ".";
         towerYThreshold    = config.getDoubleElse(base + "tower-y-threshold",    0.3);
-        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 18.0);
+        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 120.0);
     }
 
     @Override

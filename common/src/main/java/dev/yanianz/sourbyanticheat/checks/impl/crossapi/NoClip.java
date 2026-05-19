@@ -20,7 +20,7 @@ public class NoClip extends Check implements PostPredictionCheck {
     private int insideBuffer;
     private boolean lastTickPhased;
     private SimpleCollisionBox lastBox;
-    private static final double NETTY_RATE_THRESHOLD = 15.0;
+    private static final double NETTY_RATE_THRESHOLD = 120.0;
     private final List<SimpleCollisionBox> collisionBoxes = new ArrayList<>();
 
     // Config-wired threshold (raised above the prior hardcoded 2 to absorb

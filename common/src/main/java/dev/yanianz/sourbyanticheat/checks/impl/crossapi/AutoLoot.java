@@ -16,7 +16,7 @@ public class AutoLoot extends Check implements PacketCheck {
     private long lastReset;
     private int buffer;
     private int pickupThreshold = 10;
-    private double nettyRateThreshold = 15.0;
+    private double nettyRateThreshold = 120.0;
 
     public AutoLoot(SacPlayer player) {
         super(player);
@@ -26,7 +26,7 @@ public class AutoLoot extends Check implements PacketCheck {
     @Override
     public void onReload(ConfigManager config) {
         this.pickupThreshold = config.getIntElse(getConfigName() + ".pickup-threshold", 10);
-        this.nettyRateThreshold = config.getDoubleElse(getConfigName() + ".netty-rate-threshold", 15.0);
+        this.nettyRateThreshold = config.getDoubleElse(getConfigName() + ".netty-rate-threshold", 120.0);
     }
 
     @Override

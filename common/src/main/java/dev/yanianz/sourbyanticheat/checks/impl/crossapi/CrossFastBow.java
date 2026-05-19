@@ -18,7 +18,7 @@ public class CrossFastBow extends Check implements PacketCheck {
     private boolean isDrawing = false;
 
     private long minChargeTime = 100;
-    private static final double NETTY_RATE_THRESHOLD = 15.0;
+    private static final double NETTY_RATE_THRESHOLD = 120.0;
 
     public CrossFastBow(SacPlayer player) {
         super(player);

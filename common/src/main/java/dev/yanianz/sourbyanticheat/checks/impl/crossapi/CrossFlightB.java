@@ -13,7 +13,7 @@ public class CrossFlightB extends Check implements PostPredictionCheck {
 
     private double buffer;
     private int hoverTicks;
-    private static final double NETTY_RATE_THRESHOLD = 18.0;
+    private static final double NETTY_RATE_THRESHOLD = 120.0;
 
     public CrossFlightB(SacPlayer player) { super(player); }
 

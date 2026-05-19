@@ -20,7 +20,7 @@ public class PortalInventory extends Check implements PostPredictionCheck {
     private boolean clickedInventory = false;
 
     // Config-wired threshold (default equals prior hardcoded value)
-    private double nettyRateThreshold = 15.0;
+    private double nettyRateThreshold = 120.0;
 
     // Fixed physics constant: player eye height (blocks).
     private static final double EYE_HEIGHT = 1.62;
@@ -29,7 +29,7 @@ public class PortalInventory extends Check implements PostPredictionCheck {
 
     @Override
     public void onReload(ConfigManager config) {
-        nettyRateThreshold = config.getDoubleElse(getConfigName() + ".netty-rate-threshold", 15.0);
+        nettyRateThreshold = config.getDoubleElse(getConfigName() + ".netty-rate-threshold", 120.0);
     }
 
     @Override

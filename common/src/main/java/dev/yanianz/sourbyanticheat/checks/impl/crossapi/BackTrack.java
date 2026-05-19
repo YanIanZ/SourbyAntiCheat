@@ -16,7 +16,7 @@ public class BackTrack extends Check implements PostPredictionCheck {
 
     private int buffer;
     private boolean attackedThisTick = false;
-    private static final double NETTY_RATE_THRESHOLD = 15.0;
+    private static final double NETTY_RATE_THRESHOLD = 120.0;
     private double mismatchThreshold = 1.5;
 
     public BackTrack(SacPlayer player) {

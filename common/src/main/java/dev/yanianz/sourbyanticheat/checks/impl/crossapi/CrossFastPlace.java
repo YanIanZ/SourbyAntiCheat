@@ -15,7 +15,7 @@ public class CrossFastPlace extends BlockPlaceCheck {
     private int buffer;
 
     private int placeThreshold = 6;
-    private double nettyRateThreshold = 18.0;
+    private double nettyRateThreshold = 120.0;
 
     public CrossFastPlace(SacPlayer player) {
         super(player);
@@ -26,7 +26,7 @@ public class CrossFastPlace extends BlockPlaceCheck {
     public void onReload(ConfigManager config) {
         String base = getConfigName() + ".";
         this.placeThreshold     = config.getIntElse(base + "place-threshold",       6);
-        this.nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 18.0);
+        this.nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 120.0);
     }
 
     @Override

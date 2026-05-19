@@ -19,7 +19,7 @@ public class Nuker extends Check implements BlockBreakCheck {
     // Config-wired thresholds (defaults equal prior hardcoded values)
     private int maxBreaksPerSec = 15;
     private double avgIntervalThreshold = 70.0;
-    private static final double NETTY_RATE_THRESHOLD = 18.0;
+    private static final double NETTY_RATE_THRESHOLD = 120.0;
 
     public Nuker(SacPlayer player) {
         super(player);

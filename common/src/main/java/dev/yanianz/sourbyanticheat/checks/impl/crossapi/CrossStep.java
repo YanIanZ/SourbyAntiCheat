@@ -18,7 +18,7 @@ public class CrossStep extends Check implements PacketCheck {
     // Config-wired thresholds (defaults equal prior hardcoded values)
     private double stepThreshold       = 0.6;
     private double nettyDelayThreshold = 40.0;
-    private double nettyRateThreshold  = 18.0;
+    private double nettyRateThreshold  = 120.0;
 
     public CrossStep(SacPlayer player) {
         super(player);
@@ -29,7 +29,7 @@ public class CrossStep extends Check implements PacketCheck {
         String base = getConfigName() + ".";
         stepThreshold       = config.getDoubleElse(base + "step-threshold", 0.6);
         nettyDelayThreshold = config.getDoubleElse(base + "netty-delay-threshold", 40.0);
-        nettyRateThreshold  = config.getDoubleElse(base + "netty-rate-threshold", 18.0);
+        nettyRateThreshold  = config.getDoubleElse(base + "netty-rate-threshold", 120.0);
     }
 
     @Override

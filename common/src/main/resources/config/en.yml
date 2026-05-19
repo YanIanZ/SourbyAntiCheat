@@ -535,7 +535,7 @@ crossautoclicker:
     # Netty packet-timing variance below which clicking looks too consistent (bot-like)
     netty-variance-threshold: 10.0
     # Netty packet rate above which clicking is considered suspicious
-    netty-rate-threshold: 15.0
+    netty-rate-threshold: 120.0
     # Max clicks-per-second allowed for low-ping players
     cps-threshold-low-ping: 18
     # Max clicks-per-second allowed for medium-ping players
@@ -568,10 +568,12 @@ crossfastbow:
     min-charge-time: 100
 
 crossfastbreak:
-    # Max blocks broken within the window before flagging
-    break-threshold: 8
+    # Max blocks broken within the window before flagging (normal blocks)
+    break-threshold: 20
+    # Max instant-break blocks (grass, torches, flowers, etc.) within the window before flagging
+    instant-break-threshold: 40
     # Netty packet rate above which block-breaking is suspicious
-    netty-rate-threshold: 18.0
+    netty-rate-threshold: 120.0
 
 crossfastbreakb:
     # Break-interval variance below which timing looks too consistent (bot-like)
@@ -593,21 +595,21 @@ crossfastladder:
 
 crossfastplace:
     # Max blocks placed within the window before flagging
-    place-threshold: 6
+    place-threshold: 10
     # Netty packet rate above which block-placing is suspicious
-    netty-rate-threshold: 18.0
+    netty-rate-threshold: 120.0
 
 crossflight:
     # Movement-prediction offset (blocks) above which flight is flagged
     prediction-threshold: 0.15
     # Netty packet rate above which movement is suspicious
-    netty-rate-threshold: 18.0
+    netty-rate-threshold: 120.0
 
 crossfoodsprint:
     # Sprint speed (blocks/tick) allowed while consuming an item
-    sprint-speed: 0.28
+    sprint-speed: 0.35
     # Netty packet rate above which sprinting-while-eating is suspicious
-    netty-rate-threshold: 15.0
+    netty-rate-threshold: 120.0
     # Time in milliseconds after item use within which sprint is checked
     use-timeout-ms: 5000
 
@@ -625,7 +627,7 @@ crossjesus:
     # Position offset (blocks) above which water-walking is flagged
     offset-threshold: 0.15
     # Netty packet rate above which movement is suspicious
-    netty-rate-threshold: 18.0
+    netty-rate-threshold: 120.0
 
 crossjump:
     # Max jump height in blocks before flagging
@@ -650,12 +652,14 @@ crosskillaurab:
     sustained-yaw-ticks: 3
 
 crossnofall:
-    # Fall-damage prediction offset (blocks) above which NoFall is flagged
+    # Position offset (blocks) above which NoFall is flagged
     offset-threshold: 0.06
+    # Full prediction offset (blocks) above which NoFall is flagged
+    full-offset-threshold: 0.2
 
 crossphase:
     # Gap in milliseconds between movement updates considered suspicious
-    gap-threshold-ms: 1000
+    gap-threshold-ms: 2500
     # Position offset (blocks) above which phasing is flagged
     offset-threshold: 0.1
     # Netty packet rate above which movement is suspicious
@@ -671,31 +675,37 @@ crossreach:
     # Extra reach distance (blocks) allowed beyond the legitimate limit
     reach-margin: 0.5
     # Netty packet rate above which combat is suspicious
-    netty-rate-threshold: 15.0
+    netty-rate-threshold: 120.0
 
 crossscaffold:
     # Max blocks placed within the window before flagging
-    place-threshold: 5
+    place-threshold: 8
     # Netty packet rate above which block-placing is suspicious
-    netty-rate-threshold: 18.0
+    netty-rate-threshold: 120.0
 
 crossspeed:
     # Multiplier applied to expected velocity before flagging
-    velocity-multiplier: 2.0
+    velocity-multiplier: 2.5
     # Ground friction constant used in speed prediction
     ground-friction: 0.6
     # Air friction constant used in speed prediction
     air-friction: 0.91
+    # Position offset (blocks) above which speed is flagged
+    offset-threshold: 0.5
     # Netty packet rate above which movement is suspicious
-    netty-rate-threshold: 18.0
+    netty-rate-threshold: 120.0
 
 crossspeedb:
     # Netty packet rate above which movement is suspicious
-    netty-rate-threshold: 18.0
+    netty-rate-threshold: 120.0
     # Max allowed deviation from the expected movement ratio
     max-ratio-deviation: 0.3
     # Movement-ratio above which speed is flagged
     ratio-threshold: 1.5
+    # Minimum predicted velocity before the ratio check applies
+    vel-floor: 0.05
+    # Max ratio allowed while sprinting before flagging
+    sprint-ratio-cap: 2.2
 
 crossspider:
     # Minimum vertical delta (blocks) considered when climbing walls
@@ -703,7 +713,7 @@ crossspider:
     # Maximum vertical delta (blocks) considered when climbing walls
     max-y-delta: 0.5
     # Netty packet rate above which movement is suspicious
-    netty-rate-threshold: 18.0
+    netty-rate-threshold: 120.0
 
 crossstep:
     # Max step-up height in blocks before flagging
@@ -711,7 +721,7 @@ crossstep:
     # Netty packet delay (ms) above which movement is suspicious
     netty-delay-threshold: 40.0
     # Netty packet rate above which movement is suspicious
-    netty-rate-threshold: 18.0
+    netty-rate-threshold: 120.0
 
 crossteleport:
     # Max teleport distance (blocks) in a single move before flagging
@@ -725,13 +735,13 @@ crosstimer:
     # Timer balance above which a violation is flagged
     balance-flag-limit: 8.0
     # Netty packet rate above which timing is suspicious
-    netty-rate-threshold: 15.0
+    netty-rate-threshold: 120.0
 
 crosstower:
     # Max upward (Y) speed while towering before flagging
-    tower-y-threshold: 0.3
+    tower-y-threshold: 0.42
     # Netty packet rate above which block-placing is suspicious
-    netty-rate-threshold: 18.0
+    netty-rate-threshold: 120.0
 
 crossvehicle:
     # Max horse speed (blocks/tick) before flagging
@@ -739,19 +749,19 @@ crossvehicle:
     # Max boat speed (blocks/tick) before flagging
     max-boat-speed: 0.40
     # Netty packet rate above which vehicle movement is suspicious
-    netty-rate-threshold: 15.0
+    netty-rate-threshold: 120.0
 
 autoloot:
     # Item pickups within the window before auto-loot is suspected
     pickup-threshold: 10
     # Netty packet rate above which pickups are considered suspicious
-    netty-rate-threshold: 15.0
+    netty-rate-threshold: 120.0
 
 autorespawn:
     # Min gap (ms) between death and respawn; faster is suspicious
     gap-threshold-ms: 500
     # Netty packet rate above which respawn timing is suspicious
-    netty-rate-threshold: 15.0
+    netty-rate-threshold: 120.0
 
 backtrack:
     # Position-history mismatch (blocks) before flagging backtrack
@@ -761,7 +771,7 @@ bedfucker:
     # Bed interactions within the window before flagging
     bed-threshold: 3
     # Netty packet rate above which bed interaction is suspicious
-    netty-rate-threshold: 18.0
+    netty-rate-threshold: 120.0
 
 blockreach:
     # Max block-interaction reach distance (blocks) before flagging
@@ -775,19 +785,19 @@ extrainventory:
     # Highest valid inventory slot index; interactions above it are invalid
     max-slot: 45
     # Netty packet rate above which inventory action is suspicious
-    netty-rate-threshold: 15.0
+    netty-rate-threshold: 120.0
 
 fastfall:
     # Excess fall speed offset (blocks/tick) over predicted before flagging
     fall-threshold: 0.15
     # Netty packet rate above which fall movement is suspicious
-    netty-rate-threshold: 18.0
+    netty-rate-threshold: 120.0
 
 fastheal:
     # Healing-item uses within the window before flagging
     heal-threshold: 5
     # Netty packet rate above which healing is suspicious
-    netty-rate-threshold: 15.0
+    netty-rate-threshold: 120.0
 
 fightbot:
     # Combined yaw+pitch aim error below which aim looks bot-perfect
@@ -804,10 +814,10 @@ forcefield:
 freecam:
     # Chunk-ack timeout (ms) before unacked chunks count toward freecam
     chunk-ack-timeout-ms: 3000
-    # Movement offset (blocks) before flagging
-    move-threshold: 20.0
-    # Velocity offset before flagging
-    velocity-threshold: 30.0
+    # Distance from anchor point (blocks) before flagging
+    move-threshold: 5.0
+    # Prediction offset (blocks) above which freecam is flagged
+    offset-threshold: 0.5
 
 ghosthand:
     # Solid blocks between player and target before flagging ghost-hand
@@ -825,7 +835,7 @@ liquids:
     # Movement offset (blocks) in liquid before flagging
     offset-threshold: 0.15
     # Netty packet rate above which liquid movement is suspicious
-    netty-rate-threshold: 18.0
+    netty-rate-threshold: 120.0
 
 morepackets:
     # Packet rate above which packet count is suspicious
@@ -833,7 +843,7 @@ morepackets:
     # Packet byte rate above which traffic is suspicious
     bytes-threshold: 1024.0
     # Netty packet rate above which traffic is cross-confirmed
-    netty-rate-threshold: 15.0
+    netty-rate-threshold: 120.0
 
 noclip:
     # Consecutive ticks intersecting a block before flagging noclip

@@ -19,7 +19,7 @@ public class CrossAutoClicker extends Check implements PacketCheck {
     private int buffer;
     private static final int MAX_SAMPLES = 30;
     private double nettyVarianceThreshold = 10.0;
-    private double nettyRateThreshold = 15.0;
+    private double nettyRateThreshold = 120.0;
     private int cpsThresholdLowPing = 18;
     private int cpsThresholdMedPing = 15;
     private int cpsThresholdHighPing = 12;
@@ -32,7 +32,7 @@ public class CrossAutoClicker extends Check implements PacketCheck {
     @Override
     public void onReload(ConfigManager config) {
         this.nettyVarianceThreshold = config.getDoubleElse(getConfigName() + ".netty-variance-threshold", 10.0);
-        this.nettyRateThreshold = config.getDoubleElse(getConfigName() + ".netty-rate-threshold", 15.0);
+        this.nettyRateThreshold = config.getDoubleElse(getConfigName() + ".netty-rate-threshold", 120.0);
         this.cpsThresholdLowPing = config.getIntElse(getConfigName() + ".cps-threshold-low-ping", 18);
         this.cpsThresholdMedPing = config.getIntElse(getConfigName() + ".cps-threshold-med-ping", 15);
         this.cpsThresholdHighPing = config.getIntElse(getConfigName() + ".cps-threshold-high-ping", 12);

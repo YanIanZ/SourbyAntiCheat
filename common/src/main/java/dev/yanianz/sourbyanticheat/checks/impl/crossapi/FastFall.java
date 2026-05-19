@@ -16,7 +16,7 @@ public class FastFall extends Check implements PostPredictionCheck {
 
     // Config-wired thresholds (defaults equal prior hardcoded values)
     private double fallThreshold       = 0.15;
-    private double nettyRateThreshold  = 18.0;
+    private double nettyRateThreshold  = 120.0;
 
     public FastFall(SacPlayer player) {
         super(player);
@@ -26,7 +26,7 @@ public class FastFall extends Check implements PostPredictionCheck {
     public void onReload(ConfigManager config) {
         String base = getConfigName() + ".";
         fallThreshold      = config.getDoubleElse(base + "fall-threshold",      0.15);
-        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 18.0);
+        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 120.0);
     }
 
     @Override

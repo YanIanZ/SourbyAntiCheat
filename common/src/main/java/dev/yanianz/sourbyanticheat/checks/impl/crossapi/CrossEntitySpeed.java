@@ -16,7 +16,7 @@ import dev.yanianz.sourbyanticheat.utils.data.packetentity.PacketEntity;
 public class CrossEntitySpeed extends Check implements PostPredictionCheck {
 
     private double buffer;
-    private static final double NETTY_RATE_THRESHOLD = 15.0;
+    private static final double NETTY_RATE_THRESHOLD = 120.0;
 
     // Per-entity-type speed limits (config-wired)
     private double maxSpeedPig      = 0.35;

@@ -16,7 +16,7 @@ public class CrossTimer extends Check implements PacketCheck {
     // Config-wired thresholds (defaults equal prior hardcoded values)
     private double balanceLimit        = 15.0;
     private double balanceFlagLimit    = 8.0;
-    private double nettyRateThreshold  = 15.0;
+    private double nettyRateThreshold  = 120.0;
 
     public CrossTimer(SacPlayer player) {
         super(player);
@@ -27,7 +27,7 @@ public class CrossTimer extends Check implements PacketCheck {
         String base = getConfigName() + ".";
         balanceLimit       = config.getDoubleElse(base + "balance-limit",        15.0);
         balanceFlagLimit   = config.getDoubleElse(base + "balance-flag-limit",   8.0);
-        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 15.0);
+        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 120.0);
     }
 
     @Override

@@ -26,7 +26,7 @@ public class GhostHand extends Check implements PacketCheck {
     // Config-wired thresholds (defaults equal prior hardcoded values)
     private int wallBlocksThreshold = 3;
     private double maxAttackDistance = 8.0;
-    private static final double NETTY_RATE_THRESHOLD = 15.0;
+    private static final double NETTY_RATE_THRESHOLD = 120.0;
 
     public GhostHand(SacPlayer player) {
         super(player);

@@ -9,6 +9,7 @@ import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 
 @CheckData(name = "CrossFreecam", configName = "crossfreecam", decay = 0.05, setback = 15, stableKey = "cross.freecam")
 public class CrossFreecam extends Check implements PostPredictionCheck {
@@ -48,6 +49,18 @@ public class CrossFreecam extends Check implements PostPredictionCheck {
         if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
         if (player.inVehicle() || player.compensatedEntities.self.isDead) return;
+
+        // CHUNK_BATCH_ACK is a 1.20.2+ packet — clients older than that (incl.
+        // ViaVersion-translated) never send it, so chunkGap grows unbounded and the
+        // signal is meaningless. Skip the check for them.
+        if (player.getClientVersion().isOlderThan(ClientVersion.V_1_20_2)) return;
+
+        // A teleport reloads chunks — reset the gap so it does not carry stale.
+        if (player.packetStateData.lastPacketWasTeleport) {
+            buffer = Math.max(0, buffer - 0.05);
+            lastChunkAck = System.currentTimeMillis();
+            return;
+        }
 
         double offset = player.crossValidationData.offsetFromPrediction;
         long chunkGap = System.currentTimeMillis() - lastChunkAck;

@@ -14,7 +14,7 @@ public class AutoRespawn extends Check implements PacketCheck {
 
     private int buffer;
     private long lastDeathTime = 0;
-    private double nettyRateThreshold = 15.0;
+    private double nettyRateThreshold = 120.0;
     private long gapThreshold = 500;
 
     public AutoRespawn(SacPlayer player) { super(player); }
@@ -22,7 +22,7 @@ public class AutoRespawn extends Check implements PacketCheck {
     @Override
     public void onReload(ConfigManager config) {
         this.gapThreshold = config.getIntElse(getConfigName() + ".gap-threshold-ms", 500);
-        this.nettyRateThreshold = config.getDoubleElse(getConfigName() + ".netty-rate-threshold", 15.0);
+        this.nettyRateThreshold = config.getDoubleElse(getConfigName() + ".netty-rate-threshold", 120.0);
     }
 
     @Override

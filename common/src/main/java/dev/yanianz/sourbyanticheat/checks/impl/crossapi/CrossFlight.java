@@ -15,7 +15,7 @@ public class CrossFlight extends Check implements PostPredictionCheck {
     private double buffer;
 
     private double predictionThreshold = 0.15;
-    private double nettyRateThreshold  = 18.0;
+    private double nettyRateThreshold  = 120.0;
 
     public CrossFlight(SacPlayer player) {
         super(player);
@@ -25,7 +25,7 @@ public class CrossFlight extends Check implements PostPredictionCheck {
     public void onReload(ConfigManager config) {
         String base = getConfigName() + ".";
         this.predictionThreshold = config.getDoubleElse(base + "prediction-threshold",  0.15);
-        this.nettyRateThreshold  = config.getDoubleElse(base + "netty-rate-threshold",  18.0);
+        this.nettyRateThreshold  = config.getDoubleElse(base + "netty-rate-threshold",  120.0);
     }
 
     @Override

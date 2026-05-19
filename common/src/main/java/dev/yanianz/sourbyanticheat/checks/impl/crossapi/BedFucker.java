@@ -16,7 +16,7 @@ public class BedFucker extends Check implements BlockBreakCheck {
     private long lastReset;
     private int buffer;
     private int bedThreshold = 3;
-    private double nettyRateThreshold = 18.0;
+    private double nettyRateThreshold = 120.0;
 
     public BedFucker(SacPlayer player) {
         super(player);
@@ -26,7 +26,7 @@ public class BedFucker extends Check implements BlockBreakCheck {
     @Override
     public void onReload(ConfigManager config) {
         this.bedThreshold = config.getIntElse(getConfigName() + ".bed-threshold", 3);
-        this.nettyRateThreshold = config.getDoubleElse(getConfigName() + ".netty-rate-threshold", 18.0);
+        this.nettyRateThreshold = config.getDoubleElse(getConfigName() + ".netty-rate-threshold", 120.0);
     }
 
     @Override

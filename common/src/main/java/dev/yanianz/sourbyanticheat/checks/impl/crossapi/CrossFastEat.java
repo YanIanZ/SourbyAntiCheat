@@ -25,7 +25,7 @@ public class CrossFastEat extends Check implements PostPredictionCheck {
     // Potions also take 32 ticks, same tolerance by default.
     private long minDrinkTime = 1400;
 
-    private static final double NETTY_RATE_THRESHOLD = 15.0;
+    private static final double NETTY_RATE_THRESHOLD = 120.0;
 
     public CrossFastEat(SacPlayer player) {
         super(player);

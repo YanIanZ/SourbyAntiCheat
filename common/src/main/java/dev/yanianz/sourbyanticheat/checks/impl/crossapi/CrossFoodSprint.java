@@ -23,7 +23,7 @@ public class CrossFoodSprint extends Check implements PostPredictionCheck {
 
     // Config-wired thresholds (defaults equal prior hardcoded values)
     private double sprintSpeed         = 0.28;
-    private double nettyRateThreshold  = 15.0;
+    private double nettyRateThreshold  = 120.0;
     private long   useTimeoutMs        = 5000L;
 
     public CrossFoodSprint(SacPlayer player) {
@@ -34,7 +34,7 @@ public class CrossFoodSprint extends Check implements PostPredictionCheck {
     public void onReload(ConfigManager config) {
         String base = getConfigName() + ".";
         sprintSpeed        = config.getDoubleElse(base + "sprint-speed",          0.28);
-        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold",  15.0);
+        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold",  120.0);
         useTimeoutMs       = config.getIntElse(base + "use-timeout-ms",           5000);
     }
 

@@ -20,7 +20,7 @@ public class ForceField extends Check implements PacketCheck {
 
     // Config-wired thresholds (defaults equal prior hardcoded values)
     private int maxAttacksPerTick = 1;
-    private static final double NETTY_RATE_THRESHOLD = 15.0;
+    private static final double NETTY_RATE_THRESHOLD = 120.0;
 
     public ForceField(SacPlayer player) {
         super(player);

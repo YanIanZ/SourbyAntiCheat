@@ -20,7 +20,7 @@ public class ExtraInventory extends Check implements PacketCheck {
     // slot 45 is the offhand. Anything above 45 is an invalid slot index — so the highest
     // legal slot is 45 and the check flags getSlot() > maxSlot.
     private int maxSlot = 45;
-    private double nettyRateThreshold = 15.0;
+    private double nettyRateThreshold = 120.0;
 
     public ExtraInventory(SacPlayer player) { super(player); }
 
@@ -28,7 +28,7 @@ public class ExtraInventory extends Check implements PacketCheck {
     public void onReload(ConfigManager config) {
         String base = getConfigName() + ".";
         maxSlot            = config.getIntElse(base + "max-slot",               45);
-        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 15.0);
+        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 120.0);
     }
 
     @Override
