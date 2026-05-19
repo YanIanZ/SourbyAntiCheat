@@ -23,8 +23,18 @@ public class BadPacketsAB extends Check implements PacketCheck {
         float sideways = steer.getSideways();
         float forward = steer.getForward();
 
-        if (!player.inVehicle() && (sideways != 0 || forward != 0)) {
-            flagAndAlert("side=" + String.format("%.2f", sideways) + " fwd=" + String.format("%.2f", forward));
+        // Steer inputs are normalised to [-1, 1] — anything outside is a malformed packet.
+        if (Math.abs(sideways) > 1.0f || Math.abs(forward) > 1.0f) {
+            flagAndAlert("out_of_range side=" + String.format("%.2f", sideways) + " fwd=" + String.format("%.2f", forward));
+            return;
         }
+
+        // Non-zero steer input while not in a vehicle is impossible.
+        if (!player.inVehicle() && (sideways != 0 || forward != 0)) {
+            flagAndAlert("not_in_vehicle side=" + String.format("%.2f", sideways) + " fwd=" + String.format("%.2f", forward));
+            return;
+        }
+
+        reward();
     }
 }

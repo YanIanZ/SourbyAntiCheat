@@ -19,11 +19,20 @@ public class BadPacketsAG extends Check implements PacketCheck {
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
         if (event.getPacketType() != PacketType.Play.Client.CREATIVE_INVENTORY_ACTION) return;
-        if (player.gamemode == GameMode.CREATIVE) return;
 
+        if (player.gamemode == GameMode.CREATIVE) {
+            reward();
+            return;
+        }
+
+        // A creative inventory action from a non-creative player is invalid regardless
+        // of slot — vanilla never sends this packet outside creative mode. (The previous
+        // [-1, 45] slot check let an in-range creative action through from survival.)
         WrapperPlayClientCreativeInventoryAction packet = new WrapperPlayClientCreativeInventoryAction(event);
-        if (packet.getSlot() < -1 || packet.getSlot() > 45) {
-            flagAndAlert("slot=" + packet.getSlot() + " gamemode=" + player.gamemode);
+        if (flagAndAlert("creative_action_in_" + player.gamemode + " slot=" + packet.getSlot())
+                && shouldModifyPackets()) {
+            event.setCancelled(true);
+            player.onPacketCancel();
         }
     }
 }

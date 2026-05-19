@@ -44,9 +44,12 @@ public class BadPacketsAI extends Check implements PacketCheck {
 
         // If the client says they are flying but the server hasn't allowed flight
         if (packet.isFlying() && !serverAllowsFlight && !player.canFly) {
-            flagAndAlert("spoofed_fly");
-            event.setCancelled(true);
-            player.onPacketCancel();
+            if (flagAndAlert("spoofed_fly") && shouldModifyPackets()) {
+                event.setCancelled(true);
+                player.onPacketCancel();
+            }
+        } else {
+            reward();
         }
     }
 }

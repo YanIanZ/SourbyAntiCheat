@@ -15,11 +15,15 @@ public class BadPacketsAH extends Check implements PacketCheck {
         super(player);
     }
 
+    // Companion of BadPacketsK (same SPECTATE-while-not-spectating signal): K cancels
+    // the packet for enforcement, this check only flags. Both are kept intentionally.
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
         if (event.getPacketType() != PacketType.Play.Client.SPECTATE) return;
         if (player.gamemode != GameMode.SPECTATOR) {
             flagAndAlert("gamemode=" + player.gamemode);
+        } else {
+            reward();
         }
     }
 }

@@ -4,6 +4,7 @@
 
 package dev.yanianz.sourbyanticheat.checks.impl.badpackets;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
@@ -21,12 +22,27 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPl
 @CheckData(name = "BadPacketsAJ", stableKey = "sac.badpackets.aj", description = "Detects impossible rotation values", setback = 15, decay = 0.01)
 public class BadPacketsAJ extends Check implements PacketCheck {
 
+    // Vanilla clamps pitch to [-90, 90]; anything beyond is impossible.
+    private static final float MAX_PITCH = 90.0f;
+
     private float lastYaw = 0;
     private float lastPitch = 0;
     private int spinBuffer = 0;
 
+    private double maxDeltaYaw = 200.0;
+    private double maxDeltaPitch = 170.0;
+    private int spinBufferThreshold = 3;
+
     public BadPacketsAJ(SacPlayer player) {
         super(player);
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        maxDeltaYaw = config.getDoubleElse(base + "max-delta-yaw", 200.0);
+        maxDeltaPitch = config.getDoubleElse(base + "max-delta-pitch", 170.0);
+        spinBufferThreshold = config.getIntElse(base + "spin-buffer-threshold", 3);
     }
 
     @Override
@@ -41,17 +57,19 @@ public class BadPacketsAJ extends Check implements PacketCheck {
 
         // NaN/Infinity crash exploit
         if (Float.isNaN(yaw) || Float.isNaN(pitch) || Float.isInfinite(yaw) || Float.isInfinite(pitch)) {
-            flagAndAlert("NaN/Inf rotation");
-            event.setCancelled(true);
-            player.onPacketCancel();
+            if (flagAndAlert("NaN/Inf rotation") && shouldModifyPackets()) {
+                event.setCancelled(true);
+                player.onPacketCancel();
+            }
             return;
         }
 
         // Pitch out of range (Derp, HeadRoll)
-        if (Math.abs(pitch) > 90.0f) {
-            flagAndAlert("pitch=" + String.format("%.2f", pitch));
-            event.setCancelled(true);
-            player.onPacketCancel();
+        if (Math.abs(pitch) > MAX_PITCH) {
+            if (flagAndAlert("pitch=" + String.format("%.2f", pitch)) && shouldModifyPackets()) {
+                event.setCancelled(true);
+                player.onPacketCancel();
+            }
             return;
         }
 
@@ -59,12 +77,13 @@ public class BadPacketsAJ extends Check implements PacketCheck {
         float deltaYaw = Math.abs(yaw - lastYaw);
         if (deltaYaw > 180) deltaYaw = 360 - deltaYaw; // Normalize wrap-around
 
+        // Pitch is clamped to [-90, 90] and does not wrap, so deltaPitch needs no
+        // wrap normalisation — its maximum is 180.
         float deltaPitch = Math.abs(pitch - lastPitch);
 
-        // Over 200 degrees rotation in a single tick is very suspicious
-        if (deltaYaw > 200 || deltaPitch > 170) {
+        if (deltaYaw > maxDeltaYaw || deltaPitch > maxDeltaPitch) {
             spinBuffer++;
-            if (spinBuffer > 3) {
+            if (spinBuffer > spinBufferThreshold) {
                 flagAndAlert("deltaYaw=" + String.format("%.1f", deltaYaw) + " deltaPitch=" + String.format("%.1f", deltaPitch));
             }
         } else {
