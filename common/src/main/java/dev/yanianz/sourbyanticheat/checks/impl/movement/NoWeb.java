@@ -6,6 +6,7 @@ import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.nmsutil.Collisions;
+import dev.yanianz.sourbyanticheat.utils.viaversion.ViaVersionUtil;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 import com.github.retrooper.packetevents.protocol.world.states.type.StateTypes;
@@ -20,6 +21,10 @@ public class NoWeb extends Check implements PacketCheck {
     // Config-wired thresholds (defaults equal prior hardcoded values)
     private double maxWebSpeed = 0.08;
     private double secondaryThreshold = 0.15;
+
+    // Cobweb slowdown differs between 1.8 and 1.9+; a ViaBackwards-translated client's
+    // in-web motion gets extra headroom before the buffer accumulates.
+    private static final double CROSS_VERSION_LENIENCY = 1.5;
     private double bufferDecay = 0.005;
     private double rewardGateThreshold = 0.01;
 
@@ -67,8 +72,10 @@ public class NoWeb extends Check implements PacketCheck {
         double deltaZ = Math.abs(player.z - player.lastZ);
         double deltaH = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
 
-        if (deltaH > maxWebSpeed && deltaH < 0.5) {
-            webBuffer += deltaH - maxWebSpeed;
+        double effectiveMaxWebSpeed = maxWebSpeed * (ViaVersionUtil.isCrossVersion(player) ? CROSS_VERSION_LENIENCY : 1.0);
+
+        if (deltaH > effectiveMaxWebSpeed && deltaH < 0.5) {
+            webBuffer += deltaH - effectiveMaxWebSpeed;
             if (webBuffer > secondaryThreshold) {
                 flagAndAlert("h=" + String.format("%.3f", deltaH) + " buf=" + String.format("%.3f", webBuffer));
             }

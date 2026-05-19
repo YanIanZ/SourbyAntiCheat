@@ -6,6 +6,7 @@ import dev.yanianz.sourbyanticheat.checks.type.BlockPlaceCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.BlockPlace;
+import dev.yanianz.sourbyanticheat.utils.viaversion.ViaVersionUtil;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 
 @CheckData(name = "BlockReach", configName = "blockreach", decay = 0.02, setback = 10, stableKey = "cross.blockreach")
@@ -17,6 +18,10 @@ public class BlockReach extends BlockPlaceCheck {
 
     // Protocol/physics constants — not configurable
     private static final double STANDING_EYE_HEIGHT = 1.62;
+
+    // Cross-version clients report a different eye height / cursor position than the
+    // server's pose table — give the reach distance extra headroom before flagging.
+    private static final double CROSS_VERSION_LENIENCY = 1.5;
 
     public BlockReach(SacPlayer player) {
         super(player);
@@ -45,7 +50,9 @@ public class BlockReach extends BlockPlaceCheck {
         double dz = player.z - place.position.getZ();
         double dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-        if (dist < maxBlockReach) { buffer = Math.max(0, buffer - 1); reward(); return; }
+        double effectiveMaxBlockReach = maxBlockReach * (ViaVersionUtil.isCrossVersion(player) ? CROSS_VERSION_LENIENCY : 1.0);
+
+        if (dist < effectiveMaxBlockReach) { buffer = Math.max(0, buffer - 1); reward(); return; }
 
         boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > NETTY_RATE_THRESHOLD;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "BlockReach");

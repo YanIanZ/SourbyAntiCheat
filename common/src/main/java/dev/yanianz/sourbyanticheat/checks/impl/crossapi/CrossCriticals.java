@@ -10,6 +10,7 @@ import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
+import dev.yanianz.sourbyanticheat.utils.viaversion.ViaVersionUtil;
 
 @CheckData(name = "CrossCriticals", configName = "crosscriticals", decay = 0.02, setback = 10, stableKey = "cross.criticals")
 public class CrossCriticals extends Check implements PostPredictionCheck {
@@ -17,6 +18,14 @@ public class CrossCriticals extends Check implements PostPredictionCheck {
     private int buffer;
     private boolean attackedThisTick = false;
     private static final double NETTY_RATE_THRESHOLD = 15.0;
+
+    // Fall-cancel boundary: deltaY above -FALL_CANCEL_THRESHOLD counts as "not falling".
+    // For ViaVersion/ViaBackwards clients, translated Y motion can jitter a genuine fall
+    // up toward zero; widening the falling band (a more-negative-tolerant boundary, i.e.
+    // dividing the threshold by the leniency factor) keeps a small residual negative
+    // delta classified as falling so it does not false-flag.
+    private static final double FALL_CANCEL_THRESHOLD = 0.01;
+    private static final double CROSS_VERSION_LENIENCY = 1.5;
 
     public CrossCriticals(SacPlayer player) {
         super(player);
@@ -58,7 +67,11 @@ public class CrossCriticals extends Check implements PostPredictionCheck {
         }
 
         double deltaY = player.crossValidationData.pePositionDeltaY;
-        boolean notFalling = deltaY > -0.01;
+        // Cross-version: tighten the "not falling" boundary toward zero so translated
+        // jitter on a genuine fall still reads as falling (fewer false positives).
+        double fallCancelThreshold = FALL_CANCEL_THRESHOLD
+                / (ViaVersionUtil.isCrossVersion(player) ? CROSS_VERSION_LENIENCY : 1.0);
+        boolean notFalling = deltaY > -fallCancelThreshold;
 
         if (!notFalling) {
             reward();

@@ -6,6 +6,7 @@ import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.nmsutil.Collisions;
+import dev.yanianz.sourbyanticheat.utils.viaversion.ViaVersionUtil;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
@@ -22,6 +23,11 @@ public class Step extends Check implements PacketCheck {
     // below any genuine step hack (which vaults a full block, dY ~1.0+).
     private double maxStep = 0.70;
     private double flagThreshold = 5.0;
+
+    // Cross-version (ViaVersion/ViaBackwards) clients have their step-assist motion
+    // translated and can land near the threshold — widen it for them, but not enough
+    // to let a real step hack (dY ~1.0+) through.
+    private static final double CROSS_VERSION_LENIENCY = 1.5;
     private double stepFlagIncrement = 1.0;
 
     public Step(SacPlayer player) {
@@ -63,7 +69,9 @@ public class Step extends Check implements PacketCheck {
 
         double deltaY = player.y - player.lastY;
 
-        if (deltaY > maxStep && deltaY < 5.0) {
+        double effectiveMaxStep = maxStep * (ViaVersionUtil.isCrossVersion(player) ? CROSS_VERSION_LENIENCY : 1.0);
+
+        if (deltaY > effectiveMaxStep && deltaY < 5.0) {
             // Accumulate a sustained-run buffer instead of flagging on the 2nd consecutive
             // step — 1.9+ step-assist legitimately produces a couple of consecutive steps.
             stepBuffer += stepFlagIncrement;

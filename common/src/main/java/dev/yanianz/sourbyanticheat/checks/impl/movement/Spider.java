@@ -11,6 +11,7 @@ import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
 import dev.yanianz.sourbyanticheat.utils.nmsutil.Collisions;
+import dev.yanianz.sourbyanticheat.utils.viaversion.ViaVersionUtil;
 import com.github.retrooper.packetevents.protocol.world.states.type.StateTypes;
 
 /**
@@ -33,6 +34,10 @@ public class Spider extends Check implements PostPredictionCheck {
     // this can only be an unbounded wall climb.
     private int climbTicksThreshold = 10;
     private int climbTickIncrement = 1;
+
+    // Cross-version (ViaVersion/ViaBackwards) clients have differing jump-arc physics;
+    // grant a higher tick threshold before flagging.
+    private static final double CROSS_VERSION_LENIENCY = 1.5;
 
     public Spider(SacPlayer player) {
         super(player);
@@ -94,9 +99,12 @@ public class Spider extends Check implements PostPredictionCheck {
         // Require BOTH wall contact and a strictly ascending tick; any non-ascending
         // tick or loss of wall contact resets the streak to zero, so a bounded jump
         // arc can never reach the threshold while an unbounded climb does.
+        int effectiveClimbTicksThreshold = (int) Math.round(
+                climbTicksThreshold * (ViaVersionUtil.isCrossVersion(player) ? CROSS_VERSION_LENIENCY : 1.0));
+
         if (player.horizontalCollision && deltaY > 0.0) {
             climbTicks += climbTickIncrement;
-            if (climbTicks > climbTicksThreshold) {
+            if (climbTicks > effectiveClimbTicksThreshold) {
                 flagAndAlert("dY=" + String.format("%.3f", deltaY) + " ticks=" + climbTicks);
                 return;
             }

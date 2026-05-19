@@ -6,6 +6,7 @@ import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.nmsutil.Collisions;
+import dev.yanianz.sourbyanticheat.utils.viaversion.ViaVersionUtil;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 import com.github.retrooper.packetevents.protocol.world.states.type.StateTypes;
@@ -19,6 +20,10 @@ public class FastLadder extends Check implements PacketCheck {
     // Config-wired thresholds (defaults equal prior hardcoded values)
     private double maxLadderSpeed = 0.20;
     private double bufferIncrement = 0.3;
+
+    // 1.8 ladder climb speed differs from 1.9+; give ViaBackwards-translated clients
+    // extra headroom before accumulating buffer.
+    private static final double CROSS_VERSION_LENIENCY = 1.5;
     private double bufferDecay = 0.01;
 
     public FastLadder(SacPlayer player) {
@@ -58,8 +63,10 @@ public class FastLadder extends Check implements PacketCheck {
 
         double deltaY = player.y - player.lastY;
 
-        if (onLadder && deltaY > maxLadderSpeed && deltaY < 0.5) {
-            ladderBuffer += deltaY - maxLadderSpeed;
+        double effectiveMaxLadderSpeed = maxLadderSpeed * (ViaVersionUtil.isCrossVersion(player) ? CROSS_VERSION_LENIENCY : 1.0);
+
+        if (onLadder && deltaY > effectiveMaxLadderSpeed && deltaY < 0.5) {
+            ladderBuffer += deltaY - effectiveMaxLadderSpeed;
             if (ladderBuffer > bufferIncrement) {
                 flagAndAlert("dY=" + String.format("%.3f", deltaY) + " buffer=" + String.format("%.3f", ladderBuffer));
             }

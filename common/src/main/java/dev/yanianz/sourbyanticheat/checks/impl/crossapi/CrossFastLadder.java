@@ -15,7 +15,7 @@ import dev.yanianz.sourbyanticheat.utils.nmsutil.Collisions;
 @CheckData(name = "CrossFastLadder", configName = "crossfastladder", decay = 0.02, setback = 10, stableKey = "cross.fastladder")
 public class CrossFastLadder extends Check implements PacketCheck {
 
-    private int buffer;
+    private double buffer;
 
     private double maxLadderSpeed = 0.20;
     private static final double NETTY_RATE_THRESHOLD = 18.0;
@@ -40,6 +40,7 @@ public class CrossFastLadder extends Check implements PacketCheck {
         if (player.packetStateData.lastPacketWasTeleport) return;
         // Duplicate CREATIVE check removed — already guarded above.
         if (player.canFly || player.isFlying || player.isGliding || player.inVehicle()) return;
+        if (player.wasTouchingWater || player.isSwimming || player.wasEyeInWater || player.fluidOnEyes == dev.yanianz.sourbyanticheat.utils.enums.FluidTag.WATER || player.wasTouchingLava) return;
 
         // Levitation causes uncontrolled vertical movement — exempt
         if (player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)) {
@@ -47,10 +48,16 @@ public class CrossFastLadder extends Check implements PacketCheck {
             return;
         }
 
+        // Mirror the native movement/FastLadder climbable set — SCAFFOLDING,
+        // WEEPING_VINES and TWISTING_VINES are legitimately climbable and must be
+        // exempt, otherwise a cross-version client climbing them accumulates buffer.
         boolean onLadder = Collisions.hasMaterial(player,
                 player.boundingBox.copy(),
                 data -> data.first().getType() == StateTypes.LADDER
-                    || data.first().getType() == StateTypes.VINE);
+                    || data.first().getType() == StateTypes.VINE
+                    || data.first().getType() == StateTypes.SCAFFOLDING
+                    || data.first().getType() == StateTypes.WEEPING_VINES
+                    || data.first().getType() == StateTypes.TWISTING_VINES);
 
         if (!onLadder) {
             buffer = Math.max(0, buffer - 1);
@@ -67,8 +74,20 @@ public class CrossFastLadder extends Check implements PacketCheck {
                 SpartanCrossCheck.checkSpartan(player.uuid, "FastLadder");
             boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 
-            buffer += (nettyConfirms || spartanConfirms) ? 2 : 1;
-            if (buffer > 3) {
+            int ping = player.getTransactionPing();
+            double pingMultiplier = ping > 400 ? 0.5 : 1.0;
+
+            if (nettyConfirms && spartanConfirms) {
+                buffer += 2 * pingMultiplier;
+            } else if (nettyConfirms || spartanConfirms) {
+                buffer += 1 * pingMultiplier;
+            } else {
+                buffer = Math.max(0, buffer - 1);
+                reward();
+                return;
+            }
+
+            if (buffer > 5) {
                 flagAndAlert(String.format("dY=%.3f netty=%.1f/s spartan=%s",
                     deltaY, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
             }

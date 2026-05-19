@@ -9,6 +9,7 @@ import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
+import dev.yanianz.sourbyanticheat.utils.viaversion.ViaVersionUtil;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientInteractEntity;
@@ -23,6 +24,10 @@ public class Criticals extends Check implements PacketCheck {
     // Config-wired thresholds (defaults equal prior hardcoded values)
     private int flagThreshold = 5;
     private double deltaYThreshold = 0.01;
+
+    // 1.8 vs 1.9+ fall/jump motion differs; widen the fall-cancel window for
+    // ViaBackwards-translated clients so their translated Y deltas do not false.
+    private static final double CROSS_VERSION_LENIENCY = 1.5;
 
     public Criticals(SacPlayer player) {
         super(player);
@@ -57,10 +62,11 @@ public class Criticals extends Check implements PacketCheck {
         if (!isAttack) return;
 
         double deltaY = player.y - player.lastY;
-        boolean wasFalling = lastDeltaY < -deltaYThreshold;
+        double effectiveDeltaYThreshold = deltaYThreshold * (ViaVersionUtil.isCrossVersion(player) ? CROSS_VERSION_LENIENCY : 1.0);
+        boolean wasFalling = lastDeltaY < -effectiveDeltaYThreshold;
         // Crit signal: the player was falling, then the fall motion abruptly cancelled
         // on the attack tick (deltaY ~0) — a faked airborne attack.
-        boolean fallCancelled = deltaY > -deltaYThreshold;
+        boolean fallCancelled = deltaY > -effectiveDeltaYThreshold;
 
         // Exempt states where the fall-then-cancel pattern is legitimate or unreliable:
         // grounded (a genuine land-then-attack zeroes fall motion the honest way),
