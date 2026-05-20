@@ -4,7 +4,8 @@ public enum Platform {
     BUKKIT,
     FOLIA,
     BUNGEECORD,
-    VELOCITY;
+    VELOCITY,
+    TEST;
 
     public static Platform resolveByName(String name) {
         for (Platform platform : values()) {

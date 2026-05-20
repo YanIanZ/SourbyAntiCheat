@@ -52,6 +52,14 @@ dependencies {
     compileOnly(libs.viaversion)
     compileOnly(libs.viabackwards)
     // SpartanAPI classes are built-in at me.vagdedes.spartan.api.*
+    testImplementation(platform("org.junit:junit-bom:5.12.2"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.mockito:mockito-core:5.16.1")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 publishing {

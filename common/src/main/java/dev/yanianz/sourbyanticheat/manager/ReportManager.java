@@ -3,7 +3,6 @@ package dev.yanianz.sourbyanticheat.manager;
 import dev.yanianz.sourbyanticheat.SacAPI;
 import dev.yanianz.sourbyanticheat.events.packets.ProxyAlertMessenger;
 import dev.yanianz.sourbyanticheat.utils.anticheat.MessageUtil;
-import net.kyori.adventure.text.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,24 +52,39 @@ public final class ReportManager {
         reports.computeIfAbsent(target, k -> new ArrayList<>()).add(report);
 
         // Staff broadcast
-        if (broadcastEnabled) {
-            String msg = "SAC » " + reporterName + " reported " + targetName + ": " + reason;
-            Component component = MessageUtil.miniMessage(msg);
-            SacAPI.INSTANCE.getAlertManager().sendVerbose(component, null);
-        }
+        if (broadcastEnabled) broadcastToStaff(reporterName, targetName, reason);
 
         // Discord webhook
-        if (discordEnabled) {
-            SacAPI.INSTANCE.getDiscordManager().sendReportAlert(reporterName, targetName, reason);
-        }
+        if (discordEnabled) sendDiscordReport(reporterName, targetName, reason);
 
         // Proxy broadcast
-        if (proxyEnabled && ProxyAlertMessenger.canSendAlerts()) {
-            String proxyMsg = "SAC » " + reporterName + " reported " + targetName + ": " + reason;
-            ProxyAlertMessenger.sendPluginMessage(proxyMsg);
-        }
+        if (proxyEnabled) broadcastToProxy(reporterName, targetName, reason);
 
         return new ReportResult(true, "Report submitted for " + targetName + ".");
+    }
+
+    private static void broadcastToStaff(String reporter, String target, String reason) {
+        try {
+            var alertMgr = SacAPI.INSTANCE.getAlertManager();
+            if (alertMgr == null) return;
+            String msg = "SAC » " + reporter + " reported " + target + ": " + reason;
+            alertMgr.sendVerbose(MessageUtil.miniMessage(msg), null);
+        } catch (Exception ignored) {}
+    }
+
+    private static void sendDiscordReport(String reporter, String target, String reason) {
+        try {
+            var disc = SacAPI.INSTANCE.getDiscordManager();
+            if (disc != null) disc.sendReportAlert(reporter, target, reason);
+        } catch (Exception ignored) {}
+    }
+
+    private static void broadcastToProxy(String reporter, String target, String reason) {
+        try {
+            if (ProxyAlertMessenger.canSendAlerts()) {
+                ProxyAlertMessenger.sendPluginMessage("SAC » " + reporter + " reported " + target + ": " + reason);
+            }
+        } catch (Exception ignored) {}
     }
 
     public static List<Report> getReports(UUID target) {

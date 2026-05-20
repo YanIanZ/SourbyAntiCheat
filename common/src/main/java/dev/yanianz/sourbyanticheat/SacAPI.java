@@ -89,7 +89,7 @@ public final class SacAPI {
         if (override != null) return override;
         if (ReflectionUtils.hasClass("io.papermc.paper.threadedregions.RegionizedServer")) return Platform.FOLIA;
         if (ReflectionUtils.hasClass("org.bukkit.Bukkit")) return Platform.BUKKIT;
-                throw new IllegalStateException("Unknown platform!");
+        return Platform.TEST;
     }
 
     public void load(PlatformLoader platformLoader, Initable... platformSpecificInitables) {
