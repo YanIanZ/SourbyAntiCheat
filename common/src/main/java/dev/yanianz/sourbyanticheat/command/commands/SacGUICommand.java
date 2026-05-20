@@ -45,10 +45,7 @@ public class SacGUICommand implements BuildableCommand {
 
     private static org.bukkit.entity.Player getBukkitPlayer(Sender sender) {
         try {
-            var platformPlayer = sender.getPlatformPlayer();
-            // BukkitPlatformPlayer exposes getBukkitPlayer() via @Getter
-            java.lang.reflect.Method m = platformPlayer.getClass().getMethod("getBukkitPlayer");
-            return (org.bukkit.entity.Player) m.invoke(platformPlayer);
+            return (org.bukkit.entity.Player) sender.getPlatformPlayer().getNative();
         } catch (Exception e) {
             return null;
         }

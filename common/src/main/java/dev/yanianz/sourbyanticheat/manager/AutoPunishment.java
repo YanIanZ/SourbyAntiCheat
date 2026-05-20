@@ -96,8 +96,7 @@ public final class AutoPunishment {
     private static void warnPlayer(SacPlayer player, Check check, int totalVL) {
         try {
             if (player.platformPlayer == null) return;
-            java.lang.reflect.Method m = player.platformPlayer.getClass().getMethod("getBukkitPlayer");
-            Player p = (Player) m.invoke(player.platformPlayer);
+            Player p = (Player) player.platformPlayer.getNative();
             if (p == null) return;
             String msg = warnMessage
                 .replace("%player%", player.getName())
