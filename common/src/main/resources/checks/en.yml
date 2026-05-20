@@ -283,14 +283,26 @@ checks:
 AimDuplicateLook:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 AimAssist:
     setbackvl: 5
     decay: 0.01
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 AimModulo360:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 # ============================================================================
 # --- badpackets ---
@@ -299,18 +311,34 @@ AimModulo360:
 BadPacketsA:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsB:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsC:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsD:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsE:
     # Flying packets allowed before a position packet must arrive
@@ -319,42 +347,82 @@ BadPacketsE:
 BadPacketsF:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsG:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsH:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsI:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsJ:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsK:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsL:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsM:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsN:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsO:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsP:
     # Highest valid window button id for a pickup click
@@ -379,74 +447,142 @@ BadPacketsR:
 BadPacketsS:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsT:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsU:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsV:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsW:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsX:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsY:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsZ:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsAA:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsAB:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsAC:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsAD:
     setbackvl: 5
     decay: 0.01
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
     # Use-without-swing occurrences buffered before a violation is flagged
     flag-threshold: 3
 
 BadPacketsAE:
     setbackvl: 5
     decay: 0.01
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsAF:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
     # Vertical delta beyond which a claimed-ground mismatch is suspected
     ground-spoof-threshold: 0.05
 
 BadPacketsAG:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsAH:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsAI:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 BadPacketsAJ:
     # Max yaw change (degrees) in one tick before it counts toward the spin buffer
@@ -463,6 +599,10 @@ BadPacketsAJ:
 Baritone:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 # ============================================================================
 # --- breaking ---
@@ -471,10 +611,18 @@ Baritone:
 AirLiquidBreak:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 FarBreak:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 FastBreak:
     # Break delay (ms) at or above which the delay balance is rewarded
@@ -491,18 +639,34 @@ FastBreak:
 InvalidBreak:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 MultiBreak:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 NoSwingBreak:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 PositionBreakA:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 PositionBreakB:
     # Mismatched-face occurrences buffered before a violation is flagged
@@ -511,10 +675,18 @@ PositionBreakB:
 RotationBreak:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 WrongBreak:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 # ============================================================================
 # --- chat ---
@@ -523,18 +695,34 @@ WrongBreak:
 ChatA:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 ChatB:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 ChatC:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 ChatD:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 # ============================================================================
 # --- combat ---
@@ -587,6 +775,10 @@ AttackFrequency:
 AutoArmor:
     setbackvl: 5
     decay: 0.02
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
     # Armor-switch delay (ms) below which a switch is considered automated
     min-switch-delay: 50
     # Number of fast switches counted before flagging
@@ -597,6 +789,10 @@ AutoArmor:
 AutoClicker:
     setbackvl: 10
     decay: 0.025
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
     # Number of recent clicks sampled for CPS/variance analysis
     window-size: 20
     # CPS above which clicking is considered impossible for a human
@@ -611,6 +807,10 @@ AutoClicker:
 Criticals:
     setbackvl: 5
     decay: 0.02
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
     # Buffer count at which a critical-hit violation is flagged
     flag-threshold: 5
     # Vertical delta below which a "fake critical" is detected
@@ -619,6 +819,10 @@ Criticals:
 FastBow:
     setbackvl: 5
     decay: 0.02
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
     # Minimum bow charge time (ms) before a shot is considered legitimate
     min-charge-time: 120
     # Buffer count at which a fast-bow violation is flagged
@@ -627,6 +831,10 @@ FastBow:
 FastEat:
     setbackvl: 5
     decay: 0.02
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
     # Minimum eat time (ms) before consumption is considered legitimate
     min-eat-time: 1400
     # Minimum drink time (ms) before consumption is considered legitimate
@@ -639,18 +847,34 @@ FastEat:
 Hitboxes:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 MultiAttack:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 MultiInteractA:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 MultiInteractB:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 NoSwing:
     # Window (ms) within which a swing must precede an attack
@@ -682,6 +906,10 @@ Reach:
 SelfInteract:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 # ============================================================================
 # --- crash ---
@@ -690,38 +918,74 @@ SelfInteract:
 CrashA:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 CrashB:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 CrashC:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 CrashD:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 CrashE:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 CrashF:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 CrashG:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 CrashH:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 CrashI:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 # ============================================================================
 # --- elytra ---
@@ -730,38 +994,74 @@ CrashI:
 ElytraA:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 ElytraB:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 ElytraC:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 ElytraD:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 ElytraE:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 ElytraF:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 ElytraG:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 ElytraH:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 ElytraI:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 # ============================================================================
 # --- exploit ---
@@ -770,14 +1070,26 @@ ElytraI:
 ExploitA:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 ExploitB:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 ExploitC:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 # ============================================================================
 # --- flight ---
@@ -786,6 +1098,10 @@ ExploitC:
 FlightA:
     setbackvl: 10
     decay: 0.02
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 # ============================================================================
 # --- groundspoof ---
@@ -794,10 +1110,18 @@ FlightA:
 NoFall:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 GroundSpoof:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 # ============================================================================
 # --- misc ---
@@ -806,34 +1130,66 @@ GroundSpoof:
 APIBypass:
     setbackvl: 0
     decay: 0.001
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 NettyDelay:
     setbackvl: 15
     decay: 0.02
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 NettyFlood:
     setbackvl: 15
     decay: 0.01
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 PayloadCheck:
     setbackvl: 10
     decay: 0.01
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 Post:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 SpartanDivergence:
     setbackvl: 25
     decay: 0.01
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 SpartanSync:
     setbackvl: 20
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 TransactionOrder:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 # ============================================================================
 # --- multiactions ---
@@ -842,34 +1198,66 @@ TransactionOrder:
 FastSwitch:
     setbackvl: 5
     decay: 0.02
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 MultiActionsA:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 MultiActionsB:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 MultiActionsC:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 MultiActionsD:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 MultiActionsE:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 MultiActionsF:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 MultiActionsG:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 # ============================================================================
 # --- movement ---
@@ -878,6 +1266,10 @@ MultiActionsG:
 Blink:
     setbackvl: 15
     decay: 0.02
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
     # Gap (ms) between flying packets above which a blink is counted
     gap-threshold-ms: 500
     # Consecutive blink count before flagging
@@ -888,6 +1280,10 @@ Blink:
 EntitySpeed:
     setbackvl: 10
     decay: 0.02
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
     # Max ground speed (blocks/tick) while riding a pig
     max-speed-pig: 0.50
     # Max ground speed (blocks/tick) while riding a horse
@@ -920,6 +1316,10 @@ inventorywalk:
 Jesus:
     setbackvl: 10
     decay: 0.02
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
     # Min fraction of predicted movement at which water-walk is evaluated
     frac-min: 0.92
     # Max fraction of predicted movement at which water-walk is evaluated
@@ -948,12 +1348,20 @@ NoSlow:
     setbackvl: 5
     # Decay's when the player uses an item AND is slowed by it
     decay: 0.05
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
     # Movement offset above which item-use slowdown bypass is flagged
     offset-to-flag: 0.01
 
 NoWeb:
     setbackvl: 10
     decay: 0.02
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
     # Max speed (blocks/tick) allowed inside a cobweb
     max-web-speed: 0.08
     # Secondary speed threshold for cobweb bypass confirmation
@@ -966,6 +1374,10 @@ NoWeb:
 SafeWalk:
     setbackvl: 5
     decay: 0.02
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
     # Movement delta above which edge-walk behaviour is evaluated
     delta-threshold: 0.05
     # Movement offset above which SafeWalk is flagged
@@ -978,10 +1390,18 @@ SafeWalk:
 SetbackBlocker:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 Speed:
     setbackvl: 10
     decay: 0.01
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
     # Base walking speed (blocks/tick)
     base-speed: 0.217
     # Base sprinting speed (blocks/tick)
@@ -996,6 +1416,10 @@ Speed:
 Spider:
     setbackvl: 10
     decay: 0.02
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
     # Vertical offset (blocks) above which wall-climb is evaluated
     climb-offset: 0.1
     # Consecutive climbing ticks before flagging
@@ -1006,6 +1430,10 @@ Spider:
 Step:
     setbackvl: 10
     decay: 0.02
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
     # Max vertical step (blocks) allowed in a single tick
     max-step: 0.70
     # Buffer level at which a violation is flagged
@@ -1026,6 +1454,10 @@ Tower:
 FastLadder:
     setbackvl: 10
     decay: 0.02
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
     # Max vertical speed (blocks/tick) allowed while climbing a ladder
     max-ladder-speed: 0.20
     # Buffer added when ladder speed exceeds the limit
@@ -1040,34 +1472,66 @@ FastLadder:
 PacketOrderA:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 PacketOrderB:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 PacketOrderC:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 PacketOrderD:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 PacketOrderE:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 PacketOrderF:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 PacketOrderG:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 PacketOrderH:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 PacketOrderI:
     # enable if players are getting flagged for using 1.7 animations mods
@@ -1076,30 +1540,58 @@ PacketOrderI:
 PacketOrderJ:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 PacketOrderK:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 PacketOrderL:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 PacketOrderM:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 PacketOrderN:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 PacketOrderO:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 PacketOrderP:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 # ============================================================================
 # --- prediction ---
@@ -1132,6 +1624,10 @@ Simulation:
 Phase:
     setbackvl: 1 # Glitching into blocks can allow wall climbing, plus this check is relatively stable
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 # ============================================================================
 # --- scaffolding ---
@@ -1140,6 +1636,10 @@ Phase:
 DuplicateRotPlace:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 AirLiquidPlace:
     cancelvl: 0
@@ -1153,14 +1653,26 @@ FarPlace:
 InvalidPlaceA:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 InvalidPlaceB:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 MultiPlace:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 PositionPlace:
     cancelvl: 5
@@ -1171,10 +1683,18 @@ RotationPlace:
 ScaffoldA:
     setbackvl: 10
     decay: 0.02
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 ScaffoldB:
     setbackvl: 10
     decay: 0.02
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 # ============================================================================
 # --- sprint ---
@@ -1183,30 +1703,58 @@ ScaffoldB:
 SprintA:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 SprintB:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 SprintC:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 SprintD:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 SprintE:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 SprintF:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 SprintG:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 # ============================================================================
 # --- timer ---
@@ -1219,6 +1767,10 @@ NegativeTimer:
 TickTimer:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 TimerA:
     setbackvl: 10
@@ -1245,26 +1797,50 @@ VehicleTimer:
 VehicleA:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 VehicleB:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 VehicleC:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 VehicleD:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 VehicleE:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 VehicleF:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 # ============================================================================
 # --- velocity ---
@@ -1316,6 +1892,10 @@ spartanapi:
 crossantikb:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
     # Ratio of actual/predicted movement below which knockback is considered reduced
     ratio-threshold: 0.5
     # Minimum predicted knockback movement (blocks) before the check engages
@@ -1338,6 +1918,10 @@ crossautoclicker:
 crosscriticals:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 crosselytramove:
     # Max horizontal elytra speed (blocks/s) before flagging
@@ -1406,6 +1990,10 @@ crossflight:
 crossflightb:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
 
 crossfoodsprint:
     # Sprint speed (blocks/tick) allowed while consuming an item
@@ -1464,6 +2052,10 @@ crossnofall:
 crossnoswing:
     setbackvl: 10
     decay: 0.005
+    maxvl: -1
+    punish-warn-vl: -1
+    punish-kick-vl: -1
+    punish-ban-vl: -1
     # Netty packet-timing variance below which no-swing attacks look too consistent (bot-like)
     netty-variance-threshold: 15.0
     # Tick window after an arm-swing in which an attack is considered legitimate

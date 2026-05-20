@@ -46,18 +46,24 @@ public final class AutoPunishment {
         if (!enabled) return;
         if (punishedPlayers.contains(player.uuid)) return;
 
+        int checkVL = (int) check.violations;
         int totalVL = (int) player.checkManager.allChecks.values().stream()
             .mapToDouble(c -> ((Check) c).violations).sum();
 
+        // Per-check thresholds override globals; -1 = use global
+        int banVl  = check.getPunishBanVL()  > 0 ? check.getPunishBanVL()  : banThreshold;
+        int kickVl = check.getPunishKickVL() > 0 ? check.getPunishKickVL() : kickThreshold;
+        int warnVl = check.getPunishWarnVL() > 0 ? check.getPunishWarnVL() : warnThreshold;
+
         boolean punished = false;
-        if (totalVL >= banThreshold && !banCommand.isEmpty()) {
+        if (checkVL >= banVl && !banCommand.isEmpty()) {
             executeCommand(banCommand, player, check, totalVL);
             WavePunishment.addToWave(player.uuid, player.getName(), check.getCheckName());
             punished = true;
-        } else if (totalVL >= kickThreshold && !kickCommand.isEmpty()) {
+        } else if (checkVL >= kickVl && !kickCommand.isEmpty()) {
             executeCommand(kickCommand, player, check, totalVL);
             punished = true;
-        } else if (totalVL >= warnThreshold && !warnMessage.isEmpty()) {
+        } else if (checkVL >= warnVl && !warnMessage.isEmpty()) {
             warnPlayer(player, check, totalVL);
         }
 
@@ -69,7 +75,7 @@ public final class AutoPunishment {
     }
 
     private static void alertStaff(SacPlayer player, Check check, int totalVL) {
-        String msg = "SAC » " + player.getName() + " reached VL=" + totalVL + " by " + check.getCheckName();
+        String msg = "SAC \u00BB " + player.getName() + " reached VL=" + totalVL + " by " + check.getCheckName();
         Component component = MessageUtil.miniMessage(msg);
         SacAPI.INSTANCE.getAlertManager().sendVerbose(component, null);
     }

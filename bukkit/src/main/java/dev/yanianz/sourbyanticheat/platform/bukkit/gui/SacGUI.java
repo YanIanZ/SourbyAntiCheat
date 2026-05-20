@@ -40,7 +40,42 @@ public class SacGUI implements Listener {
 
     private static final NamespacedKey KEY_TYPE  = new NamespacedKey("sac", "gui_type");
     private static final NamespacedKey KEY_VALUE = new NamespacedKey("sac", "gui_value");
+    private static final NamespacedKey KEY_UUID  = new NamespacedKey("sac", "gui_uuid");
     private static final SimpleDateFormat TIME_FMT = new SimpleDateFormat("HH:mm");
+
+    private static @org.jetbrains.annotations.Nullable Player resolvePlayer(String nameOrUuid) {
+        if (nameOrUuid == null) return null;
+        // Try exact name match first
+        Player p = Bukkit.getPlayer(nameOrUuid);
+        if (p != null) return p;
+        // Try UUID parse
+        try {
+            java.util.UUID uuid = java.util.UUID.fromString(nameOrUuid);
+            p = Bukkit.getPlayer(uuid);
+            if (p != null) return p;
+        } catch (IllegalArgumentException ignored) {}
+        // Try case-insensitive name match
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            if (online.getName().equalsIgnoreCase(nameOrUuid)) return online;
+        }
+        return null;
+    }
+
+    private static @org.jetbrains.annotations.Nullable SacPlayer resolveSacPlayer(String name) {
+        if (name == null) return null;
+        var pdm = SacAPI.INSTANCE.getPlayerDataManager();
+        for (SacPlayer sp : pdm.getEntries()) {
+            if (sp.getName().equalsIgnoreCase(name)) return sp;
+        }
+        // Try resolve by UUID if name looks like UUID
+        try {
+            java.util.UUID uuid = java.util.UUID.fromString(name);
+            for (SacPlayer sp : pdm.getEntries()) {
+                if (sp.uuid.equals(uuid)) return sp;
+            }
+        } catch (IllegalArgumentException ignored) {}
+        return null;
+    }
 
     // ── Main Panel ───────────────────────────────────────────────────
     public static void openMain(Player player) {
@@ -151,11 +186,7 @@ public class SacGUI implements Listener {
 
     // ── Player Detail Panel ──────────────────────────────────────────
     private static void openPlayerDetail(Player viewer, String targetName) {
-        var pdm = SacAPI.INSTANCE.getPlayerDataManager();
-        SacPlayer target = null;
-        for (SacPlayer sp : pdm.getEntries()) {
-            if (sp.getName().equalsIgnoreCase(targetName)) { target = sp; break; }
-        }
+        SacPlayer target = resolveSacPlayer(targetName);
         if (target == null) {
             viewer.sendMessage(Component.text("Player not found.", DANGER));
             return;
@@ -384,7 +415,7 @@ public class SacGUI implements Listener {
             case "reports" -> openReports(player);
             case "wave"   -> openWaveQueue(player);
             case "report_target" -> {
-                Player target = Bukkit.getPlayer(value);
+                Player target = resolvePlayer(value);
                 if (target != null) {
                     player.teleport(target.getLocation());
                     player.sendMessage(Component.text("Teleported to " + value, ACCENT));
@@ -454,11 +485,7 @@ public class SacGUI implements Listener {
     }
 
     private static void toggleCheck(Player viewer, String targetName, String checkName) {
-        var pdm = SacAPI.INSTANCE.getPlayerDataManager();
-        SacPlayer target = null;
-        for (SacPlayer sp : pdm.getEntries()) {
-            if (sp.getName().equalsIgnoreCase(targetName)) { target = sp; break; }
-        }
+        SacPlayer target = resolveSacPlayer(targetName);
         if (target == null) return;
 
         for (var entry : target.checkManager.allChecks.entrySet()) {
@@ -478,11 +505,7 @@ public class SacGUI implements Listener {
     }
 
     private static void resetAllVLs(Player viewer, String targetName) {
-        var pdm = SacAPI.INSTANCE.getPlayerDataManager();
-        SacPlayer target = null;
-        for (SacPlayer sp : pdm.getEntries()) {
-            if (sp.getName().equalsIgnoreCase(targetName)) { target = sp; break; }
-        }
+        SacPlayer target = resolveSacPlayer(targetName);
         if (target == null) return;
 
         int count = 0;

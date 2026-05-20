@@ -33,6 +33,9 @@ public class Check extends SacProcessor implements AbstractCheck {
     private double decay;
     private double setbackVL;
     private double maxVL = -1;
+    private int punishWarnVL = -1;
+    private int punishKickVL = -1;
+    private int punishBanVL = -1;
 
     private String checkName;
     private String configName;
@@ -177,6 +180,9 @@ public class Check extends SacProcessor implements AbstractCheck {
         setbackVL = configuration.getDoubleElse(configName + ".setbackvl", setbackVL);
         maxVL = configuration.getDoubleElse(configName + ".maxvl",
             configuration.getDoubleElse("punishment.max-vl", -1));
+        punishWarnVL = configuration.getIntElse(configName + ".punish-warn-vl", -1);
+        punishKickVL = configuration.getIntElse(configName + ".punish-kick-vl", -1);
+        punishBanVL  = configuration.getIntElse(configName + ".punish-ban-vl", -1);
         displayName = configuration.getStringElse(configName + ".displayname", checkName);
         description = configuration.getStringElse(configName + ".description", description);
 
