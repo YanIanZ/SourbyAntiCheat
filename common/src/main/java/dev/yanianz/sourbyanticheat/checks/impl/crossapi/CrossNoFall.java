@@ -14,9 +14,10 @@ public class CrossNoFall extends Check implements PostPredictionCheck {
 
     private double buffer;
 
-    // Config-wired thresholds (defaults equal prior hardcoded values)
-    private double offsetThreshold = 0.06;
-    private static final double NETTY_DELAY_THRESHOLD = 40.0; // physics constant
+    private double offsetThreshold = 0.1;
+    private double fullOffsetThreshold = 0.2;
+    private double nettyDelayThreshold = 40.0;
+    private static final double BUFFER_CAP = 6.0;
 
     public CrossNoFall(SacPlayer player) {
         super(player);
@@ -25,7 +26,9 @@ public class CrossNoFall extends Check implements PostPredictionCheck {
     @Override
     public void onReload(ConfigManager config) {
         String base = getConfigName() + ".";
-        offsetThreshold = config.getDoubleElse(base + "offset-threshold", 0.06);
+        offsetThreshold     = config.getDoubleElse(base + "offset-threshold", 0.1);
+        fullOffsetThreshold = config.getDoubleElse(base + "full-offset-threshold", 0.2);
+        nettyDelayThreshold = config.getDoubleElse(base + "netty-delay-threshold", 40.0);
     }
 
     @Override
@@ -36,7 +39,6 @@ public class CrossNoFall extends Check implements PostPredictionCheck {
         if (player.inVehicle() || player.compensatedEntities.self.isDead) return;
         if (player.packetStateData.lastPacketWasTeleport) return;
 
-        // Exempt fluid / potion states that alter fall physics legitimately
         if (player.wasTouchingWater || player.wasTouchingLava
                 || player.compensatedEntities.self.hasPotionEffect(PotionTypes.LEVITATION)
                 || player.compensatedEntities.self.hasPotionEffect(PotionTypes.SLOW_FALLING)) {
@@ -47,17 +49,19 @@ public class CrossNoFall extends Check implements PostPredictionCheck {
         double yOffset = Math.abs(player.crossValidationData.pePositionDeltaY
             - player.crossValidationData.predictedDeltaY);
         double fullOffset = player.crossValidationData.offsetFromPrediction;
+
+        // Require BOTH Y offset AND full offset to be suspicious.
+        // A high Y delta alone is often just step-up / slab physics.
         boolean groundSpoof = player.crossValidationData.peOnGround
-            && (yOffset > offsetThreshold || fullOffset > 0.2);
+            && yOffset > offsetThreshold && fullOffset > fullOffsetThreshold;
 
         if (!groundSpoof) {
-            buffer = Math.max(0, buffer - 0.15);
+            buffer = Math.max(0, buffer - 0.2);
             reward();
             return;
         }
 
-        boolean nettyConfirms = player.crossValidationData.nettyAvgDelayBetweenPacketsMs < NETTY_DELAY_THRESHOLD;
-
+        boolean nettyConfirms = player.crossValidationData.nettyAvgDelayBetweenPacketsMs < nettyDelayThreshold;
         SpartanCrossCheck.CrossCheckResult spartanResult =
             SpartanCrossCheck.checkSpartan(player.uuid, "NoFall");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
@@ -65,22 +69,19 @@ public class CrossNoFall extends Check implements PostPredictionCheck {
         int ping = player.getTransactionPing();
         double multiplier = ping > 400 ? 0.5 : 1.0;
 
-        if (nettyConfirms || spartanConfirms) {
-            buffer += 1.5 * multiplier;
+        if (spartanConfirms && nettyConfirms) {
+            buffer = Math.min(BUFFER_CAP, buffer + 1.5 * multiplier);
             if (buffer > 5.0) {
                 flagAndAlert(String.format("yOff=%.3f off=%.3f netty=%.1fms spartan=%s",
                     yOffset, fullOffset,
                     player.crossValidationData.nettyAvgDelayBetweenPacketsMs, spartanResult.type()));
+                buffer = 0;
                 return;
             }
+        } else if (spartanConfirms || nettyConfirms) {
+            buffer = Math.min(BUFFER_CAP, buffer + 0.8 * multiplier);
         } else {
-            buffer += 0.5 * multiplier;
-            if (buffer > 6.0) {
-                flagAndAlert(String.format("yOff=%.3f off=%.3f (no cross-confirm)",
-                    yOffset, fullOffset));
-                return;
-            }
+            buffer = Math.max(0, buffer - 0.2);
         }
-        // reward() only on confirmed-clean paths above — not here (suspicious tick)
     }
 }

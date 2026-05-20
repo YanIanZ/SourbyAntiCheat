@@ -36,6 +36,14 @@ public class FlightA extends Check implements PacketCheck {
             return;
         }
 
+        if (player.wasTouchingWater || player.isSwimming
+                || player.wasEyeInWater || player.fluidOnEyes == dev.yanianz.sourbyanticheat.utils.enums.FluidTag.WATER
+                || player.wasTouchingLava) {
+            airTicks = 0;
+            wasOnGround = false;
+            return;
+        }
+
         WrapperPlayClientPlayerFlying flying = new WrapperPlayClientPlayerFlying(event);
 
         if (flying.isOnGround() || player.inVehicle()) {

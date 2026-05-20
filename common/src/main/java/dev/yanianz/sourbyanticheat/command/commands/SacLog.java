@@ -79,9 +79,7 @@ public class SacLog implements BuildableCommand {
                 .handler(this::handleLog)
                 .manager(commandManager)
                 .build();
-        commandManager
-                .command(command)
-                .command(commandManager.commandBuilder("gl").proxies(command));
+        commandManager.command(command);
     }
 
     private void handleLog(@NotNull CommandContext<Sender> context) {

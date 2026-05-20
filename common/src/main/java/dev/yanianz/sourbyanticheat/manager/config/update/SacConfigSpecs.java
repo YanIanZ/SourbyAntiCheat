@@ -111,6 +111,11 @@ public final class SacConfigSpecs {
                 .build();
     }
 
+    public static @NotNull ConfigUpdater.Spec checks() {
+        return ConfigUpdater.Spec.builder("/checks/", 1, ConfigUpdater.ConfigFlavor.V2)
+                .build();
+    }
+
     public static @NotNull ConfigUpdater.Spec messages() {
         return ConfigUpdater.Spec.builder("/messages/", 1, ConfigUpdater.ConfigFlavor.V2)
                 .build();

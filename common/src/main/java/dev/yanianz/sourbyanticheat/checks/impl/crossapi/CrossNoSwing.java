@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.checks.impl.crossapi;
 
+import ac.grim.grimac.api.config.ConfigManager;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientInteractEntity;
@@ -13,32 +14,34 @@ import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 public class CrossNoSwing extends Check implements PacketCheck {
 
     private int buffer;
-    // Ticks for which a recent swing animation stays valid. A swing covers the attack
-    // in the same tick and the next, so attack/animation/flying packet interleaving
-    // cannot make a genuinely-swung attack look swing-less.
-    private int swingTicks = 0;
+    private int swingTicks;
 
-    // skipForBedrock defaults to true in Check — Bedrock/Geyser players legitimately suppress
-    // swing animations, so they are exempted via the base class GeyserUtil check automatically.
+    private double nettyVarianceThreshold = 12.0;
+    private int swingWindow = 6;
+    private static final int BUFFER_CAP = 5;
 
     public CrossNoSwing(SacPlayer player) {
         super(player);
-        // skipForBedrock = true (inherited default) — explicitly noted for clarity
+    }
+
+    @Override
+    public void onReload(ConfigManager config) {
+        String base = getConfigName() + ".";
+        nettyVarianceThreshold = config.getDoubleElse(base + "netty-variance-threshold", 12.0);
+        swingWindow            = config.getIntElse(base + "swing-window", 6);
     }
 
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
         if (player.disableGrim) return;
         if (player.compensatedEntities.self.isDead) return;
-
         if (player.inVehicle() || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR) return;
 
         if (event.getPacketType() == PacketType.Play.Client.ANIMATION) {
-            swingTicks = 2;
+            swingTicks = swingWindow;
             return;
         }
-
         if (com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) {
             if (swingTicks > 0) swingTicks--;
             return;
@@ -51,22 +54,31 @@ public class CrossNoSwing extends Check implements PacketCheck {
             WrapperPlayClientInteractEntity interact = new WrapperPlayClientInteractEntity(event);
             isAttack = interact.getAction() == WrapperPlayClientInteractEntity.InteractAction.ATTACK;
         }
-
         if (!isAttack) return;
 
         if (swingTicks <= 0) {
-            boolean nettyConfirms = player.crossValidationData.nettyIntervalVariance < 15.0;
+            boolean nettyConfirms = player.crossValidationData.nettyIntervalVariance < nettyVarianceThreshold;
             SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "NoSwing");
             boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
-            buffer += (nettyConfirms || spartanConfirms) ? 2 : 1;
-            if (buffer > 3) {
-                flagAndAlert(String.format("nettyVar=%.1f spartan=%s",
-                    player.crossValidationData.nettyIntervalVariance, spartanResult.type()));
+
+            if (spartanConfirms && nettyConfirms) {
+                buffer = Math.min(BUFFER_CAP, buffer + 2);
+            } else if (spartanConfirms || nettyConfirms) {
+                buffer = Math.min(BUFFER_CAP, buffer + 1);
+            } else {
+                buffer = Math.max(0, buffer - 1);
+                reward();
                 return;
+            }
+
+            if (buffer >= 4) {
+                flagAndAlert(String.format("nettyVar=%.1f vl=%d spartan=%s",
+                    player.crossValidationData.nettyIntervalVariance, (int) violations,
+                    spartanResult.type()));
+                buffer = 0;
             }
         } else {
             buffer = Math.max(0, buffer - 1);
-            // Fixed sparse-reward bug: reward() every clean tick, ungated by buffer < 2
             reward();
         }
     }

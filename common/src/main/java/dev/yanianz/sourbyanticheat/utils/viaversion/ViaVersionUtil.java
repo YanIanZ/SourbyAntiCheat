@@ -8,6 +8,7 @@ import lombok.experimental.UtilityClass;
 public class ViaVersionUtil {
     public static final boolean isAvailable = ReflectionUtils.hasClass("com.viaversion.viaversion.api.Via");
     public static final boolean hasViaBackwards = ViaVersionUtil.isAvailable && ReflectionUtils.hasClass("com.viaversion.viabackwards.ViaBackwards");
+    public static final boolean hasViaRewind    = ViaVersionUtil.isAvailable && ReflectionUtils.hasClass("com.viaversion.viarewind.ViaRewind");
 
     static {
         if (!isAvailable && ReflectionUtils.hasClass("us.myles.ViaVersion.api.Via")) {
@@ -40,5 +41,9 @@ public class ViaVersionUtil {
 
     public static boolean isViaBackwardsPre1_9(dev.yanianz.sourbyanticheat.player.SacPlayer player) {
         return hasViaBackwards && isPre1_9(player);
+    }
+
+    public static boolean isViaRewind(dev.yanianz.sourbyanticheat.player.SacPlayer player) {
+        return hasViaRewind && isPre1_9(player);
     }
 }

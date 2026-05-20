@@ -27,7 +27,9 @@ public class SacDump implements BuildableCommand {
     private static final boolean PAPER = ReflectionUtils.hasClass("com.destroystokyo.paper.PaperConfig")
             || ReflectionUtils.hasClass("io.papermc.paper.configuration.Configuration");
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    private String link = null; // these links should not expire for a while
+    private String link = null;
+    private long linkTime = 0;
+    private static final long LINK_TTL_MS = 300_000;
 
     @Override
     public void register(CommandManager<Sender> commandManager, CloudCommandAdapter adapter) {
@@ -42,14 +44,14 @@ public class SacDump implements BuildableCommand {
     private void handleDump(@NotNull CommandContext<Sender> context) {
         Sender sender = context.sender();
 
-        if (link != null) {
+        if (link != null && System.currentTimeMillis() - linkTime < LINK_TTL_MS) {
             sender.sendMessage(MessageUtil.miniMessage(SacAPI.INSTANCE.getConfigManager().getConfig()
                     .getStringElse("upload-log", "%prefix% &fUploaded debug to: %url%")
                     .replace("%url%", link)));
             return;
         }
-        // TODO: change this back to application/json once allowed
-        SacLog.sendLogAsync(sender, generateDump(), string -> link = string, "text/yaml");
+        link = null;
+        SacLog.sendLogAsync(sender, generateDump(), s -> { link = s; linkTime = System.currentTimeMillis(); }, "text/yaml");
     }
 
     public static JsonObject getDumpInfo() {

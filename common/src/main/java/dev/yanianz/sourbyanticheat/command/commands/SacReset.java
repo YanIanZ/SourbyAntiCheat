@@ -112,11 +112,11 @@ public class SacReset implements BuildableCommand {
                     .append(Component.text(" for ", SacColors.MUTED))
                     .append(Component.text(tp.getName(), SacColors.ACCENT))
                     .append(Component.text("  (was ", SacColors.DARK_GRAY))
-                    .append(Component.text(String.format("%.1f", oldVL), SacColors.vlColor(oldVL)))
+                    .append(Component.text(String.valueOf((int) oldVL), SacColors.vlColor(oldVL)))
                     .append(Component.text(")", SacColors.DARK_GRAY))
                     .build());
                 LogUtil.info("SAC reset: " + sender.getName() + " reset " + check.getCheckName()
-                        + " VL for " + tp.getName() + " (was " + String.format("%.1f", oldVL) + ")");
+                        + " VL for " + tp.getName() + " (was " + ((int) oldVL) + ")");
                 return;
             }
         }

@@ -46,6 +46,7 @@ public class ConfigManagerFileImpl implements ConfigManager, BasicReloadable {
         batch.put(getConfigFile("config.yml"), SacConfigSpecs.mainConfig());
         batch.put(getConfigFile("discord.yml"), SacConfigSpecs.discord());
         batch.put(getConfigFile("messages.yml"), SacConfigSpecs.messages());
+        batch.put(getConfigFile("checks.yml"), SacConfigSpecs.checks());
         batch.put(getConfigFile("database.yml"), SacConfigSpecs.database());
         for (String id : BACKEND_IDS) {
             batch.put(getConfigFile("databases/" + id + ".yml"), SacConfigSpecs.backend(id));
@@ -74,6 +75,7 @@ public class ConfigManagerFileImpl implements ConfigManager, BasicReloadable {
             // keys are namespaced under `database:` / `<id>:` wrappers so
             // they don't collide with config.yml / discord.yml / each other
             // when Configuralize merges everything into one keyspace.
+            config.addSource(SacAPI.class, "checks", getConfigFile("checks.yml"));
             config.addSource(SacAPI.class, "database", getConfigFile("database.yml"));
             for (String id : BACKEND_IDS) {
                 config.addSource(SacAPI.class, "databases/" + id, getConfigFile("databases/" + id + ".yml"));

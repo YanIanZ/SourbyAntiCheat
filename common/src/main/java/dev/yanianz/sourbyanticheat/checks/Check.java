@@ -32,6 +32,7 @@ public class Check extends SacProcessor implements AbstractCheck {
     public double violations;
     private double decay;
     private double setbackVL;
+    private double maxVL = -1;
 
     private String checkName;
     private String configName;
@@ -78,7 +79,7 @@ public class Check extends SacProcessor implements AbstractCheck {
     private void applyGlobalConfig() {
         try {
             var cfg = SacAPI.INSTANCE.getConfigManager().getConfig();
-            isEnabled = cfg.getBooleanElse("checks.enabled." + checkName, true);
+            isEnabled = cfg.getBooleanElse("checks.enabled." + configName, true);
         } catch (Exception ignored) {}
     }
 
@@ -135,7 +136,7 @@ public class Check extends SacProcessor implements AbstractCheck {
 
         player.punishmentManager.handleViolation(this);
         lastViolationTime = System.currentTimeMillis();
-        violations++;
+        violations = (maxVL > 0) ? Math.min(maxVL, violations + 1) : violations + 1;
         SpartanEventBridge.fireViolation(player, checkName, (int) violations, verbose);
         AutoPunishment.checkAndExecute(player, this);
         CheckPerformance.record(checkName, System.nanoTime() - start);
@@ -174,6 +175,8 @@ public class Check extends SacProcessor implements AbstractCheck {
     public final void reload(ConfigManager configuration) {
         decay = configuration.getDoubleElse(configName + ".decay", decay);
         setbackVL = configuration.getDoubleElse(configName + ".setbackvl", setbackVL);
+        maxVL = configuration.getDoubleElse(configName + ".maxvl",
+            configuration.getDoubleElse("punishment.max-vl", -1));
         displayName = configuration.getStringElse(configName + ".displayname", checkName);
         description = configuration.getStringElse(configName + ".description", description);
 

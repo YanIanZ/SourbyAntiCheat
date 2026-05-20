@@ -13,12 +13,16 @@ public class CrossFastBreakB extends Check implements BlockBreakCheck {
 
     private int buffer;
     private long lastBreakTime = 0;
-    private long consistentIntervals;
+    private int consistentIntervals;
 
-    // Gates variance (ms), not a raw timestamp — renamed from CONSISTENCY_THRESHOLD_MS
     private double intervalVarianceThreshold = 10.0;
     private long intervalMin = 20;
     private long intervalMax = 200;
+    private int consistencyGate = 12;
+    private double nettyRateThreshold = 120.0;
+
+    private static final int BUFFER_CAP = 5;
+    private static final int CONSISTENCY_CAP = 15;
 
     public CrossFastBreakB(SacPlayer player) { super(player); }
 
@@ -28,11 +32,12 @@ public class CrossFastBreakB extends Check implements BlockBreakCheck {
         this.intervalVarianceThreshold = config.getDoubleElse(base + "interval-variance-threshold", 10.0);
         this.intervalMin               = config.getIntElse(base + "interval-min-ms", 20);
         this.intervalMax               = config.getIntElse(base + "interval-max-ms", 200);
+        this.consistencyGate           = config.getIntElse(base + "consistency-gate", 12);
+        this.nettyRateThreshold        = config.getDoubleElse(base + "netty-rate-threshold", 120.0);
     }
 
     @Override
     public void onBlockBreak(BlockBreak blockBreak) {
-        // Break timing is meaningless in creative (every break is instant) — exempt.
         if (player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.SPECTATOR
                 || player.gamemode == com.github.retrooper.packetevents.protocol.player.GameMode.CREATIVE) return;
         if (player.compensatedEntities.self.isDead) return;
@@ -41,23 +46,39 @@ public class CrossFastBreakB extends Check implements BlockBreakCheck {
         if (lastBreakTime > 0) {
             long interval = now - lastBreakTime;
             if (interval > intervalMin && interval < intervalMax) {
-                consistentIntervals++;
+                consistentIntervals = Math.min(CONSISTENCY_CAP, consistentIntervals + 1);
             } else {
-                consistentIntervals = Math.max(0, consistentIntervals - 1);
+                consistentIntervals = Math.max(0, consistentIntervals - 3);
             }
         }
         lastBreakTime = now;
 
-        if (consistentIntervals < 8) { buffer = Math.max(0, buffer - 1); reward(); return; }
+        if (consistentIntervals < consistencyGate) {
+            buffer = Math.max(0, buffer - 1);
+            reward();
+            return;
+        }
 
-        boolean nettyConfirms = player.crossValidationData.nettyIntervalVariance < intervalVarianceThreshold;
+        boolean nettyConfirms = player.crossValidationData.nettyIntervalVariance < intervalVarianceThreshold
+                || player.crossValidationData.nettyPacketRatePerSec > nettyRateThreshold;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "FastBreak");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 
-        buffer += (nettyConfirms || spartanConfirms) ? 2 : 1;
-        if (buffer > 3) {
+        if (spartanConfirms && nettyConfirms) {
+            buffer = Math.min(BUFFER_CAP, buffer + 2);
+        } else if (spartanConfirms || nettyConfirms) {
+            buffer = Math.min(BUFFER_CAP, buffer + 1);
+        } else {
+            buffer = Math.max(0, buffer - 1);
+            reward();
+            return;
+        }
+
+        if (buffer >= 4) {
             flagAndAlert(String.format("consistent=%d nettyVar=%.1f spartan=%s",
                 consistentIntervals, player.crossValidationData.nettyIntervalVariance, spartanResult.type()));
+            buffer = 0;
+            consistentIntervals = 0;
         }
     }
 }

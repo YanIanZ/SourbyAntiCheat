@@ -14,18 +14,25 @@ public class CrossSpeedB extends Check implements PacketCheck {
 
     private double buffer;
     private double consistentRatio;
+    private int ticksSinceLastFlag;
 
-    // Config-wired thresholds (defaults equal prior hardcoded values)
-    private double maxRatioDeviation = 0.3;
-    private double ratioThreshold    = 1.5;
+    private double maxRatioDeviation = 0.5;
+    private double ratioThreshold    = 1.8;
+    private double sprintRatioCap    = 2.4;
+    private double velFloor          = 0.01;
+    private double nettyRateThreshold = 120.0;
+    private static final double BUFFER_CAP = 5.0;
 
     public CrossSpeedB(SacPlayer player) { super(player); }
 
     @Override
     public void onReload(ConfigManager config) {
         String base = getConfigName() + ".";
-        maxRatioDeviation = config.getDoubleElse(base + "max-ratio-deviation", 0.3);
-        ratioThreshold    = config.getDoubleElse(base + "ratio-threshold", 1.5);
+        maxRatioDeviation  = config.getDoubleElse(base + "max-ratio-deviation", 0.5);
+        ratioThreshold     = config.getDoubleElse(base + "ratio-threshold", 1.8);
+        sprintRatioCap     = config.getDoubleElse(base + "sprint-ratio-cap", 2.4);
+        velFloor           = config.getDoubleElse(base + "vel-floor", 0.01);
+        nettyRateThreshold = config.getDoubleElse(base + "netty-rate-threshold", 120.0);
     }
 
     @Override
@@ -41,44 +48,48 @@ public class CrossSpeedB extends Check implements PacketCheck {
         double velX = player.clientVelocity.getX();
         double velZ = player.clientVelocity.getZ();
         double velH = Math.sqrt(velX * velX + velZ * velZ);
-        if (velH < 0.01) return;
+        if (velH < velFloor) return;
 
         double actualX = player.crossValidationData.pePositionDeltaX;
         double actualZ = player.crossValidationData.pePositionDeltaZ;
         double actualH = Math.sqrt(actualX * actualX + actualZ * actualZ);
-        if (actualH < 0.01) return;
+        if (actualH < velFloor) return;
 
         double ratio = actualH / velH;
         double diff = Math.abs(ratio - consistentRatio);
 
-        if (diff < maxRatioDeviation && ratio > ratioThreshold) {
-            buffer += 0.5;
+        double effectiveThreshold = player.isSprinting ? sprintRatioCap : ratioThreshold;
+
+        if (diff < maxRatioDeviation && ratio > effectiveThreshold) {
+            buffer = Math.min(BUFFER_CAP, buffer + 0.5);
         } else {
-            buffer = Math.max(0, buffer - 0.5);
+            buffer = Math.max(0, buffer - 1.0);
             consistentRatio = ratio;
         }
 
-        if (buffer <= 4.0) {
+        if (buffer < 3.0) {
+            ticksSinceLastFlag = 0;
             reward();
             return;
         }
 
-        // The actualH/velH ratio is a self-derived heuristic and is noisy on its own
-        // (clientVelocity and pePositionDelta are not tick-synchronised). It must never
-        // alert without a genuine independent cross-confirmation, otherwise a legitimate
-        // player whose ratio sits steadily above the threshold is flagged relentlessly.
-        // A standalone netty packet rate is not a reliable second signal, so the alert is
-        // gated purely on Spartan agreeing this player is speeding.
+        ticksSinceLastFlag++;
+        if (ticksSinceLastFlag < 10) {
+            reward();
+            return;
+        }
+
+        boolean nettyConfirms = player.crossValidationData.nettyPacketRatePerSec > nettyRateThreshold;
         SpartanCrossCheck.CrossCheckResult spartanResult = SpartanCrossCheck.checkSpartan(player.uuid, "Speed");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 
-        if (spartanConfirms) {
-            flagAndAlert(String.format("ratio=%.2f buffer=%.1f netty=%.1f/s spartan=%s",
-                ratio, buffer, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
+        if (spartanConfirms && nettyConfirms) {
+            flagAndAlert(String.format("ratio=%.2f buffer=%.1f netty=%.1f/s sprint=%b spartan=%s",
+                ratio, buffer, player.crossValidationData.nettyPacketRatePerSec, player.isSprinting, spartanResult.type()));
+            buffer = 0;
+            ticksSinceLastFlag = 0;
         } else {
-            // Buffer over threshold but no cross-confirmation — decay and reward
-            // so VL does not stagnate while no independent source agrees.
-            buffer = Math.max(0, buffer - 0.5);
+            buffer = Math.max(0, buffer - 1.0);
             reward();
         }
     }

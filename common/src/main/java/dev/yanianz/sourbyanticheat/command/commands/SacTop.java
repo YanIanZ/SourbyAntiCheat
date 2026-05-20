@@ -24,7 +24,7 @@ public class SacTop implements BuildableCommand {
         commandManager.command(
                 commandManager.commandBuilder("sac", "sac")
                         .literal("top", Description.of("Show top offenders by VL"))
-                        .permission("sac.alerts")
+                        .permission("sac.top")
                         .handler(this::handleTop)
         );
     }

@@ -2,6 +2,7 @@ package dev.yanianz.sourbyanticheat.platform.bukkit.gui;
 
 import dev.yanianz.sourbyanticheat.SacAPI;
 import dev.yanianz.sourbyanticheat.checks.Check;
+import dev.yanianz.sourbyanticheat.manager.ReportManager;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import net.kyori.adventure.text.Component;
@@ -20,14 +21,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
-/**
- * Premium SAC Control Panel GUI with modern styling.
- */
 public class SacGUI implements Listener {
 
-    // ── Color palette (matches SacColors hex) ────────────────────────
     private static final TextColor BRAND      = TextColor.fromHexString("#FF6B35");
     private static final TextColor ACCENT     = TextColor.fromHexString("#00D4AA");
     private static final TextColor ACCENT2    = TextColor.fromHexString("#7C4DFF");
@@ -40,10 +38,9 @@ public class SacGUI implements Listener {
     private static final TextColor DARK_MUTED = TextColor.fromHexString("#64748B");
     private static final TextColor PURPLE     = TextColor.fromHexString("#C084FC");
 
-    private static final String MAIN_TITLE = "SAC Panel";
-    private static final String CHECK_TITLE = " Checks";
-    private static final NamespacedKey KEY_TYPE = new NamespacedKey("sac", "gui_type");
+    private static final NamespacedKey KEY_TYPE  = new NamespacedKey("sac", "gui_type");
     private static final NamespacedKey KEY_VALUE = new NamespacedKey("sac", "gui_value");
+    private static final SimpleDateFormat TIME_FMT = new SimpleDateFormat("HH:mm");
 
     // ── Main Panel ───────────────────────────────────────────────────
     public static void openMain(Player player) {
@@ -54,10 +51,8 @@ public class SacGUI implements Listener {
         Inventory inv = Bukkit.createInventory(null, 54,
             Component.text("✦ ", BRAND).append(Component.text("SAC Control Panel", SOFT_WHITE, TextDecoration.BOLD)));
 
-        // ── Glass border (top + bottom row) ──
         fillBorder(inv);
 
-        // ── Player heads (slots 10-43, skipping borders) ──
         int[] contentSlots = {10,11,12,13,14,15,16, 19,20,21,22,23,24,25, 28,29,30,31,32,33,34, 37,38,39,40,41,42,43};
         for (int i = 0; i < Math.min(entries.size(), contentSlots.length); i++) {
             SacPlayer sp = entries.get(i);
@@ -86,14 +81,12 @@ public class SacGUI implements Listener {
             inv.setItem(contentSlots[i], head);
         }
 
-        // ── Status beacon (bottom center) ──
+        // Status beacon
         ItemStack status = new ItemStack(Material.NETHER_STAR);
         ItemMeta sm = status.getItemMeta();
         sm.displayName(Component.text("★ ", HIGHLIGHT).append(Component.text("System Status", SOFT_WHITE, TextDecoration.BOLD)));
-
         boolean nettyOk = !dev.yanianz.sourbyanticheat.netty.SacNettyInjector.isInjectionFailed();
         boolean spartanOk = SpartanCrossCheck.isAvailable();
-
         sm.lore(List.of(
             Component.empty(),
             Component.text("  Tracked  ", MUTED).append(Component.text(entries.size() + " players", SOFT_WHITE)),
@@ -107,7 +100,36 @@ public class SacGUI implements Listener {
         setPDC(status, KEY_TYPE, "status");
         inv.setItem(49, status);
 
-        // ── Spartan icon ──
+        // Reports button
+        int reportCount = ReportManager.getAllReports().size();
+        ItemStack reports = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta rm = reports.getItemMeta();
+        rm.displayName(Component.text("📋 ", ACCENT).append(Component.text("Reports", SOFT_WHITE)));
+        rm.lore(List.of(
+            Component.empty(),
+            Component.text("  Pending  ", MUTED).append(Component.text(String.valueOf(reportCount), reportCount > 0 ? HIGHLIGHT : DARK_MUTED)),
+            Component.empty(),
+            Component.text("  ▸ Click to manage", ACCENT)
+        ));
+        reports.setItemMeta(rm);
+        setPDC(reports, KEY_TYPE, "reports");
+        inv.setItem(50, reports);
+
+        // Wave Queue button
+        ItemStack wave = new ItemStack(Material.CLOCK);
+        ItemMeta wm = wave.getItemMeta();
+        wm.displayName(Component.text("⏳ ", ACCENT2).append(Component.text("Wave Queue", SOFT_WHITE)));
+        wm.lore(List.of(
+            Component.empty(),
+            Component.text("  Queued bans for batch execution", MUTED),
+            Component.empty(),
+            Component.text("  ▸ Click to view", ACCENT)
+        ));
+        wave.setItemMeta(wm);
+        setPDC(wave, KEY_TYPE, "wave");
+        inv.setItem(52, wave);
+
+        // Spartan icon
         if (spartanOk) {
             ItemStack spartan = new ItemStack(Material.ENCHANTED_BOOK);
             ItemMeta spm = spartan.getItemMeta();
@@ -169,7 +191,6 @@ public class SacGUI implements Listener {
 
             ItemStack ic = new ItemStack(mat);
             ItemMeta im = ic.getItemMeta();
-
             Component nameComp = Component.text(check.getCheckName(), enabled ? SOFT_WHITE : DARK_MUTED);
             if (experimental) nameComp = nameComp.append(Component.text(" *", PURPLE));
             im.displayName(nameComp);
@@ -177,7 +198,7 @@ public class SacGUI implements Listener {
             List<Component> lore = new ArrayList<>();
             lore.add(Component.empty());
             lore.add(Component.text("  VL  ", MUTED)
-                .append(Component.text(String.format("%.1f", vl), vlColor(vl), TextDecoration.BOLD)));
+                .append(Component.text(String.valueOf((int) vl), vlColor(vl), TextDecoration.BOLD)));
             lore.add(Component.text("  Status  ", MUTED)
                 .append(Component.text(enabled ? "● Enabled" : "✖ Disabled", enabled ? SUCCESS : DANGER)));
             if (experimental) {
@@ -193,7 +214,6 @@ public class SacGUI implements Listener {
             inv.setItem(contentSlots[slot++], ic);
         }
 
-        // ── Back button ──
         ItemStack back = new ItemStack(Material.SPECTRAL_ARROW);
         ItemMeta bm = back.getItemMeta();
         bm.displayName(Component.text("← ", MUTED).append(Component.text("Back to Panel", SOFT_WHITE)));
@@ -201,7 +221,6 @@ public class SacGUI implements Listener {
         setPDC(back, KEY_TYPE, "back");
         inv.setItem(45, back);
 
-        // ── Reset button ──
         ItemStack reset = new ItemStack(Material.BARRIER);
         ItemMeta rm = reset.getItemMeta();
         rm.displayName(Component.text("⚠ ", DANGER).append(Component.text("Reset All VLs", DANGER)));
@@ -214,7 +233,6 @@ public class SacGUI implements Listener {
         setPDC(reset, KEY_TYPE, "reset");
         inv.setItem(53, reset);
 
-        // ── Spartan Cross-Check ──
         if (SpartanCrossCheck.isAvailable()) {
             var stats = SpartanCrossCheck.getStats(target.uuid);
             ItemStack spartan = new ItemStack(Material.ENCHANTED_BOOK);
@@ -234,29 +252,120 @@ public class SacGUI implements Listener {
         viewer.openInventory(inv);
     }
 
+    // ── Reports Panel ─────────────────────────────────────────────────
+    private static void openReports(Player viewer) {
+        List<ReportManager.Report> reports = ReportManager.getAllReports();
+        Inventory inv = Bukkit.createInventory(null, 54,
+            Component.text("📋 ", ACCENT).append(Component.text("Reports", SOFT_WHITE, TextDecoration.BOLD)));
+
+        fillBorder(inv);
+
+        int[] contentSlots = {10,11,12,13,14,15,16, 19,20,21,22,23,24,25, 28,29,30,31,32,33,34, 37,38,39,40,41,42,43};
+        for (int i = 0; i < Math.min(reports.size(), contentSlots.length); i++) {
+            ReportManager.Report r = reports.get(i);
+            ItemStack item = new ItemStack(Material.PAPER);
+            ItemMeta im = item.getItemMeta();
+            im.displayName(Component.text(r.reporterName(), HIGHLIGHT)
+                .append(Component.text(" → ", MUTED))
+                .append(Component.text(r.targetName(), DANGER)));
+            im.lore(List.of(
+                Component.empty(),
+                Component.text("  Reason  ", MUTED).append(Component.text(r.reason(), SOFT_WHITE)),
+                Component.text("  Time  ", MUTED).append(Component.text(TIME_FMT.format(new Date(r.timestamp())), DARK_MUTED)),
+                Component.empty(),
+                Component.text("  ▸ Click to teleport to " + r.targetName(), ACCENT)
+            ));
+            item.setItemMeta(im);
+            setPDC(item, KEY_TYPE, "report_target");
+            setPDC(item, KEY_VALUE, r.targetName());
+            inv.setItem(contentSlots[i], item);
+        }
+
+        if (reports.isEmpty()) {
+            ItemStack empty = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+            ItemMeta em = empty.getItemMeta();
+            em.displayName(Component.text("No pending reports", DARK_MUTED));
+            empty.setItemMeta(em);
+            inv.setItem(22, empty);
+        }
+
+        ItemStack back = new ItemStack(Material.SPECTRAL_ARROW);
+        ItemMeta bm = back.getItemMeta();
+        bm.displayName(Component.text("← ", MUTED).append(Component.text("Back to Panel", SOFT_WHITE)));
+        back.setItemMeta(bm);
+        setPDC(back, KEY_TYPE, "back");
+        inv.setItem(45, back);
+
+        // Clear all button
+        if (!reports.isEmpty()) {
+            ItemStack clear = new ItemStack(Material.BARRIER);
+            ItemMeta cm = clear.getItemMeta();
+            cm.displayName(Component.text("⚠ ", DANGER).append(Component.text("Clear All Reports", DANGER)));
+            clear.setItemMeta(cm);
+            setPDC(clear, KEY_TYPE, "reports_clear_all");
+            inv.setItem(53, clear);
+        }
+
+        viewer.openInventory(inv);
+    }
+
+    // ── Wave Queue Panel ──────────────────────────────────────────────
+    private static void openWaveQueue(Player viewer) {
+        Inventory inv = Bukkit.createInventory(null, 54,
+            Component.text("⏳ ", ACCENT2).append(Component.text("Wave Queue", SOFT_WHITE, TextDecoration.BOLD)));
+
+        fillBorder(inv);
+
+        ItemStack info = new ItemStack(Material.CLOCK);
+        ItemMeta im = info.getItemMeta();
+        im.displayName(Component.text("Ban Wave System", HIGHLIGHT, TextDecoration.BOLD));
+        im.lore(List.of(
+            Component.empty(),
+            Component.text("  Bans are batched and executed", MUTED),
+            Component.text("  at intervals to prevent cheat", MUTED),
+            Component.text("  developers from identifying which", MUTED),
+            Component.text("  check triggered the punishment.", MUTED),
+            Component.empty(),
+            Component.text("  Config: punishment.wave-command", DARK_MUTED),
+            Component.text("  Config: punishment.wave-interval", DARK_MUTED)
+        ));
+        info.setItemMeta(im);
+        inv.setItem(22, info);
+
+        ItemStack back = new ItemStack(Material.SPECTRAL_ARROW);
+        ItemMeta bm = back.getItemMeta();
+        bm.displayName(Component.text("← ", MUTED).append(Component.text("Back to Panel", SOFT_WHITE)));
+        back.setItemMeta(bm);
+        setPDC(back, KEY_TYPE, "back");
+        inv.setItem(45, back);
+
+        viewer.openInventory(inv);
+    }
+
     // ── Event Handler ────────────────────────────────────────────────
     @EventHandler
     public void onClick(InventoryClickEvent event) {
         String title = event.getView().getTitle();
         if (title == null) return;
-        // Match our GUI titles by checking for our Unicode markers
-        boolean isMainPanel = title.contains("SAC Control Panel");
+        boolean isMainPanel  = title.contains("SAC Control Panel");
         boolean isCheckPanel = title.contains("— Checks");
-        if (!isMainPanel && !isCheckPanel) return;
+        boolean isReports    = title.contains("Reports") && !isMainPanel && !isCheckPanel;
+        boolean isWave       = title.contains("Wave Queue");
+
+        if (!isMainPanel && !isCheckPanel && !isReports && !isWave) return;
         if (!(event.getWhoClicked() instanceof Player player)) return;
         event.setCancelled(true);
 
         ItemStack item = event.getCurrentItem();
         if (item == null || !item.hasItemMeta()) return;
 
-        String type = getPDC(item, KEY_TYPE);
+        String type  = getPDC(item, KEY_TYPE);
         String value = getPDC(item, KEY_VALUE);
         if (type == null) return;
 
         switch (type) {
             case "player" -> openPlayerDetail(player, value);
             case "check" -> {
-                // Extract player name from title: "✦ PlayerName — Checks"
                 String playerName = extractPlayerName(title);
                 if (playerName != null) {
                     toggleCheck(player, playerName, value);
@@ -272,18 +381,35 @@ public class SacGUI implements Listener {
                     openPlayerDetail(player, playerName);
                 }
             }
+            case "reports" -> openReports(player);
+            case "wave"   -> openWaveQueue(player);
+            case "report_target" -> {
+                Player target = Bukkit.getPlayer(value);
+                if (target != null) {
+                    player.teleport(target.getLocation());
+                    player.sendMessage(Component.text("Teleported to " + value, ACCENT));
+                } else {
+                    player.sendMessage(Component.text("Player " + value + " is offline.", DANGER));
+                }
+            }
+            case "reports_clear_all" -> {
+                var all = ReportManager.getAllReports();
+                for (var r : all) ReportManager.clearReports(r.target());
+                player.sendMessage(Component.text("All reports cleared.", ACCENT));
+                openReports(player);
+            }
         }
     }
 
     // ── Helpers ───────────────────────────────────────────────────────
 
     private static String extractPlayerName(String title) {
-        // Title format: "✦ PlayerName — Checks"
         int dash = title.indexOf("—");
         if (dash < 0) return null;
         String name = title.substring(0, dash).trim();
-        // Remove leading "✦ "
         if (name.startsWith("✦")) name = name.substring(1).trim();
+        if (name.startsWith("📋")) name = name.substring(1).trim();
+        if (name.startsWith("⏳")) name = name.substring(1).trim();
         return name.isEmpty() ? null : name;
     }
 
@@ -292,14 +418,10 @@ public class SacGUI implements Listener {
         ItemMeta pm = pane.getItemMeta();
         pm.displayName(Component.empty());
         pane.setItemMeta(pm);
-
-        // Top row
         for (int i = 0; i < 9; i++) inv.setItem(i, pane.clone());
-        // Bottom row
         for (int i = 45; i < 54; i++) {
             if (inv.getItem(i) == null) inv.setItem(i, pane.clone());
         }
-        // Side borders
         for (int row = 1; row < 5; row++) {
             inv.setItem(row * 9, pane.clone());
             inv.setItem(row * 9 + 8, pane.clone());

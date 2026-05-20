@@ -27,10 +27,15 @@ public class PlayerDataManager {
 
     public final Collection<User> exemptUsers = ConcurrentHashMap.newKeySet();
     private final ConcurrentHashMap<User, SacPlayer> playerDataMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, SacPlayer> playerByUuid = new ConcurrentHashMap<>();
 
     @Nullable
     public SacPlayer getPlayer(final @NotNull UUID uuid) {
-        // Is it safe to interact with this, or is this internal PacketEvents code?
+        SacPlayer cached = playerByUuid.get(uuid);
+        if (cached != null) {
+            if (cached.platformPlayer != null && cached.platformPlayer.isExternalPlayer()) return null;
+            return cached;
+        }
         Object channel = PacketEvents.getAPI().getProtocolManager().getChannel(uuid);
         User user = PacketEvents.getAPI().getProtocolManager().getUser(channel);
         return getPlayer(user);
@@ -77,12 +82,19 @@ public class PlayerDataManager {
         if (shouldCheck(user)) {
             SacPlayer player = new SacPlayer(user);
             playerDataMap.put(user, player);
+            if (user.getUUID() != null) {
+                playerByUuid.put(user.getUUID(), player);
+            }
             Channels.JOIN.fire(player);
         }
     }
 
     public SacPlayer remove(final @NotNull User user) {
-        return playerDataMap.remove(user);
+        SacPlayer removed = playerDataMap.remove(user);
+        if (removed != null && user.getUUID() != null) {
+            playerByUuid.remove(user.getUUID(), removed);
+        }
+        return removed;
     }
 
     public void onDisconnect(User user) {

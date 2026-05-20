@@ -219,3 +219,30 @@ spartanapi:
   event-bridge:
     enabled: true
     deduplication-window-ms: 500
+
+crossphase:
+    gap-threshold-ms: 2500
+    offset-threshold: 0.1
+    netty-rate-threshold: 15.0
+
+crossspeed:
+    velocity-multiplier: 2.5
+    ground-friction: 0.6
+    air-friction: 0.91
+    offset-threshold: 0.5
+    netty-rate-threshold: 18.0
+
+crossspeedb:
+    netty-rate-threshold: 18.0
+    max-ratio-deviation: 0.5
+    ratio-threshold: 1.8
+    vel-floor: 0.01
+    sprint-ratio-cap: 2.4
+
+crossfastbreak:
+    break-threshold: 12
+    netty-rate-threshold: 18.0
+
+crosstower:
+    tower-y-threshold: 0.42
+    netty-rate-threshold: 18.0

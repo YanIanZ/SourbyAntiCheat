@@ -262,6 +262,10 @@ logs:
 
 # --- Auto-Punishment ---
 punishment:
+    # Per-check max VL — violations won't exceed this (per-check, -1 = disabled)
+    max-vl: 200
+    # Total VL threshold to alert online staff with sac.staff permission
+    staff-alert-vl: 150
     # Warn player in chat when total VL exceeds this threshold
     warn-threshold: 100
     warn-message: "&c[SAC] You have been flagged for cheating. VL=%vl%"
@@ -275,6 +279,28 @@ punishment:
     # Prevents cheat devs from knowing which check triggered the ban
     wave-command: ""
     wave-interval: 60
+
+# --- Report System ---
+report:
+    # Seconds a player must wait between submitting /reports
+    cooldown-seconds: 60
+    # Broadcast new reports to staff with sac.staff permission
+    broadcast-to-staff: true
+    # Send report notifications to Discord webhook (requires discord.yml enabled)
+    discord-webhook: false
+    # Forward reports to other proxy servers (requires BungeeCord/Velocity)
+    proxy-broadcast: false
+    # Auto-delete reports older than this (days)
+    max-age-days: 7
+
+# --- Console Log Filter ---
+console:
+    # Only show these checks in console (empty = all)
+    filter-checks: []
+    # Minimum VL to show alert in console (0 = all)
+    filter-min-vl: 0
+    # Only show these player names in console (empty = all)
+    filter-players: []
 
 # --- Global Check Control ---
 # Disable specific checks server-wide by setting to false
@@ -531,6 +557,12 @@ spartanapi:
 # threshold makes the check more lenient, lowering it makes it stricter.
 # ============================================================================
 
+crossantikb:
+    # Ratio of actual/predicted movement below which knockback is considered reduced
+    ratio-threshold: 0.5
+    # Minimum predicted knockback movement (blocks) before the check engages
+    min-predicted-movement: 0.15
+
 crossautoclicker:
     # Netty packet-timing variance below which clicking looks too consistent (bot-like)
     netty-variance-threshold: 10.0
@@ -582,6 +614,10 @@ crossfastbreakb:
     interval-min-ms: 20
     # Maximum break interval in milliseconds still considered for analysis
     interval-max-ms: 200
+    # Minimum consecutive consistent breaks needed before the check engages
+    consistency-gate: 12
+    # Netty packet rate above which block-breaking is suspicious
+    netty-rate-threshold: 120.0
 
 crossfasteat:
     # Minimum time in milliseconds to finish eating food
@@ -625,7 +661,7 @@ crossfreecam:
 
 crossjesus:
     # Position offset (blocks) above which water-walking is flagged
-    offset-threshold: 0.15
+    offset-threshold: 0.08
     # Netty packet rate above which movement is suspicious
     netty-rate-threshold: 120.0
 
@@ -653,9 +689,17 @@ crosskillaurab:
 
 crossnofall:
     # Position offset (blocks) above which NoFall is flagged
-    offset-threshold: 0.06
+    offset-threshold: 0.1
     # Full prediction offset (blocks) above which NoFall is flagged
     full-offset-threshold: 0.2
+    # Netty packet delay (ms) below which movement is suspicious
+    netty-delay-threshold: 40.0
+
+crossnoswing:
+    # Netty packet-timing variance below which no-swing attacks look too consistent (bot-like)
+    netty-variance-threshold: 15.0
+    # Tick window after an arm-swing in which an attack is considered legitimate
+    swing-window: 4
 
 crossphase:
     # Gap in milliseconds between movement updates considered suspicious
@@ -699,13 +743,13 @@ crossspeedb:
     # Netty packet rate above which movement is suspicious
     netty-rate-threshold: 120.0
     # Max allowed deviation from the expected movement ratio
-    max-ratio-deviation: 0.3
+    max-ratio-deviation: 0.5
     # Movement-ratio above which speed is flagged
-    ratio-threshold: 1.5
+    ratio-threshold: 1.8
     # Minimum predicted velocity before the ratio check applies
-    vel-floor: 0.05
+    vel-floor: 0.01
     # Max ratio allowed while sprinting before flagging
-    sprint-ratio-cap: 2.2
+    sprint-ratio-cap: 2.4
 
 crossspider:
     # Minimum vertical delta (blocks) considered when climbing walls

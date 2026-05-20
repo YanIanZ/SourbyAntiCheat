@@ -89,7 +89,7 @@ public class SacList implements BuildableCommand {
                     .append(Component.text(check.isEnabled() ? SacColors.DOT : SacColors.CROSS,
                         check.isEnabled() ? SacColors.GREEN : SacColors.RED))
                     .append(Component.text(" " + check.getCheckName() + " ", check.isEnabled() ? SacColors.WHITE : SacColors.DARK_GRAY))
-                    .append(vl > 0.5 ? Component.text(String.format("%.1f", vl), SacColors.vlColor(vl)) : Component.empty())
+                    .append(vl > 0.5 ? Component.text(String.valueOf((int) vl), SacColors.vlColor(vl)) : Component.empty())
                     .append(check.isExperimental() ? Component.text(" *", SacColors.PURPLE) : Component.empty())
                     .clickEvent(ClickEvent.suggestCommand("/sac toggle " + check.getCheckName() + " "))
                     .hoverEvent(HoverEvent.showText(Component.text("Click to toggle " + check.getCheckName(), SacColors.GRAY)))

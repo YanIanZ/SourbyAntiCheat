@@ -95,6 +95,8 @@ public class CloudCommandService implements CommandService {
         new SacTop().register(commandManager, commandAdapter);
         new SacExempt().register(commandManager, commandAdapter);
         new SacChecks().register(commandManager, commandAdapter);
+        new ReportCommand().register(commandManager, commandAdapter);
+        new ReportsCommand().register(commandManager, commandAdapter);
 
         final RequirementPostprocessor<Sender, SenderRequirement>
                 senderRequirementPostprocessor = RequirementPostprocessor.of(

@@ -36,12 +36,17 @@ public class SacSpectate implements BuildableCommand {
 
         PlatformPlayer targetPlatformPlayer = targetSelectorResults.getSinglePlayer().getPlatformPlayer();
 
-        if (targetPlatformPlayer != null && targetPlatformPlayer.getUniqueId().equals(sender.getUniqueId())) {
+        if (targetPlatformPlayer == null) {
+            sender.sendMessage(MessageUtil.getParsedComponent(sender, "player-not-found", "%prefix% &cPlayer not found!"));
+            return;
+        }
+
+        if (targetPlatformPlayer.getUniqueId().equals(sender.getUniqueId())) {
             sender.sendMessage(MessageUtil.getParsedComponent(sender, "cannot-run-on-self", "%prefix% &cYou cannot use this command on yourself!"));
             return;
         }
 
-        if (targetPlatformPlayer != null && targetPlatformPlayer.isExternalPlayer()) {
+        if (targetPlatformPlayer.isExternalPlayer()) {
             sender.sendMessage(MessageUtil.getParsedComponent(sender, "player-not-this-server", "%prefix% &cThis player isn't on this server!"));
             return;
         }
@@ -54,6 +59,6 @@ public class SacSpectate implements BuildableCommand {
         }
 
         platformPlayer.setGameMode(GameMode.SPECTATOR);
-        platformPlayer.teleportAsync(Objects.requireNonNull(targetPlatformPlayer).getLocation());
+        platformPlayer.teleportAsync(targetPlatformPlayer.getLocation());
     }
 }

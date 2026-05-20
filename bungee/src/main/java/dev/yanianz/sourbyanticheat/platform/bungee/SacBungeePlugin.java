@@ -21,12 +21,12 @@ public class SacBungeePlugin extends Plugin implements ProxyMessenger, GlobalPla
     public void onEnable() {
         getProxy().registerChannel("sac:main");
         getProxy().getPluginManager().registerListener(this, new BungeeProxyListener(this));
-        getLogger().info("SAC BungeeCord companion enabled");
+        getLogger().info("[SAC] BungeeCord companion enabled");
     }
 
     @Override
     public void onDisable() {
-        getLogger().info("SAC BungeeCord companion disabled");
+        getLogger().info("[SAC] BungeeCord companion disabled");
     }
 
     @Override
@@ -86,13 +86,13 @@ public class SacBungeePlugin extends Plugin implements ProxyMessenger, GlobalPla
 
     @Override
     public void logAction(UUID actorUuid, String actorName, String action, String target, String detail, boolean success) {
-        getLogger().info(String.format("[AUDIT] %s → %s | %s | %s → %s",
+        getLogger().info(String.format("[SAC] [AUDIT] %s → %s | %s | %s → %s",
                 actorName, action, target, success ? "SUCCESS" : "FAILED", detail));
     }
 
     @Override
     public void logConfigChange(UUID actorUuid, String actorName, String configKey, String oldValue, String newValue) {
-        getLogger().info(String.format("[AUDIT-CONFIG] %s → %s: %s → %s",
+        getLogger().info(String.format("[SAC] [AUDIT-CONFIG] %s → %s: %s → %s",
                 actorName, configKey, oldValue, newValue));
     }
 

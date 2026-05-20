@@ -42,8 +42,8 @@ webhook-test-failed: "Discord webhook test failed!"
 # %experimental% - 检查是否是实验性
 # %vl% - VL值
 # %verbose% - 检查中的额外信息说明，例如偏移量，并非所有检查都会添加信息
-alerts-format: "%prefix% &f%player% &b触发了 &f%check_name%%experimental% &f(x&c%vl%&f) &7%verbose%"
-alerts-format-proxy: "%prefix% &f[&cproxy&f] &f%player% &b触发了 &f%check_name%%experimental% &f(x&c%vl%&f) &7%verbose%"
+alerts-format: "%prefix% &f%player% &b触发了 &f%check_name%%experimental% &f&7[&c%vl%&7] &7%verbose%"
+alerts-format-proxy: "%prefix% &f[&cproxy&f] &f%player% &b触发了 &f%check_name%%experimental% &f&7[&c%vl%&7] &7%verbose%"
 experimental-symbol: "*"
 
 profile:
@@ -117,7 +117,7 @@ sac-history-detail-group: "%prefix% &7- %checks_list% &8(&b%offset%&8)"
 #   %prefix% %offset% %check% %vl% %verbose%
 sac-history-detail-entry: "%prefix% &7- &f%check% &8(&b%offset%&8)&7 %verbose%"
 # %checks_list% 中每个检查项的内部格式 — 可用占位符: %check_name% %count%
-sac-history-check-count: "&f%check_name%&7 x&c%count%"
+sac-history-check-count: "&f%check_name%&7 [&c%count%&7]"
 
 # 模式标记 — 参见 config.yml 顶部的注释。
 config-flavor: V2

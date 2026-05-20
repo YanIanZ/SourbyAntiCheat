@@ -10,6 +10,7 @@ import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
+import dev.yanianz.sourbyanticheat.utils.viaversion.ViaVersionUtil;
 
 // CrossNoSlowdown merged here (2026-05-18): both checks detected sprint-speed while using item;
 // CrossNoSlowdown added a USE_TIMEOUT_MS guard which is folded in as the isUsingItem timeout branch.
@@ -25,6 +26,9 @@ public class CrossFoodSprint extends Check implements PostPredictionCheck {
     private double sprintSpeed         = 0.28;
     private double nettyRateThreshold  = 120.0;
     private long   useTimeoutMs        = 5000L;
+
+    private static final double VIA_BACKWARDS_SPRINT_SPEED_MULTIPLIER = 1.4;
+    private static final double VIA_BACKWARDS_BUFFER_INCREMENT_FACTOR = 0.5;
 
     public CrossFoodSprint(SacPlayer player) {
         super(player);
@@ -86,7 +90,14 @@ public class CrossFoodSprint extends Check implements PostPredictionCheck {
         double deltaZ = player.z - player.lastZ;
         double speed = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
 
-        boolean sprintingWhileUsing = speed > sprintSpeed;
+        double effectiveSprintSpeed = sprintSpeed;
+        double bufferIncrement = 0.5;
+        if (ViaVersionUtil.isViaBackwardsPre1_9(player)) {
+            effectiveSprintSpeed *= VIA_BACKWARDS_SPRINT_SPEED_MULTIPLIER;
+            bufferIncrement *= VIA_BACKWARDS_BUFFER_INCREMENT_FACTOR;
+        }
+
+        boolean sprintingWhileUsing = speed > effectiveSprintSpeed;
 
         if (!sprintingWhileUsing) {
             buffer = Math.max(0, buffer - 0.02);
@@ -100,7 +111,7 @@ public class CrossFoodSprint extends Check implements PostPredictionCheck {
             SpartanCrossCheck.checkSpartan(player.uuid, "NoSlowdown");
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 
-        buffer += (nettyConfirms || spartanConfirms) ? 1.5 : 0.5;
+        buffer += (nettyConfirms || spartanConfirms) ? 1.5 : bufferIncrement;
         if (buffer > 3.0) {
             flagAndAlert(String.format("speed=%.2f netty=%.1f/s spartan=%s",
                 speed, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));

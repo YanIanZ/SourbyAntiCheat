@@ -13,6 +13,7 @@ import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientInteractEntity;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
+import dev.yanianz.sourbyanticheat.utils.viaversion.ViaVersionUtil;
 
 /**
  * Detects impossible attack patterns:
@@ -38,6 +39,8 @@ public class AttackFrequency extends Check implements PacketCheck {
 
     // No attack for this many flying ticks ends the combat session.
     private static final int SESSION_END_TICKS = 40;
+    private static final double VIA_BACKWARDS_INTERVAL_MULTIPLIER = 2.0;
+    private static final int VIA_BACKWARDS_PER_TICK_CAP = 6;
 
     public AttackFrequency(SacPlayer player) {
         super(player);
@@ -61,9 +64,14 @@ public class AttackFrequency extends Check implements PacketCheck {
             boolean exempt = player.packetStateData.lastPacketWasTeleport
                     || !player.isTickingReliablyFor(3);
 
+            int effectivePerTickThreshold = attacksPerTickThreshold;
+            if (ViaVersionUtil.isViaBackwardsPre1_9(player)) {
+                effectivePerTickThreshold = VIA_BACKWARDS_PER_TICK_CAP;
+            }
+
             if (attacksThisTick > 1 && !exempt) {
                 buffer += attacksThisTick - 1;
-                if (buffer > attacksPerTickThreshold) {
+                if (buffer > effectivePerTickThreshold) {
                     flagAndAlert("perTick=" + attacksThisTick + " buffer=" + buffer);
                 }
             } else {
@@ -105,7 +113,12 @@ public class AttackFrequency extends Check implements PacketCheck {
         long deltaMs = (now - lastAttackNanos) / 1_000_000L;
 
         // Under min-attack-interval ms between attacks is physically impossible without cheats.
-        if (lastAttackNanos > 0 && deltaMs < minAttackIntervalMs) {
+        long effectiveMinInterval = minAttackIntervalMs;
+        if (ViaVersionUtil.isViaBackwardsPre1_9(player)) {
+            effectiveMinInterval = (long)(minAttackIntervalMs / VIA_BACKWARDS_INTERVAL_MULTIPLIER);
+        }
+
+        if (lastAttackNanos > 0 && deltaMs < effectiveMinInterval) {
             rapidAttacks++;
             if (rapidAttacks > rapidAttacksThreshold) {
                 flagAndAlert("delta=" + deltaMs + "ms rapid=" + rapidAttacks);

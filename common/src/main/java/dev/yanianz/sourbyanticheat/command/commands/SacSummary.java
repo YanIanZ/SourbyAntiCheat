@@ -22,7 +22,7 @@ public class SacSummary implements BuildableCommand {
         commandManager.command(
                 commandManager.commandBuilder("sac", "sac")
                         .literal("summary", Description.of("Show violation summary"))
-                        .permission("sac.alerts")
+                        .permission("sac.summary")
                         .handler(this::handleSummary)
         );
     }

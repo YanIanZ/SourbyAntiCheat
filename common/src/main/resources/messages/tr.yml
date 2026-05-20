@@ -42,8 +42,8 @@ webhook-test-failed: "Discord webhook test failed!"
 # %experimental%
 # %vl% - ihlal uyarıları
 # %verbose% - detaylı olarak verilen tüm uyarılar, checkler tüm bilgileri vermez
-alerts-format: "%prefix% &b%player% &fadlı oyuncuda &f(x&c%vl%&f) &fadet &b%check_name%%experimental% &ftespit edildi: &7%verbose%"
-alerts-format-proxy: "%prefix% &f[&cproxy&f] &b%player% &fadlı oyuncuda &f(x&c%vl%&f) &fadet &b%check_name%%experimental% &ftespit edildi: &7%verbose%"
+alerts-format: "%prefix% &b%player% &fadlı oyuncuda &f&7[&c%vl%&7] &fadet &b%check_name%%experimental% &ftespit edildi: &7%verbose%"
+alerts-format-proxy: "%prefix% &f[&cproxy&f] &b%player% &fadlı oyuncuda &f&7[&c%vl%&7] &fadet &b%check_name%%experimental% &ftespit edildi: &7%verbose%"
 experimental-symbol: "*"
 
 profile:
@@ -122,7 +122,7 @@ sac-history-detail-group: "%prefix% &7- %checks_list% &8(&b%offset%&8)"
 #   %prefix% %offset% %check% %vl% %verbose%
 sac-history-detail-entry: "%prefix% &7- &f%check% &8(&b%offset%&8)&7 %verbose%"
 # %checks_list% içinde her kontrol için iç biçim — geçerli placeholder'lar: %check_name% %count%
-sac-history-check-count: "&f%check_name%&7 x&c%count%"
+sac-history-check-count: "&f%check_name%&7 [&c%count%&7]"
 
 # Şema işaretçileri — bkz. config.yml'deki başlık yorumu.
 config-flavor: V2

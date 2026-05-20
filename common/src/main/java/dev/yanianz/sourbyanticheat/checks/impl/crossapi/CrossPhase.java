@@ -11,6 +11,7 @@ import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.utils.collisions.datatypes.SimpleCollisionBox;
 import dev.yanianz.sourbyanticheat.utils.nmsutil.Collisions;
+import dev.yanianz.sourbyanticheat.utils.viaversion.ViaVersionUtil;
 
 @CheckData(name = "CrossPhase", configName = "crossphase", decay = 0.05, setback = 5, stableKey = "cross.phase")
 public class CrossPhase extends Check implements PacketCheck {
@@ -22,6 +23,9 @@ public class CrossPhase extends Check implements PacketCheck {
     private long gapThresholdMs       = 1000;
     private double offsetThreshold    = 0.1;
     private double nettyRateThreshold = 15.0;
+    private static final double CROSS_VERSION_LENIENCY = 1.5;
+    private static final double VIA_BACKWARDS_GAP_MULTIPLIER = 1.5;
+    private boolean receivedFirstPacket;
 
     public CrossPhase(SacPlayer player) {
         super(player);
@@ -53,11 +57,26 @@ public class CrossPhase extends Check implements PacketCheck {
         long gap = now - lastPacketTime;
         lastPacketTime = now;
 
-        boolean gapFlag = gap > gapThresholdMs;
+        if (!receivedFirstPacket) {
+            receivedFirstPacket = true;
+            lastPacketTime = now;
+            return;
+        }
+
+        long effectiveGapThreshold = gapThresholdMs;
+        double effectiveOffsetThreshold = offsetThreshold;
+        if (ViaVersionUtil.isCrossVersion(player)) {
+            effectiveOffsetThreshold *= CROSS_VERSION_LENIENCY;
+        }
+        if (ViaVersionUtil.isViaBackwardsPre1_9(player)) {
+            effectiveGapThreshold = (long)(gapThresholdMs * VIA_BACKWARDS_GAP_MULTIPLIER);
+        }
+
+        boolean gapFlag = gap > effectiveGapThreshold;
 
         SimpleCollisionBox playerBox = player.boundingBox.copy().expand(0.05);
         boolean insideBlock = !Collisions.isEmpty(player, playerBox)
-            && player.crossValidationData.offsetFromPrediction > offsetThreshold;
+            && player.crossValidationData.offsetFromPrediction > effectiveOffsetThreshold;
 
         if (!gapFlag && !insideBlock) {
             phaseBuffer = Math.max(0, phaseBuffer - 1);

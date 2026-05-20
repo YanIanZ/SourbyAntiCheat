@@ -2,8 +2,10 @@ package dev.yanianz.sourbyanticheat.manager.datastore;
 
 import dev.yanianz.sourbyanticheat.SacAPI;
 import ac.grim.grimac.api.plugin.GrimPlugin;
+import java.util.logging.Logger;
 import dev.yanianz.sourbyanticheat.manager.init.start.StartableInitable;
 import dev.yanianz.sourbyanticheat.manager.init.stop.StoppableInitable;
+import dev.yanianz.sourbyanticheat.utils.anticheat.LogUtil;
 import ac.grim.grimac.api.storage.DataStore;
 import ac.grim.grimac.api.storage.backend.Backend;
 import ac.grim.grimac.api.storage.backend.BackendConfig;
@@ -42,8 +44,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  * Wires the shared DataStore + associated services to the plugin's
@@ -55,7 +56,6 @@ import java.util.logging.Logger;
 public final class DataStoreLifecycle implements StartableInitable, StoppableInitable {
 
     private final GrimPlugin plugin;
-    private final Logger logger;
     private final BackendRegistry backendRegistry;
 
     private DataStoreConfig config;
@@ -76,7 +76,6 @@ public final class DataStoreLifecycle implements StartableInitable, StoppableIni
     public DataStoreLifecycle(@NotNull GrimPlugin plugin, @NotNull BackendRegistry backendRegistry) {
         this.plugin = Objects.requireNonNull(plugin, "plugin");
         this.backendRegistry = Objects.requireNonNull(backendRegistry, "backendRegistry");
-        this.logger = Logger.getLogger("SAC-DataStore");
     }
 
     @Override
@@ -94,14 +93,14 @@ public final class DataStoreLifecycle implements StartableInitable, StoppableIni
                 SacAPI.INSTANCE.getConfigManager().getConfig());
 
         if (!builder.enabled()) {
-            logger.info("disabled in database.yml — skipping storage init");
+            LogUtil.info("disabled in database.yml — skipping storage init");
             this.enabled = false;
             return;
         }
         try {
             this.config = builder.build();
         } catch (RuntimeException e) {
-            logger.log(Level.SEVERE, "database.yml rejected — storage disabled", e);
+            LogUtil.error( "database.yml rejected — storage disabled", e);
             this.enabled = false;
             return;
         }
@@ -110,7 +109,7 @@ public final class DataStoreLifecycle implements StartableInitable, StoppableIni
             buildAndStart(dataFolder);
             this.loaded = true;
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "failed to initialise storage — falling back to disabled", e);
+            LogUtil.error( "failed to initialise storage — falling back to disabled", e);
             this.enabled = false;
             try { teardown(); } catch (Exception ignore) {}
         }
@@ -120,7 +119,7 @@ public final class DataStoreLifecycle implements StartableInitable, StoppableIni
         Map<String, Backend> backendsById = new LinkedHashMap<>();
         for (Map.Entry<String, BackendConfig> entry : config.backends().entrySet()) {
             Backend b = buildBackend(entry.getKey(), entry.getValue());
-            b.init(new SimpleContext(entry.getValue(), logger, dataFolder));
+            b.init(new SimpleContext(entry.getValue(), plugin.getLogger(), dataFolder));
             backendsById.put(entry.getKey(), b);
         }
 
@@ -147,7 +146,7 @@ public final class DataStoreLifecycle implements StartableInitable, StoppableIni
         maybeMigrateLegacy(dataFolder, sqliteForExtras);
 
         CategoryRouter router = new CategoryRouter(routing);
-        this.dataStore = new DataStoreImpl(router, config.writePath(), logger);
+        this.dataStore = new DataStoreImpl(router, config.writePath(), plugin.getLogger());
         this.dataStore.start();
 
         if (checkRegistry == null) {
@@ -166,12 +165,12 @@ public final class DataStoreLifecycle implements StartableInitable, StoppableIni
         this.playerIdentityService = new PlayerIdentityService(dataStore);
         this.nameResolver = buildNameResolver(dataStore, config.nameResolutionChain());
         this.violationSink = new ViolationSinkImpl(dataStore);
-        this.retentionSweeper = new RetentionSweeper(dataStore, config.retention(), logger);
+        this.retentionSweeper = new RetentionSweeper(dataStore, config.retention(), plugin.getLogger());
         this.sessionTracker = new SessionTrackerImpl(
                 dataStore, config.serverName(), config.session().heartbeatIntervalMs());
         this.liveWriteHooks = new LiveWriteHooksImpl(
                 dataStore, playerIdentityService, checkRegistry, sessionTracker);
-        this.playerToggleStore = new PlayerToggleStoreImpl(dataStore, logger);
+        this.playerToggleStore = new PlayerToggleStoreImpl(dataStore, plugin.getLogger());
 
         // Crash sweep — mark every session whose closed_at is still null as
         // crashed by stamping closed_at = last_activity. SessionTracker has
@@ -183,12 +182,12 @@ public final class DataStoreLifecycle implements StartableInitable, StoppableIni
             try {
                 long affected = b.markCrashedSessions();
                 if (affected > 0) {
-                    logger.info("marked " + affected
+                    LogUtil.info("marked " + affected
                             + " open session(s) on backend '" + b.id()
                             + "' as crashed (server didn't shut down cleanly last run)");
                 }
             } catch (Exception e) {
-                logger.log(Level.WARNING,
+                LogUtil.warn(
                         "markCrashedSessions failed on backend '"
                                 + b.id() + "' — sessions may show as ongoing forever", e);
             }
@@ -217,7 +216,7 @@ public final class DataStoreLifecycle implements StartableInitable, StoppableIni
             switch (id) {
                 case "local-cache" -> links.add(new LocalCacheLink(store));
                 case "offline-mode-uuid" -> links.add(new OfflineModeUuidLink());
-                default -> logger.warning("unknown name-resolver link: " + id);
+                default -> LogUtil.warn("unknown name-resolver link: " + id);
             }
         }
         return new NameResolverChain(links);
@@ -229,7 +228,7 @@ public final class DataStoreLifecycle implements StartableInitable, StoppableIni
         // place to migrate into — skip.
         if (sqliteBackend == null) return;
         if (config.migration().skip()) {
-            logger.info("migration.skip=true; leaving legacy v0 un-migrated");
+            LogUtil.info("migration.skip=true; leaving legacy v0 un-migrated");
             return;
         }
         V0Sources.V0Source source = V0Sources.detect(
@@ -237,26 +236,26 @@ public final class DataStoreLifecycle implements StartableInitable, StoppableIni
                 SacAPI.INSTANCE.getConfigManager().getConfig());
         // No legacy store on disk — fresh install or migration already done.
         if (source == null) {
-            logger.info("no legacy v0 store detected; nothing to migrate");
+            LogUtil.info("no legacy v0 store detected; nothing to migrate");
             return;
         }
-        logger.info("legacy v0 source: " + source.summary());
+        LogUtil.info("legacy v0 source: " + source.summary());
         V0Reader reader = new V0Reader(source.jdbcUrl(), source.username(), source.password());
         LegacyMigrator migrator = new LegacyMigrator(
                 reader, sqliteBackend, checkRegistry,
                 ClientVersionResolver::legacyStringToPvn,
-                config.session().gapMs(), logger);
+                config.session().gapMs(), plugin.getLogger());
         long startMs = System.currentTimeMillis();
         try {
             LegacyMigrator.Result result = migrator.run(count -> {
-                if (count % 5000 == 0) logger.info("migrated " + count + " violations so far");
+                if (count % 5000 == 0) LogUtil.info("migrated " + count + " violations so far");
             });
             long elapsed = System.currentTimeMillis() - startMs;
-            logger.info("legacy migration: " + result.sessionsWritten() + " sessions, "
+            LogUtil.info("legacy migration: " + result.sessionsWritten() + " sessions, "
                     + result.violationsWritten() + " violations, " + elapsed + "ms"
                     + (result.resumed() ? " (resumed)" : ""));
         } catch (BackendException e) {
-            logger.log(Level.SEVERE, "legacy migration failed", e);
+            LogUtil.error( "legacy migration failed", e);
         }
     }
 
@@ -286,7 +285,7 @@ public final class DataStoreLifecycle implements StartableInitable, StoppableIni
      * lookups via {@link #liveWriteHooks()} resolve to the new instance.
      */
     public synchronized void reload() {
-        logger.info("/grim reload: tearing down datastore...");
+        LogUtil.info("/grim reload: tearing down datastore...");
         teardown();
         start();
     }

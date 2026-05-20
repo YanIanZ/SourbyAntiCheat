@@ -8,6 +8,7 @@ import dev.yanianz.sourbyanticheat.checks.type.PostPredictionCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.utils.anticheat.update.PredictionComplete;
+import dev.yanianz.sourbyanticheat.utils.viaversion.ViaVersionUtil;
 
 @CheckData(name = "CrossFlight", configName = "crossflight", decay = 0.05, setback = 25, stableKey = "cross.flight")
 public class CrossFlight extends Check implements PostPredictionCheck {
@@ -16,6 +17,8 @@ public class CrossFlight extends Check implements PostPredictionCheck {
 
     private double predictionThreshold = 0.15;
     private double nettyRateThreshold  = 120.0;
+    private static final double CROSS_VERSION_LENIENCY = 1.5;
+    private static final double VIA_BACKWARDS_Y_LENIENCY = 1.3;
 
     public CrossFlight(SacPlayer player) {
         super(player);
@@ -44,8 +47,21 @@ public class CrossFlight extends Check implements PostPredictionCheck {
         }
 
         double offset = player.crossValidationData.offsetFromPrediction;
-        boolean notFalling = player.crossValidationData.pePositionDeltaY >= 0;
-        boolean predictionFlag = offset > predictionThreshold && notFalling;
+        double effectiveThreshold = predictionThreshold;
+        if (ViaVersionUtil.isCrossVersion(player)) {
+            effectiveThreshold *= CROSS_VERSION_LENIENCY;
+        }
+        if (ViaVersionUtil.isViaBackwardsPre1_9(player)) {
+            effectiveThreshold *= VIA_BACKWARDS_Y_LENIENCY;
+        }
+
+        double deltaY = player.crossValidationData.pePositionDeltaY;
+        double deltaYFloor = -0.01;
+        if (ViaVersionUtil.isViaBackwardsPre1_9(player)) {
+            deltaYFloor = -0.08;
+        }
+        boolean notFalling = deltaY > deltaYFloor;
+        boolean predictionFlag = offset > effectiveThreshold && notFalling;
 
         if (!predictionFlag) {
             buffer = Math.max(0, buffer - 0.05);

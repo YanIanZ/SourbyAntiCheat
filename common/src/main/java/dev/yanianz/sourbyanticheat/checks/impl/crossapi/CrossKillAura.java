@@ -9,6 +9,7 @@ import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
+import dev.yanianz.sourbyanticheat.utils.viaversion.ViaVersionUtil;
 
 @CheckData(name = "CrossKillAura", configName = "crosskillaura", decay = 0.01, setback = 50, stableKey = "cross.killaura")
 public class CrossKillAura extends Check implements PacketCheck {
@@ -20,6 +21,8 @@ public class CrossKillAura extends Check implements PacketCheck {
     private double attackIntervalThreshold = 200.0;
     private static final double NETTY_RATE_THRESHOLD     = 120.0;  // physics constant
     private static final double NETTY_VARIANCE_THRESHOLD = 25.0;  // physics constant
+
+    private static final double VIA_BACKWARDS_ATTACK_INTERVAL_MULTIPLIER = 2.0;
 
     public CrossKillAura(SacPlayer player) {
         super(player);
@@ -47,9 +50,14 @@ public class CrossKillAura extends Check implements PacketCheck {
 
         double rotSnap = Math.abs(player.crossValidationData.peRotationDeltaYaw);
         double attackInterval = player.crossValidationData.peAttackIntervalMs;
+        double effectiveAttackIntervalThreshold = attackIntervalThreshold;
+        if (ViaVersionUtil.isViaBackwardsPre1_9(player)) {
+            effectiveAttackIntervalThreshold *= VIA_BACKWARDS_ATTACK_INTERVAL_MULTIPLIER;
+        }
+
         boolean fastSnap = rotSnap > rotationThreshold
             && attackInterval > 0
-            && attackInterval < attackIntervalThreshold;
+            && attackInterval < effectiveAttackIntervalThreshold;
 
         if (!fastSnap) {
             auraBuffer = Math.max(0, auraBuffer - 1);

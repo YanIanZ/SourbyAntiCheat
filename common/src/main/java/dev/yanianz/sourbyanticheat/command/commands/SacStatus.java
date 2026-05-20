@@ -24,7 +24,7 @@ public class SacStatus implements BuildableCommand {
         commandManager.command(
                 commandManager.commandBuilder("sac", "sac")
                         .literal("status", Description.of("Show SAC health status"))
-                        .permission("sac.alerts")
+                        .permission("sac.status")
                         .handler(this::handleStatus)
         );
     }
@@ -50,7 +50,7 @@ public class SacStatus implements BuildableCommand {
 
         // ── Core Info ─────────────────
         sender.sendMessage(SacColors.subHeader("Core"));
-        sender.sendMessage(SacColors.kv("Version", "1.0.0", SacColors.ACCENT));
+        sender.sendMessage(SacColors.kv("Version", SacAPI.INSTANCE.getExternalAPI().getSacVersion(), SacColors.ACCENT));
         sender.sendMessage(SacColors.kv("Platform", api.getPlatform().name(), SacColors.WHITE));
         sender.sendMessage(SacColors.kv("Uptime", formatUptime(api.getUptime()), SacColors.WHITE));
         sender.sendMessage(SacColors.kv("Tick", String.valueOf(api.getTickManager().currentTick), SacColors.DARK_GRAY));

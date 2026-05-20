@@ -213,7 +213,7 @@ public final class HistoryComponentRenderer {
             if (!first) checksList.append("&7, ");
             first = false;
             checksList.append(cfg.getStringElse("grim-history-check-count",
-                            "&f%check_name%&7 x&c%count%")
+                            "&f%check_name%&7 [&c%count%&7]")
                     .replace("%check_name%", c.displayName())
                     .replace("%count%", Integer.toString(c.count())));
         }

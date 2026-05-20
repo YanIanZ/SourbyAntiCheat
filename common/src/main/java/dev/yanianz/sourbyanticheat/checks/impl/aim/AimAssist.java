@@ -1,7 +1,3 @@
-// This file is part of SourbyAntiCheat
-// Copyright (C) 2026 YanIanZ
-// Licensed under GPLv3 - see LICENSE file for details
-
 package dev.yanianz.sourbyanticheat.checks.impl.aim;
 
 import dev.yanianz.sourbyanticheat.checks.Check;
@@ -15,14 +11,15 @@ import java.util.LinkedList;
 @CheckData(name = "AimAssist", stableKey = "sac.aim.assist", description = "Detects aim assist via rotation analysis", setback = 5, decay = 0.01)
 public class AimAssist extends Check implements RotationCheck {
 
-    private static final int SAMPLE_SIZE = 30;
-    private static final double SNAP_THRESHOLD = 25.0;
-    private static final double SMOOTH_VARIANCE_MAX = 0.15;
+    private static final int SAMPLE_SIZE = 40;
+    private static final double SNAP_THRESHOLD = 30.0;
+    private static final double SMOOTH_VARIANCE_MAX = 0.08;
 
     private final LinkedList<Float> deltaYaws = new LinkedList<>();
     private final LinkedList<Float> deltaPitches = new LinkedList<>();
     private boolean lastWasSnap = false;
     private int snapStreak = 0;
+    private int ticksSinceSnapFlag = 0;
 
     public AimAssist(SacPlayer player) {
         super(player);
@@ -48,14 +45,22 @@ public class AimAssist extends Check implements RotationCheck {
             deltaPitches.removeFirst();
         }
 
+        if (ticksSinceSnapFlag > 0) {
+            ticksSinceSnapFlag--;
+            return;
+        }
+
         if (deltaYaws.size() >= SAMPLE_SIZE) {
             double yawVariance = calculateVariance(deltaYaws);
             double pitchVariance = calculateVariance(deltaPitches);
 
+            // Snap detection: sudden large yaw changes on consecutive attack ticks
             if (deltaYaw > SNAP_THRESHOLD && lastWasSnap) {
                 snapStreak++;
-                if (snapStreak >= 5) {
+                if (snapStreak >= 8) {
                     flagAndAlert("snap=" + String.format("%.1f", deltaYaw) + " streak=" + snapStreak);
+                    ticksSinceSnapFlag = 20;
+                    snapStreak = 0;
                 }
             } else if (deltaYaw > SNAP_THRESHOLD) {
                 lastWasSnap = true;
@@ -65,10 +70,11 @@ public class AimAssist extends Check implements RotationCheck {
                 snapStreak = 0;
             }
 
+            // Smooth detection: very consistent rotation suggesting algorithmic smoothing
             if (yawVariance < SMOOTH_VARIANCE_MAX && pitchVariance < SMOOTH_VARIANCE_MAX
-                    && deltaYaw > 2.0f && deltaYaw < 10.0f
-                    && deltaYaws.size() >= 40) {
+                    && deltaYaw > 1.5f && deltaYaw < 8.0f) {
                 flagAndAlert("smooth yawVar=" + String.format("%.4f", yawVariance) + " pitchVar=" + String.format("%.4f", pitchVariance));
+                ticksSinceSnapFlag = 20;
             } else {
                 reward();
             }

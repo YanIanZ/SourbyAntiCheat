@@ -26,6 +26,7 @@ public class CrossCriticals extends Check implements PostPredictionCheck {
     // delta classified as falling so it does not false-flag.
     private static final double FALL_CANCEL_THRESHOLD = 0.01;
     private static final double CROSS_VERSION_LENIENCY = 1.5;
+    private static final double VIA_BACKWARDS_HIT_DELAY_BUFFER_CAP = 8;
 
     public CrossCriticals(SacPlayer player) {
         super(player);
@@ -85,7 +86,16 @@ public class CrossCriticals extends Check implements PostPredictionCheck {
         boolean spartanConfirms = spartanResult.type() == SpartanCrossCheck.CrossCheckResult.Type.SPARTAN_FLAGGED;
 
         buffer += (nettyConfirms || spartanConfirms) ? 2 : 1;
-        if (buffer > 4) {
+
+        int effectiveBufferCap = 4;
+        if (ViaVersionUtil.isViaBackwardsPre1_9(player)) {
+            effectiveBufferCap = (int) VIA_BACKWARDS_HIT_DELAY_BUFFER_CAP;
+            if (buffer > 4 && buffer < effectiveBufferCap) {
+                reward();
+            }
+        }
+
+        if (buffer > effectiveBufferCap) {
             flagAndAlert(String.format("dY=%.3f netty=%.1f/s spartan=%s",
                 deltaY, player.crossValidationData.nettyPacketRatePerSec, spartanResult.type()));
         }

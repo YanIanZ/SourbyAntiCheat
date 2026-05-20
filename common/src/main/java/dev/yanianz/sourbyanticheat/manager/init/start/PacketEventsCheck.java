@@ -29,7 +29,7 @@ public class PacketEventsCheck implements StartableInitable {
         LogUtil.info("GeyserMC: " + (GeyserUtil.isAvailable() ? "DETECTED" : "not found"));
 
         if (version.isOlderThan(ServerVersion.V_1_8)) {
-            LogUtil.error("SAC requires Minecraft 1.8+. Got " + version.getReleaseName());
+            LogUtil.error("Requires Minecraft 1.8+. Got " + version.getReleaseName());
         }
 
         if (isSourbyCraft) {
@@ -46,7 +46,7 @@ public class PacketEventsCheck implements StartableInitable {
 
         try {
             var pdm = dev.yanianz.sourbyanticheat.SacAPI.INSTANCE.getPlayerDataManager();
-            LogUtil.info("SAC initialized — " + dev.yanianz.sourbyanticheat.SacAPI.INSTANCE.getPlatform().name());
+            LogUtil.info("Initialized — " + dev.yanianz.sourbyanticheat.SacAPI.INSTANCE.getPlatform().name());
         } catch (Exception ignored) {}
     }
 

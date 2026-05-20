@@ -187,6 +187,17 @@ public class DiscordManager implements StartableInitable, ReloadableInitable {
         sendWebhookMessage(new WebhookMessage().addEmbeds(embed));
     }
 
+    public CompletableFuture<Boolean> sendReportAlert(String reporter, String target, String reason) {
+        if (isDisabled()) return CompletableFuture.completedFuture(false);
+
+        Embed embed = new Embed("**Player:** `" + target + "`\n**Reporter:** `" + reporter + "`\n**Reason:** " + reason)
+            .color(0xFF6B35)
+            .title("📋 Player Report")
+            .timestamp(Instant.now())
+            .footer(new EmbedFooter("SAC Report System", null));
+        return sendWebhookMessage(new WebhookMessage().addEmbeds(embed));
+    }
+
     public CompletableFuture<Boolean> sendWebhookMessage(WebhookMessage message) {
         if (isDisabled()) return CompletableFuture.completedFuture(false);
 

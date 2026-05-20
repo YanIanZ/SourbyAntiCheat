@@ -25,7 +25,7 @@ public class SacSpartan implements BuildableCommand {
         commandManager.command(
                 commandManager.commandBuilder("sac", "sac")
                         .literal("spartan", Description.of("View Spartan cross-check stats"))
-                        .permission("sac.alerts")
+                        .permission("sac.spartan")
                         .required("target", adapter.singlePlayerSelectorParser())
                         .handler(this::handleSpartan)
         );

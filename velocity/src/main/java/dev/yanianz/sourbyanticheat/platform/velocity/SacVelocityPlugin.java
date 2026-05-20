@@ -43,12 +43,12 @@ public class SacVelocityPlugin implements ProxyMessenger, GlobalPlayerStore, Aud
 
     @Subscribe
     public void onProxyInit(ProxyInitializeEvent event) {
-        logger.info("SAC Velocity companion enabled");
+        logger.info("[SAC] Velocity companion enabled");
     }
 
     @Subscribe
     public void onProxyShutdown(ProxyShutdownEvent event) {
-        logger.info("SAC Velocity companion disabled");
+        logger.info("[SAC] Velocity companion disabled");
     }
 
     @Subscribe
@@ -109,12 +109,12 @@ public class SacVelocityPlugin implements ProxyMessenger, GlobalPlayerStore, Aud
     // AuditLogger
     @Override
     public void logAction(UUID actorUuid, String actorName, String action, String target, String detail, boolean success) {
-        logger.info("[AUDIT] {} → {} | {} | {} → {}", actorName, action, target, success ? "SUCCESS" : "FAILED", detail);
+        logger.info("[SAC] [AUDIT] {} → {} | {} | {} → {}", actorName, action, target, success ? "SUCCESS" : "FAILED", detail);
     }
 
     @Override
     public void logConfigChange(UUID actorUuid, String actorName, String configKey, String oldValue, String newValue) {
-        logger.info("[AUDIT-CONFIG] {} → {}: {} → {}", actorName, configKey, oldValue, newValue);
+        logger.info("[SAC] [AUDIT-CONFIG] {} → {}: {} → {}", actorName, configKey, oldValue, newValue);
     }
 
     public ProxyServer getProxy() { return proxy; }

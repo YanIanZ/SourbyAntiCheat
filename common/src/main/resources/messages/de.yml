@@ -41,8 +41,8 @@ webhook-test-failed: "Discord webhook test failed!"
 # %experimental%
 # %vl% - Verstöße
 # %verbose% - zusätzliche Informationen von der Prüfung, nicht alle Prüfungen liefern zusätzliche Informationen
-alerts-format: "%prefix% &f%player% &bbestand &f%check_name%%experimental% &bnicht &f(x&c%vl%&f) &7%verbose%"
-alerts-format-proxy: "%prefix% &f[&cproxy&f] &f%player% &bbestand &f%check_name%%experimental% &bnicht &f(x&c%vl%&f) &7%verbose%"
+alerts-format: "%prefix% &f%player% &bbestand &f%check_name%%experimental% &bnicht &f&7[&c%vl%&7] &7%verbose%"
+alerts-format-proxy: "%prefix% &f[&cproxy&f] &f%player% &bbestand &f%check_name%%experimental% &bnicht &f&7[&c%vl%&7] &7%verbose%"
 experimental-symbol: "*"
 
 profile:
@@ -121,7 +121,7 @@ sac-history-detail-group: "%prefix% &7- %checks_list% &8(&b%offset%&8)"
 #   %prefix% %offset% %check% %vl% %verbose%
 sac-history-detail-entry: "%prefix% &7- &f%check% &8(&b%offset%&8)&7 %verbose%"
 # Inneres Format für jeden Check in einer Gruppen-%checks_list% — gültige Platzhalter: %check_name% %count%
-sac-history-check-count: "&f%check_name%&7 x&c%count%"
+sac-history-check-count: "&f%check_name%&7 [&c%count%&7]"
 
 # Schema-Marker — siehe Kopf-Kommentar in config.yml.
 config-flavor: V2

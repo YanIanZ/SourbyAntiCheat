@@ -1,0 +1,1693 @@
+# SourbyAntiCheat Check Configuration
+# All check-specific settings live here, separate from the main config.yml
+# Source code: https://github.com/YanIanZ/SourbyAntiCheat
+
+# Global check control - disable specific checks by setting to false
+# All checks are enabled by default
+checks:
+    enabled:
+        # --- aim ---
+        AimDuplicateLook: true
+        AimAssist: true
+        AimModulo360: true
+
+        # --- badpackets ---
+        BadPacketsA: true
+        BadPacketsB: true
+        BadPacketsC: true
+        BadPacketsD: true
+        BadPacketsE: true
+        BadPacketsF: true
+        BadPacketsG: true
+        BadPacketsH: true
+        BadPacketsI: true
+        BadPacketsJ: true
+        BadPacketsK: true
+        BadPacketsL: true
+        BadPacketsM: true
+        BadPacketsN: true
+        BadPacketsO: true
+        BadPacketsP: true
+        BadPacketsQ: true
+        BadPacketsR: true
+        BadPacketsS: true
+        BadPacketsT: true
+        BadPacketsU: true
+        BadPacketsV: true
+        BadPacketsW: true
+        BadPacketsX: true
+        BadPacketsY: true
+        BadPacketsZ: true
+        BadPacketsAA: true
+        BadPacketsAB: true
+        BadPacketsAC: true
+        BadPacketsAD: true
+        BadPacketsAE: true
+        BadPacketsAF: true
+        BadPacketsAG: true
+        BadPacketsAH: true
+        BadPacketsAI: true
+        BadPacketsAJ: true
+
+        # --- baritone ---
+        Baritone: true
+
+        # --- breaking ---
+        AirLiquidBreak: true
+        FarBreak: true
+        FastBreak: true
+        InvalidBreak: true
+        MultiBreak: true
+        NoSwingBreak: true
+        PositionBreakA: true
+        PositionBreakB: true
+        RotationBreak: true
+        WrongBreak: true
+
+        # --- chat ---
+        ChatA: true
+        ChatB: true
+        ChatC: true
+        ChatD: true
+
+        # --- combat ---
+        AimSnap: true
+        AimSuspicion: true
+        AntiVelocity: true
+        AttackFrequency: true
+        AutoArmor: true
+        AutoClicker: true
+        Criticals: true
+        FastBow: true
+        FastEat: true
+        Hitboxes: true
+        MultiAttack: true
+        MultiInteractA: true
+        MultiInteractB: true
+        NoSwing: true
+        Reach: true
+        SelfInteract: true
+
+        # --- crash ---
+        CrashA: true
+        CrashB: true
+        CrashC: true
+        CrashD: true
+        CrashE: true
+        CrashF: true
+        CrashG: true
+        CrashH: true
+        CrashI: true
+
+        # --- crossapi ---
+        autoloot: true
+        autorespawn: true
+        backtrack: true
+        bedfucker: true
+        blockreach: true
+        crossantikb: true
+        crossautoclicker: true
+        crosscriticals: true
+        crosselytramove: true
+        crossentityspeed: true
+        crossfastbow: true
+        crossfastbreak: true
+        crossfastbreakb: true
+        crossfasteat: true
+        crossfastladder: true
+        crossfastplace: true
+        crossflight: true
+        crossflightb: true
+        crossfoodsprint: true
+        crossfreecam: true
+        crossjesus: true
+        crossjump: true
+        crosskillaura: true
+        crosskillaurab: true
+        crossnofall: true
+        crossnoswing: true
+        crossphase: true
+        crossphaseb: true
+        crossreach: true
+        crossscaffold: true
+        crossspeed: true
+        crossspeedb: true
+        crossspider: true
+        crossstep: true
+        crossteleport: true
+        crosstimer: true
+        crosstower: true
+        crossvehicle: true
+        derphead: true
+        extrainventory: true
+        fastfall: true
+        fastheal: true
+        fightbot: true
+        forcefield: true
+        freecam: true
+        ghosthand: true
+        irregularmovements: true
+        liquids: true
+        morepackets: true
+        noclip: true
+        nuker: true
+        pingspoof: true
+        portalinventory: true
+
+        # --- elytra ---
+        ElytraA: true
+        ElytraB: true
+        ElytraC: true
+        ElytraD: true
+        ElytraE: true
+        ElytraF: true
+        ElytraG: true
+        ElytraH: true
+        ElytraI: true
+
+        # --- exploit ---
+        ExploitA: true
+        ExploitB: true
+        ExploitC: true
+
+        # --- flight ---
+        FlightA: true
+
+        # --- groundspoof ---
+        NoFall: true
+        GroundSpoof: true
+
+        # --- misc ---
+        APIBypass: true
+        NettyDelay: true
+        NettyFlood: true
+        PayloadCheck: true
+        Post: true
+        SpartanDivergence: true
+        SpartanSync: true
+        TransactionOrder: true
+
+        # --- multiactions ---
+        FastSwitch: true
+        MultiActionsA: true
+        MultiActionsB: true
+        MultiActionsC: true
+        MultiActionsD: true
+        MultiActionsE: true
+        MultiActionsF: true
+        MultiActionsG: true
+
+        # --- movement ---
+        Blink: true
+        EntitySpeed: true
+        InventoryMove: true
+        inventorywalk: true
+        Jesus: true
+        NoRotate: true
+        NoSlow: true
+        NoWeb: true
+        SafeWalk: true
+        SetbackBlocker: true
+        Speed: true
+        Spider: true
+        Step: true
+        Tower: true
+        FastLadder: true
+
+        # --- packetorder ---
+        PacketOrderA: true
+        PacketOrderB: true
+        PacketOrderC: true
+        PacketOrderD: true
+        PacketOrderE: true
+        PacketOrderF: true
+        PacketOrderG: true
+        PacketOrderH: true
+        PacketOrderI: true
+        PacketOrderJ: true
+        PacketOrderK: true
+        PacketOrderL: true
+        PacketOrderM: true
+        PacketOrderN: true
+        PacketOrderO: true
+        PacketOrderP: true
+
+        # --- prediction ---
+        Simulation: true
+        Phase: true
+
+        # --- scaffolding ---
+        DuplicateRotPlace: true
+        FabricatedPlace: true
+        FarPlace: true
+        InvalidPlaceA: true
+        InvalidPlaceB: true
+        MultiPlace: true
+        PositionPlace: true
+        RotationPlace: true
+        ScaffoldA: true
+        ScaffoldB: true
+
+        # --- sprint ---
+        SprintA: true
+        SprintB: true
+        SprintC: true
+        SprintD: true
+        SprintE: true
+        SprintF: true
+        SprintG: true
+
+        # --- timer ---
+        NegativeTimer: true
+        TickTimer: true
+        TimerA: true
+        TimerLimit: true
+        VehicleTimer: true
+
+        # --- vehicle ---
+        VehicleA: true
+        VehicleB: true
+        VehicleC: true
+        VehicleD: true
+        VehicleE: true
+        VehicleF: true
+
+        # --- velocity ---
+        Knockback: true
+        Explosion: true
+
+# ============================================================================
+# --- aim ---
+# ============================================================================
+
+AimDuplicateLook:
+    setbackvl: 10
+    decay: 0.005
+
+AimAssist:
+    setbackvl: 5
+    decay: 0.01
+
+AimModulo360:
+    setbackvl: 10
+    decay: 0.005
+
+# ============================================================================
+# --- badpackets ---
+# ============================================================================
+
+BadPacketsA:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsB:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsC:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsD:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsE:
+    # Flying packets allowed before a position packet must arrive
+    max-no-reminder-ticks: 20
+
+BadPacketsF:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsG:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsH:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsI:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsJ:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsK:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsL:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsM:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsN:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsO:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsP:
+    # Highest valid window button id for a pickup click
+    max-pickup-button: 2
+    # Highest valid window button id for a hotbar-swap click
+    max-swap-button: 8
+    # Window button id used for an offhand swap
+    swap-offhand-button: 40
+    # Highest valid window button id for a quick-craft click
+    max-quick-craft-button: 10
+
+BadPacketsQ:
+    # Maximum jump-boost amplifier a client may legitimately report
+    max-jump-boost: 100
+
+BadPacketsR:
+    # Real-time drift (ms) tolerated before flagging
+    real-time-threshold-ms: 2000
+    # Clock drift (ms) tolerated before flagging
+    clock-threshold-ms: 2000
+
+BadPacketsS:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsT:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsU:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsV:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsW:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsX:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsY:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsZ:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsAA:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsAB:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsAC:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsAD:
+    setbackvl: 5
+    decay: 0.01
+    # Use-without-swing occurrences buffered before a violation is flagged
+    flag-threshold: 3
+
+BadPacketsAE:
+    setbackvl: 5
+    decay: 0.01
+
+BadPacketsAF:
+    setbackvl: 10
+    decay: 0.005
+    # Vertical delta beyond which a claimed-ground mismatch is suspected
+    ground-spoof-threshold: 0.05
+
+BadPacketsAG:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsAH:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsAI:
+    setbackvl: 10
+    decay: 0.005
+
+BadPacketsAJ:
+    # Max yaw change (degrees) in one tick before it counts toward the spin buffer
+    max-delta-yaw: 200.0
+    # Max pitch change (degrees) in one tick before it counts toward the spin buffer
+    max-delta-pitch: 170.0
+    # Spin-buffer count at which an impossible-rotation violation is flagged
+    spin-buffer-threshold: 3
+
+# ============================================================================
+# --- baritone ---
+# ============================================================================
+
+Baritone:
+    setbackvl: 10
+    decay: 0.005
+
+# ============================================================================
+# --- breaking ---
+# ============================================================================
+
+AirLiquidBreak:
+    setbackvl: 10
+    decay: 0.005
+
+FarBreak:
+    setbackvl: 10
+    decay: 0.005
+
+FastBreak:
+    # Break delay (ms) at or above which the delay balance is rewarded
+    delay-reward-ms: 275
+    # Base value (ms) used to penalise an over-fast break delay
+    delay-penalty-base-ms: 300
+    # Accumulated balance (ms) at which a fast-break violation is flagged
+    balance-flag-ms: 1000
+    # Predicted-vs-real break-time difference (ms) treated as "close enough"
+    close-enough-diff-ms: 25
+    # Grace (ms) applied to the start-break timestamp
+    start-break-grace-ms: 50
+
+InvalidBreak:
+    setbackvl: 10
+    decay: 0.005
+
+MultiBreak:
+    setbackvl: 10
+    decay: 0.005
+
+NoSwingBreak:
+    setbackvl: 10
+    decay: 0.005
+
+PositionBreakA:
+    setbackvl: 10
+    decay: 0.005
+
+PositionBreakB:
+    # Mismatched-face occurrences buffered before a violation is flagged
+    flag-threshold-v3: 3
+
+RotationBreak:
+    setbackvl: 10
+    decay: 0.005
+
+WrongBreak:
+    setbackvl: 10
+    decay: 0.005
+
+# ============================================================================
+# --- chat ---
+# ============================================================================
+
+ChatA:
+    setbackvl: 10
+    decay: 0.005
+
+ChatB:
+    setbackvl: 10
+    decay: 0.005
+
+ChatC:
+    setbackvl: 10
+    decay: 0.005
+
+ChatD:
+    setbackvl: 10
+    decay: 0.005
+
+# ============================================================================
+# --- combat ---
+# ============================================================================
+
+AimSnap:
+    # Number of recent rotation packets retained for snap-back analysis
+    max-snap-back-packets: 3
+    # Rotation delta (degrees) above which a snap is detected
+    snap-threshold: 30.0
+    # Rotation delta (degrees) below which a return-to-target is detected
+    return-threshold: 25.0
+    # Difference (degrees) between snap and return used to confirm aim snap
+    diff-threshold: 15.0
+    # Buffer count at which an aim-snap violation is flagged
+    buffer-threshold: 3
+
+AimSuspicion:
+    # Fraction of attack ticks with suspicious rotation above which it is flagged
+    ratio-threshold: 0.95
+    # Minimum number of attack ticks sampled before the ratio is evaluated
+    total-attack-ticks-min: 15
+    # Buffer count at which an aim-suspicion violation is flagged
+    buffer-threshold: 3
+
+AntiVelocity:
+    # Ticks after a velocity packet during which knockback response is checked
+    velocity-response-ticks: 5
+    # Minimum velocity magnitude below which knockback is ignored
+    min-velocity: 0.1
+    # Ground friction coefficient used for velocity prediction
+    ground-friction: 0.91
+    # Air friction coefficient used for velocity prediction
+    air-friction: 0.98
+    # Average velocity ratio below which anti-knockback is flagged
+    avg-ratio-threshold: 0.1
+    # Buffer count at which an anti-velocity violation is flagged
+    buffer-threshold: 2
+
+AttackFrequency:
+    # Minimum interval (ms) between attacks before timing looks automated
+    min-attack-interval: 25
+    # Number of rapid attacks counted before flagging
+    rapid-attacks-threshold: 5
+    # Attacks per tick above which a violation is flagged
+    attacks-per-tick-threshold: 4
+    # Buffer count at which an attack-frequency violation is flagged
+    buffer-threshold: 2
+
+AutoArmor:
+    setbackvl: 5
+    decay: 0.02
+    # Armor-switch delay (ms) below which a switch is considered automated
+    min-switch-delay: 50
+    # Number of fast switches counted before flagging
+    switch-count-threshold: 10
+    # Consecutive fast switches that reset the violation counter
+    fast-switch-threshold: 3
+
+AutoClicker:
+    setbackvl: 10
+    decay: 0.025
+    # Number of recent clicks sampled for CPS/variance analysis
+    window-size: 20
+    # CPS above which clicking is considered impossible for a human
+    max-legit-cps: 30
+    # Minimum click-interval variance below which clicking looks automated
+    min-variance: 2
+    # CPS above which a violation is flagged
+    cps-flag-threshold: 18
+    # Age (ms) above which buffered click samples are discarded
+    cleanup-window-ms: 1000
+
+Criticals:
+    setbackvl: 5
+    decay: 0.02
+    # Buffer count at which a critical-hit violation is flagged
+    flag-threshold: 5
+    # Vertical delta below which a "fake critical" is detected
+    delta-y-threshold: 0.01
+
+FastBow:
+    setbackvl: 5
+    decay: 0.02
+    # Minimum bow charge time (ms) before a shot is considered legitimate
+    min-charge-time: 120
+    # Buffer count at which a fast-bow violation is flagged
+    flag-threshold: 3
+
+FastEat:
+    setbackvl: 5
+    decay: 0.02
+    # Minimum eat time (ms) before consumption is considered legitimate
+    min-eat-time: 1400
+    # Minimum drink time (ms) before consumption is considered legitimate
+    min-drink-time: 1400
+    # Buffer count at which a fast-eat violation is flagged
+    flag-threshold: 3
+    # Minimum buffer count below which clean behaviour resets the buffer
+    min-flag: 1
+
+Hitboxes:
+    setbackvl: 10
+    decay: 0.005
+
+MultiAttack:
+    setbackvl: 10
+    decay: 0.005
+
+MultiInteractA:
+    setbackvl: 10
+    decay: 0.005
+
+MultiInteractB:
+    setbackvl: 10
+    decay: 0.005
+
+NoSwing:
+    # Window (ms) within which a swing must precede an attack
+    swing-window: 50
+    # Buffer count at which a no-swing violation is flagged
+    flag-threshold-v2: 3
+    # Minimum buffer count below which clean behaviour resets the buffer
+    min-flag-v2: 2
+
+Reach:
+    # How much should we expand hitboxes by? 0.001 should detect 3.001+ reach.
+    # Raised from 0.0005 to avoid false positives on sub-pixel interpolation noise.
+    #
+    # There is 0.03 forced expansion with 1.9-1.18.1 (not 1.18.2), or some client/server combinations due to
+    # protocol changes and limitations. This check is most powerful with 1.7/1.8 clients on 1.8 servers.
+    threshold: 0.001
+    # Should we cancel hits that we know are impossible?
+    # 3.00-3.03 hits may go through but still be flagged, due to packet order limitations
+    block-impossible-hits: true
+    # This will send an additional packet at the end of every tick to increase the likelihood of catching cheats
+    # This injects into server's connection list to send a final packet just before the server flushes
+    # Enabling this will increase bandwidth usage for all players
+    # This will not decrease overall server performance
+    # Enabling this will catch more cheaters.
+    # Leaving this disabled will still catch cheaters and will not cause false positives
+    # Unless you are a 1.8 PvP focused server, this additional packet is not recommended
+    enable-post-packet: false
+
+SelfInteract:
+    setbackvl: 10
+    decay: 0.005
+
+# ============================================================================
+# --- crash ---
+# ============================================================================
+
+CrashA:
+    setbackvl: 10
+    decay: 0.005
+
+CrashB:
+    setbackvl: 10
+    decay: 0.005
+
+CrashC:
+    setbackvl: 10
+    decay: 0.005
+
+CrashD:
+    setbackvl: 10
+    decay: 0.005
+
+CrashE:
+    setbackvl: 10
+    decay: 0.005
+
+CrashF:
+    setbackvl: 10
+    decay: 0.005
+
+CrashG:
+    setbackvl: 10
+    decay: 0.005
+
+CrashH:
+    setbackvl: 10
+    decay: 0.005
+
+CrashI:
+    setbackvl: 10
+    decay: 0.005
+
+# ============================================================================
+# --- elytra ---
+# ============================================================================
+
+ElytraA:
+    setbackvl: 10
+    decay: 0.005
+
+ElytraB:
+    setbackvl: 10
+    decay: 0.005
+
+ElytraC:
+    setbackvl: 10
+    decay: 0.005
+
+ElytraD:
+    setbackvl: 10
+    decay: 0.005
+
+ElytraE:
+    setbackvl: 10
+    decay: 0.005
+
+ElytraF:
+    setbackvl: 10
+    decay: 0.005
+
+ElytraG:
+    setbackvl: 10
+    decay: 0.005
+
+ElytraH:
+    setbackvl: 10
+    decay: 0.005
+
+ElytraI:
+    setbackvl: 10
+    decay: 0.005
+
+# ============================================================================
+# --- exploit ---
+# ============================================================================
+
+ExploitA:
+    setbackvl: 10
+    decay: 0.005
+
+ExploitB:
+    setbackvl: 10
+    decay: 0.005
+
+ExploitC:
+    setbackvl: 10
+    decay: 0.005
+
+# ============================================================================
+# --- flight ---
+# ============================================================================
+
+FlightA:
+    setbackvl: 10
+    decay: 0.02
+
+# ============================================================================
+# --- groundspoof ---
+# ============================================================================
+
+NoFall:
+    setbackvl: 10
+    decay: 0.005
+
+GroundSpoof:
+    setbackvl: 10
+    decay: 0.005
+
+# ============================================================================
+# --- misc ---
+# ============================================================================
+
+APIBypass:
+    setbackvl: 0
+    decay: 0.001
+
+NettyDelay:
+    setbackvl: 15
+    decay: 0.02
+
+NettyFlood:
+    setbackvl: 15
+    decay: 0.01
+
+PayloadCheck:
+    setbackvl: 10
+    decay: 0.01
+
+Post:
+    setbackvl: 10
+    decay: 0.005
+
+SpartanDivergence:
+    setbackvl: 25
+    decay: 0.01
+
+SpartanSync:
+    setbackvl: 20
+    decay: 0.005
+
+TransactionOrder:
+    setbackvl: 10
+    decay: 0.005
+
+# ============================================================================
+# --- multiactions ---
+# ============================================================================
+
+FastSwitch:
+    setbackvl: 5
+    decay: 0.02
+
+MultiActionsA:
+    setbackvl: 10
+    decay: 0.005
+
+MultiActionsB:
+    setbackvl: 10
+    decay: 0.005
+
+MultiActionsC:
+    setbackvl: 10
+    decay: 0.005
+
+MultiActionsD:
+    setbackvl: 10
+    decay: 0.005
+
+MultiActionsE:
+    setbackvl: 10
+    decay: 0.005
+
+MultiActionsF:
+    setbackvl: 10
+    decay: 0.005
+
+MultiActionsG:
+    setbackvl: 10
+    decay: 0.005
+
+# ============================================================================
+# --- movement ---
+# ============================================================================
+
+Blink:
+    setbackvl: 15
+    decay: 0.02
+    # Gap (ms) between flying packets above which a blink is counted
+    gap-threshold-ms: 500
+    # Consecutive blink count before flagging
+    blink-count-threshold: 5
+    # Blink-count decrement applied on a clean tick
+    decrement: 1
+
+EntitySpeed:
+    setbackvl: 10
+    decay: 0.02
+    # Max ground speed (blocks/tick) while riding a pig
+    max-speed-pig: 0.50
+    # Max ground speed (blocks/tick) while riding a horse
+    max-speed-horse: 0.50
+    # Max ground speed (blocks/tick) while riding a strider
+    max-speed-strider: 0.50
+    # Max ground speed (blocks/tick) while riding a boat
+    max-speed-boat: 0.50
+    # Max ground speed (blocks/tick) while riding a minecart
+    max-speed-minecart: 0.50
+    # Max ground speed (blocks/tick) while riding any other entity
+    max-speed-default: 0.50
+    # Buffer added when ridden-entity speed exceeds the limit
+    buffer-increment: 0.5
+    # Buffer decay applied per clean tick
+    buffer-decay: 0.01
+
+InventoryMove:
+    # Movement distance (blocks) per tick above which inventory move is flagged
+    move-threshold-v2: 0.0707
+
+inventorywalk:
+    # Time (ms) the inventory must stay open before movement is judged
+    inventory-timeout-ms: 3000
+    # Movement distance (blocks) per tick above which walking is flagged
+    move-threshold: 0.0316
+    # Consecutive flagging ticks before a violation is raised
+    buffer-threshold-v2: 6
+
+Jesus:
+    setbackvl: 10
+    decay: 0.02
+    # Min fraction of predicted movement at which water-walk is evaluated
+    frac-min: 0.92
+    # Max fraction of predicted movement at which water-walk is evaluated
+    frac-max: 0.99
+    # Movement offset above which water-walk is flagged
+    offset-threshold: 0.005
+    # Buffer count required before raising a violation
+    buffer-threshold: 8
+    # Buffer count at which a violation is flagged
+    buffer-flag: 5
+
+NoRotate:
+    # Min horizontal speed at which missing rotation is evaluated
+    min-speed: 0.3
+    # Consecutive ticks without rotation change before flagging
+    tick-threshold: 30
+    # Buffer count required before raising a violation
+    buffer-threshold-v3: 3
+
+NoSlow:
+    # How much of an offset is "cheating"
+    # By default this is lower than other offs
+    # Flags by 0.03-0.2 consistently with NoSlow on
+    threshold: 0.001
+    # Setback fast on the first item to remove any advantage NoSlow gives
+    setbackvl: 5
+    # Decay's when the player uses an item AND is slowed by it
+    decay: 0.05
+    # Movement offset above which item-use slowdown bypass is flagged
+    offset-to-flag: 0.01
+
+NoWeb:
+    setbackvl: 10
+    decay: 0.02
+    # Max speed (blocks/tick) allowed inside a cobweb
+    max-web-speed: 0.08
+    # Secondary speed threshold for cobweb bypass confirmation
+    secondary-threshold: 0.15
+    # Buffer decay applied per clean tick
+    buffer-decay-v2: 0.005
+    # Buffer level below which a clean tick rewards the player
+    reward-gate-threshold: 0.01
+
+SafeWalk:
+    setbackvl: 5
+    decay: 0.02
+    # Movement delta above which edge-walk behaviour is evaluated
+    delta-threshold: 0.05
+    # Movement offset above which SafeWalk is flagged
+    offset-threshold-v2: 0.001
+    # Tick window over which edge-walk behaviour is sampled
+    tick-window: 10
+    # Buffer count required before raising a violation
+    buffer-threshold: 2
+
+SetbackBlocker:
+    setbackvl: 10
+    decay: 0.005
+
+Speed:
+    setbackvl: 10
+    decay: 0.01
+    # Base walking speed (blocks/tick)
+    base-speed: 0.217
+    # Base sprinting speed (blocks/tick)
+    sprint-speed: 0.281
+    # Speed offset above which movement is flagged
+    offset-threshold: 0.15
+    # Buffer decay applied per clean tick
+    buffer-decay: 0.01
+    # Buffer level at which a violation is flagged
+    flag-threshold: 1.0
+
+Spider:
+    setbackvl: 10
+    decay: 0.02
+    # Vertical offset (blocks) above which wall-climb is evaluated
+    climb-offset: 0.1
+    # Consecutive climbing ticks before flagging
+    climb-ticks-threshold: 4
+    # Climb-tick counter increment per offending tick
+    climb-tick-increment: 1
+
+Step:
+    setbackvl: 10
+    decay: 0.02
+    # Max vertical step (blocks) allowed in a single tick
+    max-step: 0.70
+    # Buffer level at which a violation is flagged
+    flag-threshold: 5.0
+    # Buffer increment applied per offending step
+    step-flag-increment: 1.0
+
+Tower:
+    # Min upward movement (blocks) counted as a tower jump
+    jump-threshold: 0.35
+    # Min interval (ms) between legitimate tower jumps
+    min-jump-interval-ms: 250
+    # Consecutive fast jumps before flagging
+    consecutive-jumps-threshold: 4
+    # Buffer count required before raising a violation
+    buffer-threshold-v4: 2
+
+FastLadder:
+    setbackvl: 10
+    decay: 0.02
+    # Max vertical speed (blocks/tick) allowed while climbing a ladder
+    max-ladder-speed: 0.20
+    # Buffer added when ladder speed exceeds the limit
+    buffer-increment: 0.3
+    # Buffer decay applied per clean tick
+    buffer-decay: 0.01
+
+# ============================================================================
+# --- packetorder ---
+# ============================================================================
+
+PacketOrderA:
+    setbackvl: 10
+    decay: 0.005
+
+PacketOrderB:
+    setbackvl: 10
+    decay: 0.005
+
+PacketOrderC:
+    setbackvl: 10
+    decay: 0.005
+
+PacketOrderD:
+    setbackvl: 10
+    decay: 0.005
+
+PacketOrderE:
+    setbackvl: 10
+    decay: 0.005
+
+PacketOrderF:
+    setbackvl: 10
+    decay: 0.005
+
+PacketOrderG:
+    setbackvl: 10
+    decay: 0.005
+
+PacketOrderH:
+    setbackvl: 10
+    decay: 0.005
+
+PacketOrderI:
+    # enable if players are getting flagged for using 1.7 animations mods
+    exempt-placing-while-digging: false
+
+PacketOrderJ:
+    setbackvl: 10
+    decay: 0.005
+
+PacketOrderK:
+    setbackvl: 10
+    decay: 0.005
+
+PacketOrderL:
+    setbackvl: 10
+    decay: 0.005
+
+PacketOrderM:
+    setbackvl: 10
+    decay: 0.005
+
+PacketOrderN:
+    setbackvl: 10
+    decay: 0.005
+
+PacketOrderO:
+    setbackvl: 10
+    decay: 0.005
+
+PacketOrderP:
+    setbackvl: 10
+    decay: 0.005
+
+# ============================================================================
+# --- prediction ---
+# ============================================================================
+
+Simulation:
+    # How much should we multiply total advantage by when the player is legit
+    # This is what the default config looks like (x axis = seconds, y axis = 1/1000 block): https://www.desmos.com/calculator/d4ufgxrxer
+    setback-decay-multiplier: 0.999
+    # How large of an offset from the player's movement should we create a violation for?
+    # Measured in blocks from the possible movement
+    # We account for Optifine by switching trig tables but dropping this to 0.001 will reduce FastMath
+    # flagging the anticheat if this compensation doesn't work...
+    threshold: 0.001
+    # How large of a violation in a tick before the player gets immediately setback?
+    # -1 to disable
+    immediate-setback-threshold: 0.1
+    # How large of an advantage over all ticks before we start to setback?
+    # -1 to disable
+    max-advantage: 1
+    # After 50 seconds with default config, the player will go from 4 blocks -> 1 block of advantage
+    # This is to stop the player from gathering too many violations and never being able to clear them all
+    # Default advantage ceiling (x axis = seconds, y axis = 1/1000 block): https://www.desmos.com/calculator/4lovswdarj
+    max-ceiling: 4
+    # Violation level threshold for setback
+    # 1 for old behavior
+    setback-violation-threshold: 1
+
+# Checks to see if a player entered a block during a movement
+Phase:
+    setbackvl: 1 # Glitching into blocks can allow wall climbing, plus this check is relatively stable
+    decay: 0.005
+
+# ============================================================================
+# --- scaffolding ---
+# ============================================================================
+
+DuplicateRotPlace:
+    setbackvl: 10
+    decay: 0.005
+
+AirLiquidPlace:
+    cancelvl: 0
+
+FabricatedPlace:
+    cancelvl: 5
+
+FarPlace:
+    cancelvl: 5
+
+InvalidPlaceA:
+    setbackvl: 10
+    decay: 0.005
+
+InvalidPlaceB:
+    setbackvl: 10
+    decay: 0.005
+
+MultiPlace:
+    setbackvl: 10
+    decay: 0.005
+
+PositionPlace:
+    cancelvl: 5
+
+RotationPlace:
+    cancelvl: 5
+
+ScaffoldA:
+    setbackvl: 10
+    decay: 0.02
+
+ScaffoldB:
+    setbackvl: 10
+    decay: 0.02
+
+# ============================================================================
+# --- sprint ---
+# ============================================================================
+
+SprintA:
+    setbackvl: 10
+    decay: 0.005
+
+SprintB:
+    setbackvl: 10
+    decay: 0.005
+
+SprintC:
+    setbackvl: 10
+    decay: 0.005
+
+SprintD:
+    setbackvl: 10
+    decay: 0.005
+
+SprintE:
+    setbackvl: 10
+    decay: 0.005
+
+SprintF:
+    setbackvl: 10
+    decay: 0.005
+
+SprintG:
+    setbackvl: 10
+    decay: 0.005
+
+# ============================================================================
+# --- timer ---
+# ============================================================================
+
+NegativeTimer:
+    # Number of milliseconds lost while moving before we should start flagging
+    drift: 1200
+
+TickTimer:
+    setbackvl: 10
+    decay: 0.005
+
+TimerA:
+    setbackvl: 10
+    # Milliseconds that the player can accumulate for later use when they fall behind
+    # Could potentially allow 1.8 fast use/fast heal/fast bow bypasses if set too high, 120 ms seems like a good balance
+    drift: 120
+
+# This check limits abuse of the TimerA balance by preventing the player's movement falling too far behind realtime
+TimerLimit:
+    # Ping at which the check will start to limit timer balance, to prevent abuse.
+    # Can cause some setbacks for legitimate players but only if they are over this ping threshold.
+    # -1 to disable
+    ping-abuse-limit-threshold: 1000
+
+# Same check method as TimerA, but for vehicles
+VehicleTimer:
+    # Target 1.005 timer
+    setbackvl: 10
+
+# ============================================================================
+# --- vehicle ---
+# ============================================================================
+
+VehicleA:
+    setbackvl: 10
+    decay: 0.005
+
+VehicleB:
+    setbackvl: 10
+    decay: 0.005
+
+VehicleC:
+    setbackvl: 10
+    decay: 0.005
+
+VehicleD:
+    setbackvl: 10
+    decay: 0.005
+
+VehicleE:
+    setbackvl: 10
+    decay: 0.005
+
+VehicleF:
+    setbackvl: 10
+    decay: 0.005
+
+# ============================================================================
+# --- velocity ---
+# ============================================================================
+
+Knockback:
+    # How much should we multiply total advantage by when the player is legit
+    setback-decay-multiplier: 0.999
+    # How large of an offset from the player's velocity should we create a violation for?
+    # Measured in blocks from the possible velocity
+    threshold: 0.001
+    # How large of a violation in a tick before the player gets immediately setback?
+    # -1 to disable
+    immediate-setback-threshold: 0.1
+    # How large of an advantage over all ticks before we start to setback?
+    # -1 to disable
+    max-advantage: 1
+    # This is to stop the player from gathering too many violations and never being able to clear them all
+    max-ceiling: 4
+
+Explosion:
+    threshold: 0.001
+    setbackvl: 3
+
+# ============================================================================
+# SpartanAPI configuration
+# ============================================================================
+
+spartanapi:
+  enabled: true
+  bundle-mode: standalone
+  cross-check:
+    enabled: true
+    min-vl: 3
+    min-agreement-rate: 0.6
+  event-bridge:
+    enabled: true
+    deduplication-window-ms: 500
+
+# ============================================================================
+# CrossAPI check tuning
+# ----------------------------------------------------------------------------
+# Tunables for the CrossAPI (cross-anticheat correlation) checks. Every value
+# below is the built-in default — keys are optional, omit one to keep the
+# default. Each block is named after the check's config name; raising a
+# threshold makes the check more lenient, lowering it makes it stricter.
+# ============================================================================
+
+crossantikb:
+    setbackvl: 10
+    decay: 0.005
+    # Ratio of actual/predicted movement below which knockback is considered reduced
+    ratio-threshold: 0.5
+    # Minimum predicted knockback movement (blocks) before the check engages
+    min-predicted-movement: 0.15
+
+crossautoclicker:
+    # Netty packet-timing variance below which clicking looks too consistent (bot-like)
+    netty-variance-threshold: 10.0
+    # Netty packet rate above which clicking is considered suspicious
+    netty-rate-threshold: 15.0
+    # Max clicks-per-second allowed for low-ping players
+    cps-threshold-low-ping: 18
+    # Max clicks-per-second allowed for medium-ping players
+    cps-threshold-med-ping: 15
+    # Max clicks-per-second allowed for high-ping players
+    cps-threshold-high-ping: 12
+    # Max clicks-per-second allowed for very-high-ping players
+    cps-threshold-very-high-ping: 10
+
+crosscriticals:
+    setbackvl: 10
+    decay: 0.005
+
+crosselytramove:
+    # Max horizontal elytra speed (blocks/s) before flagging
+    speed-threshold: 30.0
+
+crossentityspeed:
+    # Max speed for a ridden pig
+    max-speed-pig: 0.35
+    # Max speed for a ridden horse
+    max-speed-horse: 0.35
+    # Max speed for a ridden strider
+    max-speed-strider: 0.35
+    # Max speed for a ridden boat
+    max-speed-boat: 0.35
+    # Max speed for a ridden minecart
+    max-speed-minecart: 0.35
+    # Max speed for any other ridden entity
+    max-speed-default: 0.35
+
+crossfastbow:
+    # Minimum bow charge time in milliseconds before a shot is legitimate
+    min-charge-time: 100
+
+crossfastbreak:
+    # Max blocks broken within the window before flagging (normal blocks)
+    break-threshold: 20
+    # Max instant-break blocks (grass, torches, flowers, etc.) within the window before flagging
+    instant-break-threshold: 40
+    # Netty packet rate above which block-breaking is suspicious
+    netty-rate-threshold: 18.0
+
+crossfastbreakb:
+    # Break-interval variance below which timing looks too consistent (bot-like)
+    interval-variance-threshold: 10.0
+    # Minimum plausible break interval in milliseconds
+    interval-min-ms: 20
+    # Maximum break interval in milliseconds still considered for analysis
+    interval-max-ms: 200
+    # Minimum consecutive consistent breaks needed before the check engages
+    consistency-gate: 12
+    # Netty packet rate above which block-breaking is suspicious
+    netty-rate-threshold: 120.0
+
+crossfasteat:
+    # Minimum time in milliseconds to finish eating food
+    min-eat-time: 1400
+    # Minimum time in milliseconds to finish drinking
+    min-drink-time: 1400
+
+crossfastladder:
+    # Max climbing speed (blocks/tick) on ladders/vines
+    max-ladder-speed: 0.20
+
+crossfastplace:
+    # Max blocks placed within the window before flagging
+    place-threshold: 10
+    # Netty packet rate above which block-placing is suspicious
+    netty-rate-threshold: 18.0
+
+crossflight:
+    # Movement-prediction offset (blocks) above which flight is flagged
+    prediction-threshold: 0.15
+    # Netty packet rate above which movement is suspicious
+    netty-rate-threshold: 18.0
+
+crossflightb:
+    setbackvl: 10
+    decay: 0.005
+
+crossfoodsprint:
+    # Sprint speed (blocks/tick) allowed while consuming an item
+    sprint-speed: 0.35
+    # Netty packet rate above which sprinting-while-eating is suspicious
+    netty-rate-threshold: 15.0
+    # Time in milliseconds after item use within which sprint is checked
+    use-timeout-ms: 5000
+
+crossfreecam:
+    # Camera/position offset (blocks) above which freecam is flagged
+    offset-threshold: 0.8
+    # Gap in milliseconds between chunk updates considered suspicious
+    chunk-gap-threshold-ms: 1500
+    # Netty packet rate above which behaviour is suspicious
+    netty-rate-threshold: 15.0
+    # Netty packet delay (ms) above which behaviour is suspicious
+    netty-delay-threshold: 50.0
+
+crossjesus:
+    # Position offset (blocks) above which water-walking is flagged
+    offset-threshold-v2: 0.08
+    # Netty packet rate above which movement is suspicious
+    netty-rate-threshold: 120.0
+
+crossjump:
+    # Max jump height in blocks before flagging
+    jump-threshold: 1.25
+
+crosskillaura:
+    # Max rotation change (degrees) per attack considered human
+    rotation-threshold: 30.0
+    # Attack interval (ms) below which attacks look too fast/consistent
+    attack-interval-threshold: 200.0
+
+crosskillaurab:
+    # Rotation-variance threshold (degrees) below which aim looks bot-like
+    variance-threshold: 30.0
+    # Yaw-change threshold (degrees) used for rotation analysis
+    rot-yaw-threshold: 10.0
+    # Attack count within the window before flagging
+    attack-count-threshold: 25
+    # Netty packet-timing variance below which behaviour looks bot-like
+    netty-variance-threshold: 15.0
+    # Consecutive ticks of sustained suspicious yaw before flagging
+    sustained-yaw-ticks: 3
+
+crossnofall:
+    # Position offset (blocks) above which NoFall is flagged
+    offset-threshold-v3: 0.1
+    # Full prediction offset (blocks) above which NoFall is flagged
+    full-offset-threshold: 0.2
+    # Netty packet delay (ms) below which movement is suspicious
+    netty-delay-threshold: 40.0
+
+crossnoswing:
+    setbackvl: 10
+    decay: 0.005
+    # Netty packet-timing variance below which no-swing attacks look too consistent (bot-like)
+    netty-variance-threshold: 15.0
+    # Tick window after an arm-swing in which an attack is considered legitimate
+    swing-window: 4
+
+crossphase:
+    # Gap in milliseconds between movement updates considered suspicious
+    gap-threshold-ms: 2500
+    # Position offset (blocks) above which phasing is flagged
+    offset-threshold-v4: 0.1
+    # Netty packet rate above which movement is suspicious
+    netty-rate-threshold: 15.0
+
+crossphaseb:
+    # Netty packet rate above which movement is suspicious
+    netty-rate-threshold: 15.0
+    # Number of blocks passed through before flagging
+    blocks-passed-threshold: 2
+
+crossreach:
+    # Extra reach distance (blocks) allowed beyond the legitimate limit
+    reach-margin: 0.5
+    # Netty packet rate above which combat is suspicious
+    netty-rate-threshold: 15.0
+
+crossscaffold:
+    # Max blocks placed within the window before flagging
+    place-threshold: 8
+    # Netty packet rate above which block-placing is suspicious
+    netty-rate-threshold: 18.0
+
+crossspeed:
+    # Multiplier applied to expected velocity before flagging
+    velocity-multiplier: 2.5
+    # Ground friction constant used in speed prediction
+    ground-friction-v2: 0.6
+    # Air friction constant used in speed prediction
+    air-friction-v2: 0.91
+    # Position offset (blocks) above which speed is flagged
+    offset-threshold-v5: 0.5
+    # Netty packet rate above which movement is suspicious
+    netty-rate-threshold: 18.0
+
+crossspeedb:
+    # Netty packet rate above which movement is suspicious
+    netty-rate-threshold: 120.0
+    # Max allowed deviation from the expected movement ratio
+    max-ratio-deviation: 0.5
+    # Movement-ratio above which speed is flagged
+    ratio-threshold: 1.8
+    # Minimum predicted velocity before the ratio check applies
+    vel-floor: 0.01
+    # Max ratio allowed while sprinting before flagging
+    sprint-ratio-cap: 2.4
+    sprint-ratio-cap: 2.2
+
+crossspider:
+    # Minimum vertical delta (blocks) considered when climbing walls
+    min-y-delta: 0.15
+    # Maximum vertical delta (blocks) considered when climbing walls
+    max-y-delta: 0.5
+    # Netty packet rate above which movement is suspicious
+    netty-rate-threshold: 18.0
+
+crossstep:
+    # Max step-up height in blocks before flagging
+    step-threshold: 0.6
+    # Netty packet delay (ms) above which movement is suspicious
+    netty-delay-threshold: 40.0
+    # Netty packet rate above which movement is suspicious
+    netty-rate-threshold: 18.0
+
+crossteleport:
+    # Max teleport distance (blocks) in a single move before flagging
+    teleport-dist-threshold: 8.0
+    # Netty packet rate above which movement is suspicious
+    netty-rate-threshold: 18.0
+
+crosstimer:
+    # Timer balance limit before the check considers action
+    balance-limit: 15.0
+    # Timer balance above which a violation is flagged
+    balance-flag-limit: 8.0
+    # Netty packet rate above which timing is suspicious
+    netty-rate-threshold: 15.0
+
+crosstower:
+    # Max upward (Y) speed while towering before flagging
+    tower-y-threshold: 0.42
+    # Netty packet rate above which block-placing is suspicious
+    netty-rate-threshold: 18.0
+
+crossvehicle:
+    # Max horse speed (blocks/tick) before flagging
+    max-horse-speed: 0.45
+    # Max boat speed (blocks/tick) before flagging
+    max-boat-speed: 0.40
+    # Netty packet rate above which vehicle movement is suspicious
+    netty-rate-threshold: 15.0
+
+# ============================================================================
+# Extended CrossAPI Check Configurations
+# ============================================================================
+
+autoloot:
+    # Item pickups within the window before auto-loot is suspected
+    pickup-threshold: 10
+    # Netty packet rate above which pickups are considered suspicious
+    netty-rate-threshold: 15.0
+
+autorespawn:
+    # Min gap (ms) between death and respawn; faster is suspicious
+    gap-threshold-ms: 500
+    # Netty packet rate above which respawn timing is suspicious
+    netty-rate-threshold: 15.0
+
+backtrack:
+    # Position-history mismatch (blocks) before flagging backtrack
+    mismatch-threshold: 1.5
+
+bedfucker:
+    # Bed interactions within the window before flagging
+    bed-threshold: 3
+    # Netty packet rate above which bed interaction is suspicious
+    netty-rate-threshold: 18.0
+
+blockreach:
+    # Max block-interaction reach distance (blocks) before flagging
+    max-block-reach: 5.5
+
+derphead:
+    # Absolute pitch (degrees) above which head rotation is flagged as derp
+    pitch-threshold: 89.5
+
+extrainventory:
+    # Highest valid inventory slot index; interactions above it are invalid
+    max-slot: 45
+    # Netty packet rate above which inventory action is suspicious
+    netty-rate-threshold: 15.0
+
+fastfall:
+    # Excess fall speed offset (blocks/tick) over predicted before flagging
+    fall-threshold: 0.15
+    # Netty packet rate above which fall movement is suspicious
+    netty-rate-threshold: 18.0
+
+fastheal:
+    # Healing-item uses within the window before flagging
+    heal-threshold: 5
+    # Netty packet rate above which healing is suspicious
+    netty-rate-threshold: 15.0
+
+fightbot:
+    # Combined yaw+pitch aim error below which aim looks bot-perfect
+    combined-aim-delta-threshold: 2.0
+    # Per-entity rotation delta (yaw) below which rotation looks bot-like
+    pe-rotation-delta-yaw-threshold: 5.0
+    # Consecutive perfect-aim ticks before flagging
+    perfect-aim-streak-threshold: 5
+
+forcefield:
+    # Max distinct entities attacked in one tick before flagging
+    max-attacks-per-tick: 1
+
+freecam:
+    # Chunk-ack timeout (ms) before unacked chunks count toward freecam
+    chunk-ack-timeout-ms: 3000
+    # Distance from anchor point (blocks) before flagging
+    move-threshold: 5.0
+    # Prediction offset (blocks) above which freecam is flagged
+    offset-threshold-v6: 0.5
+
+ghosthand:
+    # Solid blocks between player and target before flagging ghost-hand
+    wall-blocks-threshold: 3
+    # Max attack distance (blocks) considered for the ray check
+    max-attack-distance: 8.0
+
+irregularmovements:
+    # Min horizontal speed at which a direction change is evaluated
+    direction-change-min-speed: 0.3
+    # Direction-change sharpness above which movement is flagged
+    direction-change-threshold: 0.95
+
+liquids:
+    # Movement offset (blocks) in liquid before flagging
+    offset-threshold-v7: 0.15
+    # Netty packet rate above which liquid movement is suspicious
+    netty-rate-threshold: 18.0
+
+morepackets:
+    # Packet rate above which packet count is suspicious
+    rate-threshold: 30.0
+    # Packet byte rate above which traffic is suspicious
+    bytes-threshold: 1024.0
+    # Netty packet rate above which traffic is cross-confirmed
+    netty-rate-threshold: 15.0
+
+noclip:
+    # Consecutive ticks intersecting a block before flagging noclip
+    inside-buffer-threshold: 4
+
+nuker:
+    # Max blocks broken per second before flagging
+    max-breaks-per-sec: 15
+    # Avg break-interval (ms) below which breaking looks automated
+    avg-interval-threshold: 70.0
+
+pingspoof:
+    # Ping samples retained for stability analysis
+    ping-sample-size: 10
+    # Gap (ms) between ping sources above which spoofing is suspected
+    ping-gap-threshold: 200.0
+    # Transaction ping (ms) above which spoofing is suspected
+    transaction-ping-threshold: 300.0
+    # Ping variance below which the connection looks unnaturally stable
+    variance-threshold: 0.05
+    # Avg ping (ms) above which a too-stable connection is suspicious
+    avg-ping-threshold: 200.0
+
+portalinventory:
+    # Netty packet rate above which portal inventory action is suspicious
+    netty-rate-threshold: 15.0
+
+# Schema markers — touch only if you know what you are doing.
+config-flavor: V2
+config-version: 1
