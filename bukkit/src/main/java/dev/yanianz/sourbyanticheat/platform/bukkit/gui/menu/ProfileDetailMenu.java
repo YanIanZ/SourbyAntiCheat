@@ -10,7 +10,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,16 +49,14 @@ public final class ProfileDetailMenu extends SacMenu {
         if (!section.disabled.isEmpty()) {
             for (String checkName : section.disabled) {
                 if (slot >= Menus.CONTENT_SLOTS.length) break;
-                ItemStack item = new ItemStack(Material.RED_STAINED_GLASS_PANE);
-                ItemMeta im = item.getItemMeta();
-                im.displayName(Component.text("✖ ", Menus.DANGER).append(Component.text(checkName, Menus.SOFT_WHITE)));
-                im.lore(List.of(
-                    Component.empty(),
-                    Component.text("  Status  ", Menus.MUTED).append(Component.text("DISABLED in this profile", Menus.DANGER)),
-                    Component.empty(),
-                    Component.text("  ▸ Click to re-enable (remove from disabled)", Menus.SUCCESS)
-                ));
-                item.setItemMeta(im);
+                ItemStack item = Menus.item(Material.RED_STAINED_GLASS_PANE,
+                    Component.text("✖ ", Menus.DANGER).append(Component.text(checkName, Menus.SOFT_WHITE)),
+                    List.of(
+                        Component.empty(),
+                        Component.text("  Status  ", Menus.MUTED).append(Component.text("DISABLED in this profile", Menus.DANGER)),
+                        Component.empty(),
+                        Component.text("  ▸ Click to re-enable (remove from disabled)", Menus.SUCCESS)
+                    ));
                 Menus.setPDC(item, Menus.KEY_TYPE, "prof_disabled");
                 Menus.setPDC(item, Menus.KEY_VALUE, checkName);
                 inventory.setItem(Menus.CONTENT_SLOTS[slot++], item);
@@ -67,10 +64,9 @@ public final class ProfileDetailMenu extends SacMenu {
         } else {
             // Empty state placeholder for disabled section
             if (slot < Menus.CONTENT_SLOTS.length) {
-                ItemStack empty = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
-                ItemMeta em = empty.getItemMeta();
-                em.displayName(Component.text("✔ No disabled checks", Menus.SUCCESS));
-                empty.setItemMeta(em);
+                ItemStack empty = Menus.item(Material.LIME_STAINED_GLASS_PANE,
+                    Component.text("✔ No disabled checks", Menus.SUCCESS),
+                    null);
                 inventory.setItem(Menus.CONTENT_SLOTS[slot++], empty);
             }
         }
@@ -92,10 +88,6 @@ public final class ProfileDetailMenu extends SacMenu {
                 }
             }
 
-            ItemStack item = new ItemStack(Material.CYAN_STAINED_GLASS_PANE);
-            ItemMeta im = item.getItemMeta();
-            im.displayName(Component.text("⚙ ", Menus.ACCENT).append(Component.text(checkName, Menus.SOFT_WHITE)));
-
             List<Component> lore = new ArrayList<>();
             lore.add(Component.empty());
             for (Map.Entry<String, Object> kv : kvMap.entrySet()) {
@@ -107,8 +99,10 @@ public final class ProfileDetailMenu extends SacMenu {
                 lore.add(Component.text("  L-Click: +1 / R-Click: -1", Menus.ACCENT));
                 lore.add(Component.text("  Shift: ×5 step", Menus.MUTED));
             }
-            im.lore(lore);
-            item.setItemMeta(im);
+
+            ItemStack item = Menus.item(Material.CYAN_STAINED_GLASS_PANE,
+                Component.text("⚙ ", Menus.ACCENT).append(Component.text(checkName, Menus.SOFT_WHITE)),
+                lore);
             Menus.setPDC(item, Menus.KEY_TYPE, "prof_override");
             Menus.setPDC(item, Menus.KEY_VALUE, checkName);
             if (firstNumericKey != null) {
@@ -120,9 +114,6 @@ public final class ProfileDetailMenu extends SacMenu {
         // ── Section: Leniencies (view-only) ──────────────────────────
         for (ProfileConfigSnapshot.LeniencyEntry leniency : section.leniencies) {
             if (slot >= Menus.CONTENT_SLOTS.length) break;
-            ItemStack item = new ItemStack(Material.PAPER);
-            ItemMeta im = item.getItemMeta();
-            im.displayName(Component.text("☀ ", Menus.HIGHLIGHT).append(Component.text("Leniency: " + leniency.event(), Menus.SOFT_WHITE)));
             List<Component> lore = new ArrayList<>();
             lore.add(Component.empty());
             lore.add(Component.text("  Event  ", Menus.MUTED).append(Component.text(leniency.event(), Menus.INFO)));
@@ -133,17 +124,18 @@ public final class ProfileDetailMenu extends SacMenu {
             }
             lore.add(Component.empty());
             lore.add(Component.text("  View-only — edit profiles.yml directly", Menus.DARK_MUTED));
-            im.lore(lore);
-            item.setItemMeta(im);
+
+            ItemStack item = Menus.item(Material.PAPER,
+                Component.text("☀ ", Menus.HIGHLIGHT).append(Component.text("Leniency: " + leniency.event(), Menus.SOFT_WHITE)),
+                lore);
             // no PDC KEY_TYPE — view only, click does nothing actionable
             inventory.setItem(Menus.CONTENT_SLOTS[slot++], item);
         }
 
         // Back button (slot 45)
-        ItemStack back = new ItemStack(Material.SPECTRAL_ARROW);
-        ItemMeta bm = back.getItemMeta();
-        bm.displayName(Component.text("← ", Menus.MUTED).append(Component.text("Back to Profiles", Menus.SOFT_WHITE)));
-        back.setItemMeta(bm);
+        ItemStack back = Menus.item(Material.SPECTRAL_ARROW,
+            Component.text("← ", Menus.MUTED).append(Component.text("Back to Profiles", Menus.SOFT_WHITE)),
+            null);
         Menus.setPDC(back, Menus.KEY_TYPE, "back");
         inventory.setItem(45, back);
     }
@@ -216,7 +208,7 @@ public final class ProfileDetailMenu extends SacMenu {
         try {
             action.run();
         } catch (Exception ex) {
-            viewer.sendMessage(Component.text("Edit failed: " + ex.getMessage(), Menus.DANGER));
+            Menus.tell(viewer, Component.text("Edit failed: " + ex.getMessage(), Menus.DANGER));
         }
         refresh();
     }

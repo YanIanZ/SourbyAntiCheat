@@ -7,7 +7,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 
@@ -30,44 +29,39 @@ public final class WaveMenu extends SacMenu {
 
         if (queue.isEmpty()) {
             // Explanatory info item shown when queue is empty
-            ItemStack info = new ItemStack(Material.CLOCK);
-            ItemMeta im = info.getItemMeta();
-            im.displayName(Component.text("Ban Wave System", Menus.HIGHLIGHT, TextDecoration.BOLD));
-            im.lore(List.of(
-                Component.empty(),
-                Component.text("  Bans are batched and executed", Menus.MUTED),
-                Component.text("  at intervals to prevent cheat", Menus.MUTED),
-                Component.text("  developers from identifying which", Menus.MUTED),
-                Component.text("  check triggered the punishment.", Menus.MUTED),
-                Component.empty(),
-                Component.text("  Queue is currently empty.", Menus.SUCCESS),
-                Component.empty(),
-                Component.text("  Config: punishment.wave-command", Menus.DARK_MUTED),
-                Component.text("  Config: punishment.wave-interval", Menus.DARK_MUTED)
-            ));
-            info.setItemMeta(im);
+            ItemStack info = Menus.item(Material.CLOCK,
+                Component.text("Ban Wave System", Menus.HIGHLIGHT, TextDecoration.BOLD),
+                List.of(
+                    Component.empty(),
+                    Component.text("  Bans are batched and executed", Menus.MUTED),
+                    Component.text("  at intervals to prevent cheat", Menus.MUTED),
+                    Component.text("  developers from identifying which", Menus.MUTED),
+                    Component.text("  check triggered the punishment.", Menus.MUTED),
+                    Component.empty(),
+                    Component.text("  Queue is currently empty.", Menus.SUCCESS),
+                    Component.empty(),
+                    Component.text("  Config: punishment.wave-command", Menus.DARK_MUTED),
+                    Component.text("  Config: punishment.wave-interval", Menus.DARK_MUTED)
+                ));
             inventory.setItem(22, info);
         } else {
             for (int i = 0; i < Math.min(queue.size(), Menus.CONTENT_SLOTS.length); i++) {
                 String entry = queue.get(i);
-                ItemStack item = new ItemStack(Material.PAPER);
-                ItemMeta im = item.getItemMeta();
-                im.displayName(Component.text(entry, Menus.SOFT_WHITE));
-                im.lore(List.of(
-                    Component.empty(),
-                    Component.text("  Queued for wave execution", Menus.MUTED)
-                ));
-                item.setItemMeta(im);
+                ItemStack item = Menus.item(Material.PAPER,
+                    Component.text(entry, Menus.SOFT_WHITE),
+                    List.of(
+                        Component.empty(),
+                        Component.text("  Queued for wave execution", Menus.MUTED)
+                    ));
                 Menus.setPDC(item, Menus.KEY_TYPE, "wave_entry");
                 inventory.setItem(Menus.CONTENT_SLOTS[i], item);
             }
         }
 
         // Back button (slot 45)
-        ItemStack back = new ItemStack(Material.SPECTRAL_ARROW);
-        ItemMeta bm = back.getItemMeta();
-        bm.displayName(Component.text("← ", Menus.MUTED).append(Component.text("Back to Panel", Menus.SOFT_WHITE)));
-        back.setItemMeta(bm);
+        ItemStack back = Menus.item(Material.SPECTRAL_ARROW,
+            Component.text("← ", Menus.MUTED).append(Component.text("Back to Panel", Menus.SOFT_WHITE)),
+            null);
         Menus.setPDC(back, Menus.KEY_TYPE, "back");
         inventory.setItem(45, back);
     }

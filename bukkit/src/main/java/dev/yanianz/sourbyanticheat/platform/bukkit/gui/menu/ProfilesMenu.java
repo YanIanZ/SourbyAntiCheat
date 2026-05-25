@@ -7,7 +7,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 
@@ -42,27 +41,24 @@ public final class ProfilesMenu extends SacMenu {
         for (int i = 0; i < profiles.length; i++) {
             Profile p = profiles[i];
             Material mat = i < PROFILE_MATERIALS.length ? PROFILE_MATERIALS[i] : Material.CYAN_STAINED_GLASS_PANE;
-            ItemStack item = new ItemStack(mat);
-            ItemMeta im = item.getItemMeta();
-            im.displayName(Component.text("▸ ", Menus.ACCENT).append(Component.text(p.name(), Menus.SOFT_WHITE, TextDecoration.BOLD)));
-            im.lore(List.of(
-                Component.empty(),
-                Component.text("  Edit disabled checks,", Menus.MUTED),
-                Component.text("  overrides and leniencies", Menus.MUTED),
-                Component.empty(),
-                Component.text("  ▸ Click to configure", Menus.ACCENT)
-            ));
-            item.setItemMeta(im);
+            ItemStack item = Menus.item(mat,
+                Component.text("▸ ", Menus.ACCENT).append(Component.text(p.name(), Menus.SOFT_WHITE, TextDecoration.BOLD)),
+                List.of(
+                    Component.empty(),
+                    Component.text("  Edit disabled checks,", Menus.MUTED),
+                    Component.text("  overrides and leniencies", Menus.MUTED),
+                    Component.empty(),
+                    Component.text("  ▸ Click to configure", Menus.ACCENT)
+                ));
             Menus.setPDC(item, Menus.KEY_TYPE, "profile");
             Menus.setPDC(item, Menus.KEY_VALUE, p.name());
             inventory.setItem(slots[i], item);
         }
 
         // Back button (slot 45)
-        ItemStack back = new ItemStack(Material.SPECTRAL_ARROW);
-        ItemMeta bm = back.getItemMeta();
-        bm.displayName(Component.text("← ", Menus.MUTED).append(Component.text("Back to Panel", Menus.SOFT_WHITE)));
-        back.setItemMeta(bm);
+        ItemStack back = Menus.item(Material.SPECTRAL_ARROW,
+            Component.text("← ", Menus.MUTED).append(Component.text("Back to Panel", Menus.SOFT_WHITE)),
+            null);
         Menus.setPDC(back, Menus.KEY_TYPE, "back");
         inventory.setItem(45, back);
     }

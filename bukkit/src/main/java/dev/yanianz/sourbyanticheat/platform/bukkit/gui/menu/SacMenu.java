@@ -24,7 +24,9 @@ public abstract class SacMenu implements InventoryHolder {
     @Override
     public @NotNull Inventory getInventory() {
         if (inventory == null) {
-            inventory = Bukkit.createInventory(this, size(), title());
+            // Legacy-String title: a relocated Adventure Component would throw
+            // NoSuchMethodError against Paper's createInventory(..,Component).
+            inventory = Bukkit.createInventory(this, size(), Menus.legacy(title()));
             render();
         }
         return inventory;

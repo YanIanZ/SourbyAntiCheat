@@ -9,7 +9,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -63,11 +62,8 @@ public final class PlayerChecksMenu extends SacMenu {
             else if (vl > 1)  mat = Material.YELLOW_CONCRETE;
             else              mat = Material.LIME_CONCRETE;
 
-            ItemStack ic = new ItemStack(mat);
-            ItemMeta im = ic.getItemMeta();
             Component nameComp = Component.text(check.getCheckName(), enabled ? Menus.SOFT_WHITE : Menus.DARK_MUTED);
             if (experimental) nameComp = nameComp.append(Component.text(" *", Menus.PURPLE));
-            im.displayName(nameComp);
 
             List<Component> lore = new ArrayList<>();
             lore.add(Component.empty());
@@ -80,49 +76,43 @@ public final class PlayerChecksMenu extends SacMenu {
             }
             lore.add(Component.empty());
             lore.add(Component.text("  ▸ Click to " + (enabled ? "disable" : "enable"), enabled ? Menus.DANGER : Menus.SUCCESS));
-            im.lore(lore);
 
-            ic.setItemMeta(im);
+            ItemStack ic = Menus.item(mat, nameComp, lore);
             Menus.setPDC(ic, Menus.KEY_TYPE, "check");
             Menus.setPDC(ic, Menus.KEY_VALUE, check.getCheckName());
             inventory.setItem(Menus.CONTENT_SLOTS[slot++], ic);
         }
 
         // Back button (slot 45)
-        ItemStack back = new ItemStack(Material.SPECTRAL_ARROW);
-        ItemMeta bm = back.getItemMeta();
-        bm.displayName(Component.text("← ", Menus.MUTED).append(Component.text("Back to Panel", Menus.SOFT_WHITE)));
-        back.setItemMeta(bm);
+        ItemStack back = Menus.item(Material.SPECTRAL_ARROW,
+            Component.text("← ", Menus.MUTED).append(Component.text("Back to Panel", Menus.SOFT_WHITE)),
+            null);
         Menus.setPDC(back, Menus.KEY_TYPE, "back");
         inventory.setItem(45, back);
 
         // Reset All VLs button (slot 53)
-        ItemStack reset = new ItemStack(Material.BARRIER);
-        ItemMeta rm = reset.getItemMeta();
-        rm.displayName(Component.text("⚠ ", Menus.DANGER).append(Component.text("Reset All VLs", Menus.DANGER)));
-        rm.lore(List.of(
-            Component.empty(),
-            Component.text("  Resets violations for all checks", Menus.MUTED),
-            Component.text("  ▸ Click to confirm", Menus.HIGHLIGHT)
-        ));
-        reset.setItemMeta(rm);
+        ItemStack reset = Menus.item(Material.BARRIER,
+            Component.text("⚠ ", Menus.DANGER).append(Component.text("Reset All VLs", Menus.DANGER)),
+            List.of(
+                Component.empty(),
+                Component.text("  Resets violations for all checks", Menus.MUTED),
+                Component.text("  ▸ Click to confirm", Menus.HIGHLIGHT)
+            ));
         Menus.setPDC(reset, Menus.KEY_TYPE, "reset");
         inventory.setItem(53, reset);
 
         // Spartan stats (slot 49)
         if (SpartanCrossCheck.isAvailable() && target != null) {
             var stats = SpartanCrossCheck.getStats(target.uuid);
-            ItemStack spartan = new ItemStack(Material.ENCHANTED_BOOK);
-            ItemMeta spm = spartan.getItemMeta();
-            spm.displayName(Component.text("◆ ", Menus.ACCENT2).append(Component.text("Spartan Cross-Check", Menus.SOFT_WHITE)));
-            spm.lore(List.of(
-                Component.empty(),
-                Component.text("  ✔ Agreements  ", Menus.MUTED).append(Component.text(String.valueOf(stats.agreements), Menus.SUCCESS)),
-                Component.text("  ✖ Disagreements  ", Menus.MUTED).append(Component.text(String.valueOf(stats.disagreements), Menus.DANGER)),
-                Component.text("  Rate  ", Menus.MUTED).append(Component.text(String.format("%.0f%%", stats.agreementRate() * 100), Menus.INFO)),
-                Component.empty()
-            ));
-            spartan.setItemMeta(spm);
+            ItemStack spartan = Menus.item(Material.ENCHANTED_BOOK,
+                Component.text("◆ ", Menus.ACCENT2).append(Component.text("Spartan Cross-Check", Menus.SOFT_WHITE)),
+                List.of(
+                    Component.empty(),
+                    Component.text("  ✔ Agreements  ", Menus.MUTED).append(Component.text(String.valueOf(stats.agreements), Menus.SUCCESS)),
+                    Component.text("  ✖ Disagreements  ", Menus.MUTED).append(Component.text(String.valueOf(stats.disagreements), Menus.DANGER)),
+                    Component.text("  Rate  ", Menus.MUTED).append(Component.text(String.format("%.0f%%", stats.agreementRate() * 100), Menus.INFO)),
+                    Component.empty()
+                ));
             inventory.setItem(49, spartan);
         }
     }
@@ -156,7 +146,7 @@ public final class PlayerChecksMenu extends SacMenu {
             if (c.getCheckName() != null && c.getCheckName().equalsIgnoreCase(checkName)) {
                 boolean newState = !c.isEnabled();
                 c.setEnabled(newState);
-                viewer.sendMessage(Component.text()
+                Menus.tell(viewer, Component.text()
                     .append(Component.text("  " + checkName + " ", Menus.SOFT_WHITE))
                     .append(Component.text("→ ", Menus.MUTED))
                     .append(Component.text(newState ? "ENABLED" : "DISABLED", newState ? Menus.SUCCESS : Menus.DANGER))
@@ -175,7 +165,7 @@ public final class PlayerChecksMenu extends SacMenu {
             ((Check) entry.getValue()).violations = 0;
             count++;
         }
-        viewer.sendMessage(Component.text()
+        Menus.tell(viewer, Component.text()
             .append(Component.text("  ✔ Reset ", Menus.SUCCESS))
             .append(Component.text(count + " checks", Menus.SOFT_WHITE))
             .append(Component.text(" for " + targetName, Menus.MUTED))

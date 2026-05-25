@@ -3,6 +3,8 @@ package dev.yanianz.sourbyanticheat.platform.bukkit.gui.menu;
 import dev.yanianz.sourbyanticheat.SacAPI;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
+import io.github.retrooper.packetevents.adventure.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -11,14 +13,78 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-/** Shared constants and helpers for all SAC menu classes. */
+/**
+ * Shared constants and helpers for all SAC menu classes.
+ *
+ * <p><b>Relocation note:</b> SAC shades and relocates Adventure
+ * ({@code net.kyori} → {@code dev.yanianz.sourbyanticheat.shaded.kyori}).
+ * Passing a relocated {@code Component} to Paper's {@code ItemMeta.displayName} /
+ * {@code Bukkit.createInventory(..,Component)} / {@code Player.sendMessage(Component)}
+ * throws {@code NoSuchMethodError} (Paper expects its own, non-relocated Component).
+ * So all menu text goes through {@link #legacy(Component)} and the legacy-String
+ * Bukkit API ({@code setDisplayName}/{@code setLore}/{@code createInventory(..,String)}).
+ */
 public final class Menus {
+
+    private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacySection();
+
+    /** Serialize a (relocated) Component to a legacy §-coded String — safe to
+     *  hand to the native Bukkit/Paper String API across the relocation boundary. */
+    public static String legacy(Component c) {
+        return c == null ? "" : LEGACY.serialize(c);
+    }
+
+    /** Build an item with a legacy-String name + lore (relocation-safe). */
+    public static ItemStack item(Material material, Component name, List<Component> lore) {
+        ItemStack item = new ItemStack(material);
+        apply(item, name, lore);
+        return item;
+    }
+
+    /** Apply a legacy-String name + lore to an existing item. */
+    public static void apply(ItemStack item, Component name, List<Component> lore) {
+        ItemMeta m = item.getItemMeta();
+        if (m == null) return;
+        if (name != null) m.setDisplayName(legacy(name));
+        if (lore != null) {
+            List<String> ls = new ArrayList<>(lore.size());
+            for (Component c : lore) ls.add(legacy(c));
+            m.setLore(ls);
+        }
+        item.setItemMeta(m);
+    }
+
+    /** Build a player head with owner + legacy-String name + lore. */
+    public static ItemStack head(UUID owner, Component name, List<Component> lore) {
+        ItemStack item = new ItemStack(Material.PLAYER_HEAD);
+        ItemMeta meta = item.getItemMeta();
+        if (meta instanceof SkullMeta skull) {
+            if (owner != null) skull.setOwningPlayer(Bukkit.getOfflinePlayer(owner));
+            skull.setDisplayName(legacy(name));
+            if (lore != null) {
+                List<String> ls = new ArrayList<>(lore.size());
+                for (Component c : lore) ls.add(legacy(c));
+                skull.setLore(ls);
+            }
+            item.setItemMeta(skull);
+        }
+        return item;
+    }
+
+    /** Send a chat message to a native Bukkit player across the relocation
+     *  boundary (Player.sendMessage(Component) would throw NoSuchMethodError). */
+    public static void tell(Player player, Component message) {
+        player.sendMessage(legacy(message));
+    }
 
     // ── Colour palette (ported verbatim from SacGUI) ──────────────────
     public static final TextColor BRAND      = TextColor.fromHexString("#FF6B35");
@@ -81,7 +147,7 @@ public final class Menus {
     public static void fillBorder(Inventory inv) {
         ItemStack pane = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta pm = pane.getItemMeta();
-        pm.displayName(net.kyori.adventure.text.Component.empty());
+        pm.setDisplayName(" ");
         pane.setItemMeta(pm);
         for (int i = 0; i < 9; i++) inv.setItem(i, pane.clone());
         for (int i = 45; i < 54; i++) {
