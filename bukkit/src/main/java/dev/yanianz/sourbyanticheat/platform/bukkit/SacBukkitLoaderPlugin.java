@@ -163,6 +163,8 @@ public final class SacBukkitLoaderPlugin extends JavaPlugin implements PlatformL
                 }
             }
             ProfileWorldMap profileWorldMap = new ProfileWorldMap(worldMap, defaultProfile);
+            // Auto-map present skyblock plugins' island worlds -> SKYBLOCK profile.
+            dev.yanianz.sourbyanticheat.platform.bukkit.hooks.SkyblockWorldDetector.apply(profileWorldMap);
 
             ProfileResolver resolver = new ProfileResolver(
                     id -> {
