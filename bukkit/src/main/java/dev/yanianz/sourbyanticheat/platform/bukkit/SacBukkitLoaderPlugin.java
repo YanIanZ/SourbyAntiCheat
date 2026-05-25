@@ -13,6 +13,20 @@ import dev.yanianz.sourbyanticheat.manager.init.start.ExemptOnlinePlayersOnReloa
 import dev.yanianz.sourbyanticheat.manager.init.start.StartableInitable;
 import dev.yanianz.sourbyanticheat.api.SacAbstractAPI;
 import dev.yanianz.sourbyanticheat.checks.Check;
+import dev.yanianz.sourbyanticheat.profile.Profile;
+import dev.yanianz.sourbyanticheat.profile.ProfileConfig;
+import dev.yanianz.sourbyanticheat.profile.ProfileRegistry;
+import dev.yanianz.sourbyanticheat.profile.ProfileResolver;
+import dev.yanianz.sourbyanticheat.profile.ProfileWorldMap;
+import dev.yanianz.sourbyanticheat.profile.leniency.LeniencyEventBus;
+import dev.yanianz.sourbyanticheat.profile.leniency.LeniencyTracker;
+import dev.yanianz.sourbyanticheat.profile.leniency.handlers.ElytraFireworkBoostHandler;
+import dev.yanianz.sourbyanticheat.profile.leniency.handlers.EnderPearlLandHandler;
+import dev.yanianz.sourbyanticheat.profile.leniency.handlers.FireballBoostHandler;
+import dev.yanianz.sourbyanticheat.profile.leniency.handlers.KitPotionApplyHandler;
+import dev.yanianz.sourbyanticheat.profile.leniency.handlers.MLGWaterLandHandler;
+import dev.yanianz.sourbyanticheat.profile.leniency.handlers.RodPullHandler;
+import dev.yanianz.sourbyanticheat.profile.leniency.handlers.SnowballKbHandler;
 import dev.yanianz.sourbyanticheat.netty.SacNettyInjector;
 import dev.yanianz.sourbyanticheat.platform.api.proxy.ProxyMessenger;
 import dev.yanianz.sourbyanticheat.platform.bukkit.gui.SacGUI;
@@ -110,10 +124,102 @@ public final class SacBukkitLoaderPlugin extends JavaPlugin implements PlatformL
     @Override
     public void onEnable() {
         SacAPI.INSTANCE.start();
+        wireProfileSystem();
         getServer().getMessenger().registerOutgoingPluginChannel(SacBukkitLoaderPlugin.LOADER, "sac:main");
         getServer().getPluginManager().registerEvents(new NettyInjectListener(), this);
         getServer().getPluginManager().registerEvents(new SacGUI(), this);
         LogUtil.info("SAC ready — use /sac help for commands");
+    }
+
+    // Per-arena profiles + leniency are an enhancement layer; a failure here must
+    // never block plugin enable, so the whole wiring is guarded. Check.reload/flag
+    // already null-guard against an absent registry/tracker.
+    private void wireProfileSystem() {
+        try {
+            java.nio.file.Path dataDir = getDataFolder().toPath();
+            // NOTE: checks.yml is owned by the existing ConfigUpdater/SacConfigSpecs
+            // pipeline (its own config-version/flavor). The profile layer lives in a
+            // separate profiles.yml, so we must NOT migrate/overwrite checks.yml here.
+
+            if (!java.nio.file.Files.exists(dataDir.resolve("profiles.yml"))) saveResource("profiles.yml", false);
+            if (!java.nio.file.Files.exists(dataDir.resolve("profile-worlds.yml"))) saveResource("profile-worlds.yml", false);
+
+            ProfileConfig profileConfig = new ProfileConfig(dataDir.resolve("profiles.yml"));
+            profileConfig.reload();
+
+            java.util.LinkedHashMap<String, Profile> worldMap = new java.util.LinkedHashMap<>();
+            Profile defaultProfile = Profile.GENERIC;
+            java.nio.file.Path pwPath = dataDir.resolve("profile-worlds.yml");
+            if (java.nio.file.Files.exists(pwPath)) {
+                Object raw = new org.yaml.snakeyaml.Yaml().load(java.nio.file.Files.newBufferedReader(pwPath));
+                if (raw instanceof java.util.Map<?, ?> pwYaml) {
+                    Object dp = pwYaml.get("defaultProfile");
+                    if (dp instanceof String s) defaultProfile = Profile.fromString(s);
+                    if (pwYaml.get("worlds") instanceof java.util.Map<?, ?> wm) {
+                        for (var e : wm.entrySet()) {
+                            worldMap.put(String.valueOf(e.getKey()), Profile.fromString(String.valueOf(e.getValue())));
+                        }
+                    }
+                }
+            }
+            ProfileWorldMap profileWorldMap = new ProfileWorldMap(worldMap, defaultProfile);
+
+            ProfileResolver resolver = new ProfileResolver(
+                    id -> {
+                        var bp = getServer().getPlayer(id);
+                        return bp == null || bp.getWorld() == null ? null : bp.getWorld().getName();
+                    },
+                    (id, perm) -> {
+                        var bp = getServer().getPlayer(id);
+                        return bp != null && bp.hasPermission(perm);
+                    },
+                    profileWorldMap
+            );
+            ProfileRegistry registry = new ProfileRegistry(resolver::resolve);
+            LeniencyTracker tracker = new LeniencyTracker();
+            LeniencyEventBus bus = new LeniencyEventBus(registry::get, profileConfig::snapshot, tracker);
+
+            SacAPI.INSTANCE.setProfileRegistry(registry);
+            SacAPI.INSTANCE.setProfileConfig(profileConfig);
+            SacAPI.INSTANCE.setLeniencyTracker(tracker);
+            SacAPI.INSTANCE.setLeniencyEventBus(bus);
+
+            var pm = getServer().getPluginManager();
+            pm.registerEvents(new EnderPearlLandHandler(bus), this);
+            pm.registerEvents(new FireballBoostHandler(bus), this);
+            pm.registerEvents(new MLGWaterLandHandler(bus), this);
+            pm.registerEvents(new KitPotionApplyHandler(bus), this);
+            pm.registerEvents(new RodPullHandler(bus), this);
+            pm.registerEvents(new SnowballKbHandler(bus), this);
+            pm.registerEvents(new ElytraFireworkBoostHandler(bus), this);
+            pm.registerEvents(new ProfileLifecycleListener(registry, tracker), this);
+
+            LogUtil.info("Profile system ready (default=" + defaultProfile + ", " + worldMap.size() + " world mappings)");
+        } catch (Throwable t) {
+            LogUtil.warn("Profile system failed to initialize; anticheat runs without per-arena profiles: " + t.getMessage());
+        }
+    }
+
+    private static final class ProfileLifecycleListener implements Listener {
+        private final ProfileRegistry registry;
+        private final LeniencyTracker tracker;
+
+        ProfileLifecycleListener(ProfileRegistry registry, LeniencyTracker tracker) {
+            this.registry = registry;
+            this.tracker = tracker;
+        }
+
+        @EventHandler
+        public void onWorldChange(org.bukkit.event.player.PlayerChangedWorldEvent e) {
+            registry.invalidate(e.getPlayer().getUniqueId());
+        }
+
+        @EventHandler
+        public void onQuit(org.bukkit.event.player.PlayerQuitEvent e) {
+            java.util.UUID id = e.getPlayer().getUniqueId();
+            registry.remove(id);
+            tracker.removePlayer(id);
+        }
     }
 
     private class NettyInjectListener implements Listener {

@@ -9,6 +9,9 @@ import ac.grim.grimac.api.event.events.GrimReloadEvent;
 import ac.grim.grimac.api.plugin.GrimPlugin;
 import ac.grim.grimac.api.storage.backend.BackendRegistry;
 import dev.yanianz.sourbyanticheat.api.SacAbstractAPI;
+import dev.yanianz.sourbyanticheat.profile.Profile;
+import dev.yanianz.sourbyanticheat.profile.leniency.LeniencyId;
+import dev.yanianz.sourbyanticheat.config.ConfigMigratorV1ToV2;
 import dev.yanianz.sourbyanticheat.manager.config.ConfigManagerFileImpl;
 import dev.yanianz.sourbyanticheat.manager.init.start.StartableInitable;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
@@ -135,6 +138,41 @@ public class SacExternalAPI implements GrimAbstractAPI, SacAbstractAPI, ConfigRe
     @Override
     public @NotNull BackendRegistry getBackendRegistry() {
         return api.getBackendRegistry();
+    }
+
+    @Override public Profile getProfile(UUID id) {
+        var r = SacAPI.INSTANCE.getProfileRegistry();
+        return r == null ? Profile.GENERIC : r.get(id);
+    }
+    @Override public void setProfile(UUID id, Profile p) {
+        if (p == null) throw new IllegalArgumentException("profile must not be null");
+        var r = SacAPI.INSTANCE.getProfileRegistry();
+        if (r != null) r.setOverride(id, p);
+    }
+    @Override public void clearProfile(UUID id) {
+        var r = SacAPI.INSTANCE.getProfileRegistry();
+        if (r != null) r.clearOverride(id);
+    }
+    @Override public void grantLeniency(UUID id, String check, long ms) {
+        var t = SacAPI.INSTANCE.getLeniencyTracker();
+        if (t != null) t.add(id, check, ms);
+    }
+    @Override public void grantLeniencyAll(UUID id, long ms) {
+        var t = SacAPI.INSTANCE.getLeniencyTracker();
+        if (t == null) return;
+        for (String c : ConfigMigratorV1ToV2.KEPT) t.add(id, c, ms);
+    }
+    @Override public void revokeLeniency(UUID id, String check) {
+        var t = SacAPI.INSTANCE.getLeniencyTracker();
+        if (t != null) t.revoke(id, check);
+    }
+    @Override public boolean hasLeniency(UUID id, String check) {
+        var t = SacAPI.INSTANCE.getLeniencyTracker();
+        return t != null && t.active(check, id);
+    }
+    @Override public void fireLeniency(LeniencyId ev, UUID id, int amp) {
+        var bus = SacAPI.INSTANCE.getLeniencyEventBus();
+        if (bus != null) bus.fire(ev, id, amp);
     }
 
     // on load, load the config & register the service

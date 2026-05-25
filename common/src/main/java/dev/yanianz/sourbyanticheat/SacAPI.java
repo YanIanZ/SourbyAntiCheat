@@ -37,6 +37,10 @@ import dev.yanianz.sourbyanticheat.platform.api.proxy.GlobalPlayerStore;
 import dev.yanianz.sourbyanticheat.platform.api.proxy.ProxyMessenger;
 import dev.yanianz.sourbyanticheat.platform.api.scheduler.PlatformScheduler;
 import dev.yanianz.sourbyanticheat.platform.api.sender.SenderFactory;
+import dev.yanianz.sourbyanticheat.profile.ProfileConfig;
+import dev.yanianz.sourbyanticheat.profile.ProfileRegistry;
+import dev.yanianz.sourbyanticheat.profile.leniency.LeniencyEventBus;
+import dev.yanianz.sourbyanticheat.profile.leniency.LeniencyTracker;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.utils.anticheat.PlayerDataManager;
 import dev.yanianz.sourbyanticheat.utils.common.arguments.CommonGrimArguments;
@@ -68,6 +72,10 @@ public final class SacAPI {
     private ProxyMessenger proxyMessenger;
     private GlobalPlayerStore globalPlayerStore;
     private AuditLogger auditLogger;
+    private ProfileRegistry profileRegistry;
+    private ProfileConfig profileConfig;
+    private LeniencyTracker leniencyTracker;
+    private LeniencyEventBus leniencyEventBus;
     private boolean initialized = false;
     private final long startTime = System.currentTimeMillis();
 
@@ -201,4 +209,9 @@ public final class SacAPI {
     public ProxyMessenger getProxyMessenger() { return proxyMessenger; }
     public GlobalPlayerStore getGlobalPlayerStore() { return globalPlayerStore; }
     public AuditLogger getAuditLogger() { return auditLogger; }
+
+    public void setProfileRegistry(ProfileRegistry r) { this.profileRegistry = r; }
+    public void setProfileConfig(ProfileConfig c) { this.profileConfig = c; }
+    public void setLeniencyTracker(LeniencyTracker t) { this.leniencyTracker = t; }
+    public void setLeniencyEventBus(LeniencyEventBus b) { this.leniencyEventBus = b; }
 }

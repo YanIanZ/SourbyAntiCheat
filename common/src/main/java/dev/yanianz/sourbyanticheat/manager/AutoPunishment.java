@@ -7,7 +7,6 @@ import dev.yanianz.sourbyanticheat.utils.anticheat.LogUtil;
 import dev.yanianz.sourbyanticheat.utils.anticheat.MessageUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 public final class AutoPunishment {
 
@@ -96,13 +95,14 @@ public final class AutoPunishment {
     private static void warnPlayer(SacPlayer player, Check check, int totalVL) {
         try {
             if (player.platformPlayer == null) return;
-            Player p = (Player) player.platformPlayer.getNative();
-            if (p == null) return;
             String msg = warnMessage
                 .replace("%player%", player.getName())
                 .replace("%check%", check.getCheckName())
                 .replace("%vl%", String.valueOf(totalVL));
-            p.sendMessage(Component.text(msg));
+            // Send through the platform abstraction — calling the native Bukkit
+            // Player.sendMessage(Component) fails with NoSuchMethodError because our
+            // adventure is relocated/shaded and Paper's API expects its own copy.
+            player.platformPlayer.sendMessage(MessageUtil.miniMessage(msg));
         } catch (Exception ignored) {}
     }
 
