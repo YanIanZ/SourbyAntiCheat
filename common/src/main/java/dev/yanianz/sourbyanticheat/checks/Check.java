@@ -5,6 +5,8 @@ import ac.grim.grimac.api.AbstractCheck;
 import ac.grim.grimac.api.config.ConfigManager;
 import ac.grim.grimac.api.event.events.FlagEvent;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
+import dev.yanianz.sourbyanticheat.profile.Profile;
+import dev.yanianz.sourbyanticheat.profile.ProfileAwareConfigView;
 import dev.yanianz.sourbyanticheat.spartan.SpartanCrossCheck;
 import dev.yanianz.sourbyanticheat.spartan.SpartanEventBridge;
 import dev.yanianz.sourbyanticheat.manager.AutoPunishment;
@@ -176,18 +178,29 @@ public class Check extends SacProcessor implements AbstractCheck {
 
     @Override
     public final void reload(ConfigManager configuration) {
-        decay = configuration.getDoubleElse(configName + ".decay", decay);
-        setbackVL = configuration.getDoubleElse(configName + ".setbackvl", setbackVL);
-        maxVL = configuration.getDoubleElse(configName + ".maxvl",
-            configuration.getDoubleElse("punishment.max-vl", -1));
-        punishWarnVL = configuration.getIntElse(configName + ".punish-warn-vl", -1);
-        punishKickVL = configuration.getIntElse(configName + ".punish-kick-vl", -1);
-        punishBanVL  = configuration.getIntElse(configName + ".punish-ban-vl", -1);
-        displayName = configuration.getStringElse(configName + ".displayname", checkName);
-        description = configuration.getStringElse(configName + ".description", description);
+        ConfigManager effective = configuration;
+        try {
+            var registry = SacAPI.INSTANCE.getProfileRegistry();
+            var profileCfg = SacAPI.INSTANCE.getProfileConfig();
+            if (registry != null && profileCfg != null) {
+                Profile p = registry.get(player.uuid);
+                var section = profileCfg.snapshot().forProfile(p);
+                effective = new ProfileAwareConfigView(configuration, section);
+            }
+        } catch (Throwable ignored) {} // null-safe during early bootstrap / tests
+
+        decay = effective.getDoubleElse(configName + ".decay", decay);
+        setbackVL = effective.getDoubleElse(configName + ".setbackvl", setbackVL);
+        maxVL = effective.getDoubleElse(configName + ".maxvl",
+            effective.getDoubleElse("punishment.max-vl", -1));
+        punishWarnVL = effective.getIntElse(configName + ".punish-warn-vl", -1);
+        punishKickVL = effective.getIntElse(configName + ".punish-kick-vl", -1);
+        punishBanVL  = effective.getIntElse(configName + ".punish-ban-vl", -1);
+        displayName = effective.getStringElse(configName + ".displayname", checkName);
+        description = effective.getStringElse(configName + ".description", description);
 
         if (setbackVL == -1) setbackVL = Double.MAX_VALUE;
-        onReload(configuration);
+        onReload(effective);
     }
 
     @Override
