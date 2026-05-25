@@ -194,6 +194,30 @@ public final class SacBukkitLoaderPlugin extends JavaPlugin implements PlatformL
             pm.registerEvents(new ElytraFireworkBoostHandler(bus), this);
             pm.registerEvents(new ProfileLifecycleListener(registry, tracker), this);
 
+            // --- Soft-depend plugin hooks ---
+            try {
+                var cfg = dev.yanianz.sourbyanticheat.SacAPI.INSTANCE.getConfigManager().getConfig();
+                java.util.function.Function<String, dev.yanianz.sourbyanticheat.platform.api.hooks.HookConfig> hookConfigFor =
+                    key -> {
+                        boolean enabled = cfg.getBooleanElse("hooks." + key + ".enabled", false);
+                        java.util.Map<String, java.util.List<String>> abilities = new java.util.HashMap<>();
+                        // mcMMO ability -> checks (keys lowercased to match HookConfig lookup)
+                        for (String ability : new String[]{"berserk", "super_breaker", "giga_drill_breaker", "tree_feller"}) {
+                            java.util.List<String> checks = cfg.getStringListElse("hooks." + key + "." + ability, java.util.List.of());
+                            if (!checks.isEmpty()) abilities.put(ability.toLowerCase(java.util.Locale.ROOT), checks);
+                        }
+                        return new dev.yanianz.sourbyanticheat.platform.api.hooks.HookConfig(enabled, abilities);
+                    };
+
+                var hookManager = new dev.yanianz.sourbyanticheat.platform.bukkit.hooks.HookManager(
+                    java.util.List.of(new dev.yanianz.sourbyanticheat.platform.bukkit.hooks.McMMOHook()));
+                hookManager.enablePresent(this,
+                    dev.yanianz.sourbyanticheat.SacAPI.INSTANCE.getExemptionRegistry(),
+                    hookConfigFor);
+            } catch (Throwable t) {
+                dev.yanianz.sourbyanticheat.utils.anticheat.LogUtil.warn("Failed to init plugin hooks: " + t);
+            }
+
             LogUtil.info("Profile system ready (default=" + defaultProfile + ", " + worldMap.size() + " world mappings)");
         } catch (Throwable t) {
             LogUtil.warn("Profile system failed to initialize; anticheat runs without per-arena profiles: " + t.getMessage());
