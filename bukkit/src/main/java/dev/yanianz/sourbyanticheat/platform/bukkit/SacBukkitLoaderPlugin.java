@@ -13,7 +13,6 @@ import dev.yanianz.sourbyanticheat.manager.init.start.ExemptOnlinePlayersOnReloa
 import dev.yanianz.sourbyanticheat.manager.init.start.StartableInitable;
 import dev.yanianz.sourbyanticheat.api.SacAbstractAPI;
 import dev.yanianz.sourbyanticheat.checks.Check;
-import dev.yanianz.sourbyanticheat.config.ConfigMigratorV1ToV2;
 import dev.yanianz.sourbyanticheat.profile.Profile;
 import dev.yanianz.sourbyanticheat.profile.ProfileConfig;
 import dev.yanianz.sourbyanticheat.profile.ProfileRegistry;
@@ -138,7 +137,9 @@ public final class SacBukkitLoaderPlugin extends JavaPlugin implements PlatformL
     private void wireProfileSystem() {
         try {
             java.nio.file.Path dataDir = getDataFolder().toPath();
-            new ConfigMigratorV1ToV2().migrate(dataDir.resolve("checks.yml"));
+            // NOTE: checks.yml is owned by the existing ConfigUpdater/SacConfigSpecs
+            // pipeline (its own config-version/flavor). The profile layer lives in a
+            // separate profiles.yml, so we must NOT migrate/overwrite checks.yml here.
 
             if (!java.nio.file.Files.exists(dataDir.resolve("profiles.yml"))) saveResource("profiles.yml", false);
             if (!java.nio.file.Files.exists(dataDir.resolve("profile-worlds.yml"))) saveResource("profile-worlds.yml", false);
