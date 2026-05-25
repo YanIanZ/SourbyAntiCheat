@@ -2,6 +2,7 @@ package dev.yanianz.sourbyanticheat.manager;
 
 import dev.yanianz.sourbyanticheat.SacAPI;
 import ac.grim.grimac.api.AbstractCheck;
+import dev.yanianz.sourbyanticheat.checks.impl.aim.AimAccel;
 import dev.yanianz.sourbyanticheat.checks.impl.aim.AimAssist;
 import dev.yanianz.sourbyanticheat.checks.impl.aim.processor.AimProcessor;
 import dev.yanianz.sourbyanticheat.checks.impl.badpackets.*;
@@ -239,6 +240,8 @@ public class CheckManager {
                 .put(FastSwitch.class, new FastSwitch(player))
                 .put(MultiAttack.class, new MultiAttack(player))
                 .put(AttackFrequency.class, new AttackFrequency(player))
+                .put(KillAuraA.class, new KillAuraA(player))
+                .put(KillAuraB.class, new KillAuraB(player))
                 .put(InventoryMove.class, new InventoryMove(player))
                 .put(InventoryWalk.class, new InventoryWalk(player))
                 .put(BadPacketsAI.class, new BadPacketsAI(player))
@@ -280,6 +283,7 @@ public class CheckManager {
         rotationChecks = new ImmutableClassToInstanceMap.Builder<RotationCheck>()
                 .put(AimProcessor.class, new AimProcessor(player))
                 .put(AimAssist.class, new AimAssist(player))
+                .put(AimAccel.class, new AimAccel(player))
                 .build();
         vehicleChecks = new ImmutableClassToInstanceMap.Builder<VehicleCheck>()
                 .put(VehiclePredictionRunner.class, new VehiclePredictionRunner(player))
