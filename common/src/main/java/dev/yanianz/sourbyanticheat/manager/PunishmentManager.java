@@ -27,6 +27,8 @@ public class PunishmentManager implements ConfigReloadable {
     private String alertString;
     private boolean testMode;
     private String proxyAlertString = "";
+    private final AlertCooldown alertCooldown = new AlertCooldown();
+    private long alertCooldownMs = 1500;
     private static final CommandExecuteEvent.Channel COMMAND_CHANNEL = SacAPI.INSTANCE.getEventBus().get(CommandExecuteEvent.class);
 
     public PunishmentManager(SacPlayer player) {
@@ -40,6 +42,7 @@ public class PunishmentManager implements ConfigReloadable {
         alertString = config.getStringElse("alerts-format", "%prefix% &f%player% &bfailed &f%check_name% &7[&c%vl%&7] &7%verbose%");
         testMode = config.getBooleanElse("test-mode", false);
         proxyAlertString = config.getStringElse("alerts-format-proxy", "%prefix% &f[&cproxy&f] &f%player% &bfailed &f%check_name% &7[&c%vl%&7] &7%verbose%");
+        alertCooldownMs = config.getIntElse("alerts.cooldown-ms", 1500);
         try {
             groups.clear();
 
@@ -151,8 +154,12 @@ public class PunishmentManager implements ConfigReloadable {
                                         if (verboseListeners == null || verboseListeners.contains(player.platformPlayer)) {
                                             player.sendMessage(message);
                                         }
-                                    } else {
+                                    } else if (alertCooldown.shouldSend(check.getCheckName(),
+                                            System.currentTimeMillis(), alertCooldownMs)) {
                                         SacAPI.INSTANCE.getAlertManager().sendAlert(message, verboseListeners);
+                                        AlertFeed.GLOBAL.push(new AlertFeed.Entry(
+                                                player.getName(), player.uuid, check.getCheckName(),
+                                                vl, verbose, System.currentTimeMillis()));
                                     }
                                 }
                                 default -> SacAPI.INSTANCE.getScheduler().getGlobalRegionScheduler().run(SacAPI.INSTANCE.getGrimPlugin(), () ->
