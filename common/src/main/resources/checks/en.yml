@@ -6,84 +6,85 @@
 # All checks are enabled by default
 checks:
     enabled:
+        AirLiquidPlace: false
         # --- aim ---
-        AimDuplicateLook: true
-        AimAssist: true
-        AimModulo360: true
+        AimDuplicateLook: false
+        AimAssist: false
+        AimModulo360: false
 
         # --- badpackets ---
         BadPacketsA: true
         BadPacketsB: true
         BadPacketsC: true
-        BadPacketsD: true
-        BadPacketsE: true
-        BadPacketsF: true
-        BadPacketsG: true
-        BadPacketsH: true
-        BadPacketsI: true
-        BadPacketsJ: true
-        BadPacketsK: true
-        BadPacketsL: true
-        BadPacketsM: true
-        BadPacketsN: true
-        BadPacketsO: true
-        BadPacketsP: true
-        BadPacketsQ: true
-        BadPacketsR: true
-        BadPacketsS: true
-        BadPacketsT: true
-        BadPacketsU: true
-        BadPacketsV: true
-        BadPacketsW: true
-        BadPacketsX: true
-        BadPacketsY: true
-        BadPacketsZ: true
-        BadPacketsAA: true
-        BadPacketsAB: true
-        BadPacketsAC: true
-        BadPacketsAD: true
-        BadPacketsAE: true
-        BadPacketsAF: true
-        BadPacketsAG: true
-        BadPacketsAH: true
-        BadPacketsAI: true
-        BadPacketsAJ: true
+        BadPacketsD: false
+        BadPacketsE: false
+        BadPacketsF: false
+        BadPacketsG: false
+        BadPacketsH: false
+        BadPacketsI: false
+        BadPacketsJ: false
+        BadPacketsK: false
+        BadPacketsL: false
+        BadPacketsM: false
+        BadPacketsN: false
+        BadPacketsO: false
+        BadPacketsP: false
+        BadPacketsQ: false
+        BadPacketsR: false
+        BadPacketsS: false
+        BadPacketsT: false
+        BadPacketsU: false
+        BadPacketsV: false
+        BadPacketsW: false
+        BadPacketsX: false
+        BadPacketsY: false
+        BadPacketsZ: false
+        BadPacketsAA: false
+        BadPacketsAB: false
+        BadPacketsAC: false
+        BadPacketsAD: false
+        BadPacketsAE: false
+        BadPacketsAF: false
+        BadPacketsAG: false
+        BadPacketsAH: false
+        BadPacketsAI: false
+        BadPacketsAJ: false
 
         # --- baritone ---
-        Baritone: true
+        Baritone: false
 
         # --- breaking ---
-        AirLiquidBreak: true
+        AirLiquidBreak: false
         FarBreak: true
         FastBreak: true
-        InvalidBreak: true
-        MultiBreak: true
+        InvalidBreak: false
+        MultiBreak: false
         NoSwingBreak: true
-        PositionBreakA: true
-        PositionBreakB: true
-        RotationBreak: true
-        WrongBreak: true
+        PositionBreakA: false
+        PositionBreakB: false
+        RotationBreak: false
+        WrongBreak: false
 
         # --- chat ---
-        ChatA: true
-        ChatB: true
-        ChatC: true
-        ChatD: true
+        ChatA: false
+        ChatB: false
+        ChatC: false
+        ChatD: false
 
         # --- combat ---
-        AimSnap: true
-        AimSuspicion: true
-        AntiVelocity: true
-        AttackFrequency: true
-        AutoArmor: true
+        AimSnap: false
+        AimSuspicion: false
+        AntiVelocity: false
+        AttackFrequency: false
+        AutoArmor: false
         AutoClicker: true
-        Criticals: true
+        Criticals: false
         FastBow: true
         FastEat: true
-        Hitboxes: true
+        Hitboxes: false
         MultiAttack: true
-        MultiInteractA: true
-        MultiInteractB: true
+        MultiInteractA: false
+        MultiInteractB: false
         NoSwing: true
         Reach: true
         SelfInteract: true
@@ -93,77 +94,77 @@ checks:
         CrashB: true
         CrashC: true
         CrashD: true
-        CrashE: true
-        CrashF: true
-        CrashG: true
-        CrashH: true
-        CrashI: true
+        CrashE: false
+        CrashF: false
+        CrashG: false
+        CrashH: false
+        CrashI: false
 
         # --- crossapi ---
-        autoloot: true
-        autorespawn: true
-        backtrack: true
+        autoloot: false
+        autorespawn: false
+        backtrack: false
         bedfucker: true
-        blockreach: true
-        crossantikb: true
-        crossautoclicker: true
-        crosscriticals: true
-        crosselytramove: true
-        crossentityspeed: true
-        crossfastbow: true
-        crossfastbreak: true
-        crossfastbreakb: true
-        crossfasteat: true
-        crossfastladder: true
-        crossfastplace: true
-        crossflight: true
-        crossflightb: true
-        crossfoodsprint: true
-        crossfreecam: true
-        crossjesus: true
-        crossjump: true
-        crosskillaura: true
-        crosskillaurab: true
-        crossnofall: true
-        crossnoswing: true
-        crossphase: true
-        crossphaseb: true
-        crossreach: true
-        crossscaffold: true
-        crossspeed: true
-        crossspeedb: true
-        crossspider: true
-        crossstep: true
-        crossteleport: true
-        crosstimer: true
-        crosstower: true
-        crossvehicle: true
-        derphead: true
-        extrainventory: true
-        fastfall: true
-        fastheal: true
-        fightbot: true
-        forcefield: true
-        freecam: true
-        ghosthand: true
-        irregularmovements: true
-        liquids: true
-        morepackets: true
+        blockreach: false
+        crossantikb: false
+        crossautoclicker: false
+        crosscriticals: false
+        crosselytramove: false
+        crossentityspeed: false
+        crossfastbow: false
+        crossfastbreak: false
+        crossfastbreakb: false
+        crossfasteat: false
+        crossfastladder: false
+        crossfastplace: false
+        crossflight: false
+        crossflightb: false
+        crossfoodsprint: false
+        crossfreecam: false
+        crossjesus: false
+        crossjump: false
+        crosskillaura: false
+        crosskillaurab: false
+        crossnofall: false
+        crossnoswing: false
+        crossphase: false
+        crossphaseb: false
+        crossreach: false
+        crossscaffold: false
+        crossspeed: false
+        crossspeedb: false
+        crossspider: false
+        crossstep: false
+        crossteleport: false
+        crosstimer: false
+        crosstower: false
+        crossvehicle: false
+        derphead: false
+        extrainventory: false
+        fastfall: false
+        fastheal: false
+        fightbot: false
+        forcefield: false
+        freecam: false
+        ghosthand: false
+        irregularmovements: false
+        liquids: false
+        morepackets: false
         noclip: true
-        nuker: true
-        pingspoof: true
-        portalinventory: true
+        nuker: false
+        pingspoof: false
+        portalinventory: false
 
         # --- elytra ---
-        ElytraA: true
-        ElytraB: true
-        ElytraC: true
-        ElytraD: true
-        ElytraE: true
-        ElytraF: true
-        ElytraG: true
-        ElytraH: true
-        ElytraI: true
+        ElytraA: false
+        ElytraB: false
+        ElytraC: false
+        ElytraD: false
+        ElytraE: false
+        ElytraF: false
+        ElytraG: false
+        ElytraH: false
+        ElytraI: false
 
         # --- exploit ---
         ExploitA: true
@@ -174,107 +175,107 @@ checks:
         FlightA: true
 
         # --- groundspoof ---
-        NoFall: true
-        GroundSpoof: true
+        NoFall: false
+        GroundSpoof: false
 
         # --- misc ---
-        APIBypass: true
-        NettyDelay: true
+        APIBypass: false
+        NettyDelay: false
         NettyFlood: true
         PayloadCheck: true
         Post: true
-        SpartanDivergence: true
-        SpartanSync: true
-        TransactionOrder: true
+        SpartanDivergence: false
+        SpartanSync: false
+        TransactionOrder: false
 
         # --- multiactions ---
-        FastSwitch: true
+        FastSwitch: false
         MultiActionsA: true
-        MultiActionsB: true
-        MultiActionsC: true
-        MultiActionsD: true
-        MultiActionsE: true
-        MultiActionsF: true
-        MultiActionsG: true
+        MultiActionsB: false
+        MultiActionsC: false
+        MultiActionsD: false
+        MultiActionsE: false
+        MultiActionsF: false
+        MultiActionsG: false
 
         # --- movement ---
-        Blink: true
-        EntitySpeed: true
-        InventoryMove: true
-        inventorywalk: true
-        Jesus: true
-        NoRotate: true
+        Blink: false
+        EntitySpeed: false
+        InventoryMove: false
+        inventorywalk: false
+        Jesus: false
+        NoRotate: false
         NoSlow: true
-        NoWeb: true
-        SafeWalk: true
-        SetbackBlocker: true
+        NoWeb: false
+        SafeWalk: false
+        SetbackBlocker: false
         Speed: true
         Spider: true
         Step: true
         Tower: true
-        FastLadder: true
+        FastLadder: false
 
         # --- packetorder ---
         PacketOrderA: true
-        PacketOrderB: true
-        PacketOrderC: true
-        PacketOrderD: true
-        PacketOrderE: true
-        PacketOrderF: true
-        PacketOrderG: true
-        PacketOrderH: true
-        PacketOrderI: true
-        PacketOrderJ: true
-        PacketOrderK: true
-        PacketOrderL: true
-        PacketOrderM: true
-        PacketOrderN: true
-        PacketOrderO: true
-        PacketOrderP: true
+        PacketOrderB: false
+        PacketOrderC: false
+        PacketOrderD: false
+        PacketOrderE: false
+        PacketOrderF: false
+        PacketOrderG: false
+        PacketOrderH: false
+        PacketOrderI: false
+        PacketOrderJ: false
+        PacketOrderK: false
+        PacketOrderL: false
+        PacketOrderM: false
+        PacketOrderN: false
+        PacketOrderO: false
+        PacketOrderP: false
 
         # --- prediction ---
-        Simulation: true
-        Phase: true
+        Simulation: false
+        Phase: false
 
         # --- scaffolding ---
-        DuplicateRotPlace: true
+        DuplicateRotPlace: false
         FabricatedPlace: true
         FarPlace: true
-        InvalidPlaceA: true
-        InvalidPlaceB: true
-        MultiPlace: true
-        PositionPlace: true
-        RotationPlace: true
+        InvalidPlaceA: false
+        InvalidPlaceB: false
+        MultiPlace: false
+        PositionPlace: false
+        RotationPlace: false
         ScaffoldA: true
-        ScaffoldB: true
+        ScaffoldB: false
 
         # --- sprint ---
-        SprintA: true
-        SprintB: true
-        SprintC: true
-        SprintD: true
-        SprintE: true
-        SprintF: true
-        SprintG: true
+        SprintA: false
+        SprintB: false
+        SprintC: false
+        SprintD: false
+        SprintE: false
+        SprintF: false
+        SprintG: false
 
         # --- timer ---
-        NegativeTimer: true
-        TickTimer: true
+        NegativeTimer: false
+        TickTimer: false
         TimerA: true
-        TimerLimit: true
-        VehicleTimer: true
+        TimerLimit: false
+        VehicleTimer: false
 
         # --- vehicle ---
-        VehicleA: true
-        VehicleB: true
-        VehicleC: true
-        VehicleD: true
-        VehicleE: true
-        VehicleF: true
+        VehicleA: false
+        VehicleB: false
+        VehicleC: false
+        VehicleD: false
+        VehicleE: false
+        VehicleF: false
 
         # --- velocity ---
-        Knockback: true
-        Explosion: true
+        Knockback: false
+        Explosion: false
 
 # ============================================================================
 # --- aim ---
