@@ -124,6 +124,7 @@ public class PlayerDataManager {
         SacAPI.INSTANCE.getAlertManager().handlePlayerQuit(
                 SacAPI.INSTANCE.getPlatformPlayerFactory().getFromUUID(uuid)
         );
+        SacAPI.INSTANCE.getExemptionRegistry().clear(uuid);
 
         SacAPI.INSTANCE.getSpectateManager().onQuit(uuid);
 

@@ -130,6 +130,11 @@ public class Check extends SacProcessor implements AbstractCheck {
             if (tracker != null && tracker.active(checkName, player.uuid)) return false;
         } catch (Throwable ignored) {}
 
+        try {
+            var exempt = SacAPI.INSTANCE.getExemptionRegistry();
+            if (exempt != null && exempt.active(player.uuid, checkName)) return false;
+        } catch (Throwable ignored) {}
+
         if (skipForBedrock && GeyserUtil.isBedrockPlayer(player.uuid))
             return false; // §I.7 Bedrock players skip movement/combat checks
 
