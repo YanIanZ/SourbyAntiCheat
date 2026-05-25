@@ -1,0 +1,9 @@
+config-version: 2
+defaultProfile: GENERIC
+worlds:
+  "bedwars-arena-*": BEDWARS
+  "skywars-*": SKYWARS
+  "island-*": SKYBLOCK
+  "practice": PRACTICE
+  "lobby": LOBBY
+  "world": GENERIC
