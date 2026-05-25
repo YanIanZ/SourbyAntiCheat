@@ -549,7 +549,7 @@ max-ping-firework-boost: 1000
 #   config-version: bumped on every breaking shape change. Old configs
 #                   auto-migrate up via the bundled updater on next start.
 config-flavor: V2
-config-version: 12
+config-version: 13
 
 # SpartanAPI configuration
 spartanapi:
@@ -1105,3 +1105,15 @@ FastBreak:
 PositionBreakB:
     # Mismatched-face occurrences buffered before a violation is flagged
     flag-threshold: 3
+
+# --- Plugin integration hooks (soft-depend) ---
+# When a hooked plugin grants an ability, the listed checks are exempted for that
+# player while the ability is active. Disable a hook with enabled: false.
+hooks:
+    mcmmo:
+        enabled: true
+        # mcMMO super-ability name -> checks exempted while active
+        berserk: [FastBreak, AutoClicker]
+        super_breaker: [FastBreak]
+        giga_drill_breaker: [FastBreak]
+        tree_feller: [FastBreak]
