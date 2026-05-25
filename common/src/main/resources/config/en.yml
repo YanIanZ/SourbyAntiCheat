@@ -7,6 +7,10 @@
 alerts:
     # In addition to broadcasting alerts to players, should they also be sent to the console?
     print-to-console: true
+    # Minimum gap (ms) between consecutive staff alerts for the SAME check on the
+    # SAME player. Collapses bursts so one violation spree = one alert line.
+    # 0 disables the gate.
+    cooldown-ms: 1500
     # This controls whether/how alerts are shared between servers connected to your proxy.
     # You must have 'bungee-plugin-message-channel' enabled in your Velocity's configuration if Velocity is in use.
     proxy:
@@ -262,6 +266,10 @@ logs:
 
 # --- Auto-Punishment ---
 punishment:
+    # Legacy VL-threshold auto-punisher (ban/kick/warn below). OFF by default:
+    # punishments.yml is the single alert/punish pipeline. Only enable this if you
+    # deliberately want the simple VL-threshold actions in addition.
+    legacy-auto-enabled: false
     # Per-check max VL — violations won't exceed this (per-check, -1 = disabled)
     max-vl: 200
     # Total VL threshold to alert online staff with sac.staff permission
@@ -534,7 +542,7 @@ max-ping-firework-boost: 1000
 #   config-version: bumped on every breaking shape change. Old configs
 #                   auto-migrate up via the bundled updater on next start.
 config-flavor: V2
-config-version: 10
+config-version: 11
 
 # SpartanAPI configuration
 spartanapi:
