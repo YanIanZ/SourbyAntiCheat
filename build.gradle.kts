@@ -3,7 +3,7 @@ import versioning.VersionUtil
 
 BuildConfig.init(project)
 
-val baseVersion = "1.0.0"
+val baseVersion = "2.0.0"
 group = "dev.yanianz"
 version = VersionUtil.computeVersion(project, baseVersion)
 description = "SourbyAntiCheat — Server-side simulation anti-cheat for PaperMC with BungeeCord/Velocity proxy support."

@@ -2,7 +2,6 @@ package dev.yanianz.sourbyanticheat.profile.leniency;
 
 import org.junit.jupiter.api.Test;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
