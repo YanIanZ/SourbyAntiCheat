@@ -1,0 +1,59 @@
+config-version: 2
+
+profiles:
+  GENERIC:
+    disabled: []
+    overrides: {}
+    leniency: []
+
+  PRACTICE:
+    disabled: []
+    overrides:
+      Reach: { threshold: 3.05, maxvl: 4, punishment: kick }
+      AutoClicker: { threshold: 16.0, maxvl: 6 }
+      Speed: { threshold: 1.05, maxvl: 8 }
+    leniency: []
+
+  BEDWARS:
+    disabled: [Spider]
+    overrides:
+      FastBreak: { threshold: 0.85, maxvl: 5 }
+      Tower: { threshold: 1.6, maxvl: 6 }
+      Speed: { threshold: 1.4, maxvl: 10 }
+      Reach: { threshold: 3.3, maxvl: 6 }
+      ScaffoldA: { threshold: 4.5, maxvl: 6 }
+    leniency:
+      - { event: ENDER_PEARL_LAND, checks: [Speed, FlightA], duration_ms: 5000 }
+      - { event: FIREBALL_BOOST,   checks: [FlightA, Speed], duration_ms: 3000 }
+      - { event: MLG_WATER_LAND,   checks: [FlightA], duration_ms: 1500 }
+      - { event: KIT_POTION_APPLY, checks: [Speed], duration_ms: 1000, scale: amp }
+
+  SKYWARS:
+    disabled: [Tower]
+    overrides:
+      Reach: { threshold: 3.5, maxvl: 5 }
+      Speed: { threshold: 1.5, maxvl: 12 }
+      FlightA: { maxvl: 8 }
+      NoSlow: { threshold: 0.95 }
+    leniency:
+      - { event: KIT_POTION_APPLY, checks: [Speed, FlightA], duration_ms: 1000, scale: amp }
+      - { event: ROD_PULL, checks: [Reach, Speed], duration_ms: 1500 }
+      - { event: SNOWBALL_KB, checks: [Speed], duration_ms: 1000 }
+
+  SKYBLOCK:
+    disabled: [FlightA, Tower, NoSlow]
+    overrides:
+      FastBreak: { threshold: 0.7 }
+      Reach: { threshold: 3.1 }
+      Speed: { threshold: 1.6 }
+    leniency:
+      - { event: KIT_POTION_APPLY, checks: [Speed], duration_ms: 1000, scale: amp }
+      - { event: ELYTRA_FIREWORK_BOOST, checks: [Speed, FlightA], duration_ms: 4000 }
+
+  LOBBY:
+    disabled: [Reach, NoSwingAttack, AutoClicker, FastBow, FastEat, MultiAttack,
+               SelfInteract, FlightA, Speed, NoSlow, Step, Spider, FastBreak,
+               NoSwingBreak, FarBreak, ScaffoldA, FabricatedPlace, FarPlace,
+               BedFucker, NoClip, TimerA, Tower]
+    overrides: {}
+    leniency: []
