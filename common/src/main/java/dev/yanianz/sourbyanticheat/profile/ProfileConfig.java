@@ -21,6 +21,9 @@ public final class ProfileConfig {
 
     public ProfileConfigSnapshot snapshot() { return snapshot.get(); }
 
+    /** The backing {@code profiles.yml} path (used by the GUI editor). */
+    public Path path() { return file; }
+
     @SuppressWarnings("unchecked")
     public void reload() {
         try {
