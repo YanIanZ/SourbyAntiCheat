@@ -24,6 +24,13 @@ verbose:
 
 check-for-updates: true
 
+commands:
+    # When false (default) only the core minigame command surface is registered.
+    # Set true to also expose diagnostic / one-off / integration commands:
+    # perf, debug, summary, checks, spartan, dump, sendalert, testwebhook, log,
+    # history migrate, history copy.
+    legacy-enabled: false
+
 client-brand:
     # This means it won't broadcast their brand to operators if the brand matches the following regexes
     ignored-clients:
@@ -542,7 +549,7 @@ max-ping-firework-boost: 1000
 #   config-version: bumped on every breaking shape change. Old configs
 #                   auto-migrate up via the bundled updater on next start.
 config-flavor: V2
-config-version: 11
+config-version: 12
 
 # SpartanAPI configuration
 spartanapi:

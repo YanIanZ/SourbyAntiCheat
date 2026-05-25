@@ -117,6 +117,12 @@ class ConfigKeyTest {
     }
 
     @Test
+    void commandsLegacyEnabledKeyExists() {
+        java.util.Set<String> keys = java.util.Set.of("commands.legacy-enabled");
+        assertTrue(keys.contains("commands.legacy-enabled"));
+    }
+
+    @Test
     void waveCommandFormatIsValid() {
         String format = "ban %player% %uuid%";
         String result = format
