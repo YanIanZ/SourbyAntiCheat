@@ -38,8 +38,13 @@ public class SacGUICommand implements BuildableCommand {
             hubClass.getMethod("open", org.bukkit.entity.Player.class).invoke(hub, player);
         } catch (ClassNotFoundException e) {
             sender.sendMessage(Component.text("GUI not available on this platform.", SacColors.RED));
-        } catch (Exception e) {
-            sender.sendMessage(Component.text("Error opening GUI: " + e.getMessage(), SacColors.RED));
+        } catch (Throwable e) {
+            // Reflection wraps the real failure in InvocationTargetException (null
+            // message). Unwrap so the cause is visible instead of "null".
+            Throwable cause = (e instanceof java.lang.reflect.InvocationTargetException && e.getCause() != null)
+                    ? e.getCause() : e;
+            sender.sendMessage(Component.text("Error opening GUI: " + cause, SacColors.RED));
+            dev.yanianz.sourbyanticheat.utils.anticheat.LogUtil.error("Failed to open SAC GUI", cause);
         }
     }
 
