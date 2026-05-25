@@ -22,6 +22,7 @@ repositories {
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") {
         content { includeGroup("me.clip") }
     }
+    maven("https://nexus.neetgames.com/repository/maven-public/")
 }
 
 dependencies {
@@ -34,6 +35,10 @@ dependencies {
     implementation("ac.grim.grimac:grim-bukkit-internal:1.4.0.0")
     compileOnly(libs.paper.api)
     compileOnly(libs.placeholderapi)
+    compileOnly("com.gmail.nossr50.mcMMO:mcMMO:2.2.049") {
+        exclude(group = "com.sk89q.worldguard")
+        exclude(group = "com.sk89q.worldedit")
+    }
     implementation(libs.adventure.platform.bukkit)
     testImplementation(platform("org.junit:junit-bom:5.12.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
@@ -50,7 +55,8 @@ bukkit {
 
     softDepend = listOf("ProtocolLib", "Essentials", "ViaVersion", "ViaBackwards",
         "Geyser-Spigot", "floodgate", "PlaceholderAPI", "Spartan", "FastLogin",
-        "driverholder-mysql", "driverholder-postgresql", "driverholder-mongodb", "SourbyCraft")
+        "driverholder-mysql", "driverholder-postgresql", "driverholder-mongodb", "SourbyCraft",
+        "mcMMO")
 
     permissions {
         register("sac.alerts") { description = "Receive SAC alerts"; default = Permission.Default.OP }
