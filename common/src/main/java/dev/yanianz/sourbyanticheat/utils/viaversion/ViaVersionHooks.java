@@ -51,7 +51,9 @@ class ViaVersionHooks {
                 UUID uuid = wrapper.user().getProtocolInfo().getUuid();
                 if (uuid != null) {
                     SacPlayer player = SacAPI.INSTANCE.getPlayerDataManager().getPlayer(uuid);
-                    if (player != null && player.checkManager.getPacketCheck(ChatB.class).checkChatMessage(msg)) {
+                    // ChatB may be unregistered (chat checks removed for minigame focus) — null-safe.
+                    ChatB chatB = player == null ? null : player.checkManager.getPacketCheck(ChatB.class);
+                    if (chatB != null && chatB.checkChatMessage(msg)) {
                         wrapper.cancel();
                         return;
                     }
