@@ -32,6 +32,13 @@ public final class WavePunishment {
         }
     }
 
+    /** Read-only snapshot of queued entries for display (player — reason). */
+    public static java.util.List<String> queueView() {
+        java.util.List<String> out = new java.util.ArrayList<>();
+        for (PunishEntry e : queue) out.add(e.playerName() + " — " + e.reason());
+        return out;
+    }
+
     public static void addToWave(UUID uuid, String playerName, String reason) {
         if (!enabled) return;
         queue.add(new PunishEntry(uuid, playerName, reason));
