@@ -12,7 +12,7 @@ class ProfileResolverTest {
     static ProfileResolver build(String world, Function<String, Boolean> hasPerm,
                                  LinkedHashMap<String, Profile> worldMap) {
         var map = new ProfileWorldMap(worldMap, Profile.GENERIC);
-        return new ProfileResolver(uuid -> world, hasPerm, map);
+        return new ProfileResolver(uuid -> world, (uuid, perm) -> hasPerm.apply(perm), map);
     }
 
     @Test void permissionBeatsWorld() {

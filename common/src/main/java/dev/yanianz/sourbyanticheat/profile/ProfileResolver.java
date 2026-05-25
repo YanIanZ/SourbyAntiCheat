@@ -1,6 +1,7 @@
 package dev.yanianz.sourbyanticheat.profile;
 
 import java.util.UUID;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public final class ProfileResolver {
@@ -10,11 +11,11 @@ public final class ProfileResolver {
     };
 
     private final Function<UUID, String> worldOf;
-    private final Function<String, Boolean> hasPermission;
+    private final BiFunction<UUID, String, Boolean> hasPermission;
     private final ProfileWorldMap worldMap;
 
     public ProfileResolver(Function<UUID, String> worldOf,
-                           Function<String, Boolean> hasPermission,
+                           BiFunction<UUID, String, Boolean> hasPermission,
                            ProfileWorldMap worldMap) {
         this.worldOf = worldOf;
         this.hasPermission = hasPermission;
@@ -23,7 +24,7 @@ public final class ProfileResolver {
 
     public Profile resolve(UUID playerId) {
         for (Profile p : PERM_ORDER) {
-            if (hasPermission.apply("sac.profile." + p.name().toLowerCase())) return p;
+            if (hasPermission.apply(playerId, "sac.profile." + p.name().toLowerCase())) return p;
         }
         return worldMap.lookup(worldOf.apply(playerId));
     }
