@@ -29,7 +29,7 @@ import dev.yanianz.sourbyanticheat.profile.leniency.handlers.RodPullHandler;
 import dev.yanianz.sourbyanticheat.profile.leniency.handlers.SnowballKbHandler;
 import dev.yanianz.sourbyanticheat.netty.SacNettyInjector;
 import dev.yanianz.sourbyanticheat.platform.api.proxy.ProxyMessenger;
-import dev.yanianz.sourbyanticheat.platform.bukkit.gui.SacGUI;
+import dev.yanianz.sourbyanticheat.platform.bukkit.gui.menu.MenuRouter;
 import dev.yanianz.sourbyanticheat.platform.api.Platform;
 import dev.yanianz.sourbyanticheat.platform.api.PlatformLoader;
 import dev.yanianz.sourbyanticheat.platform.api.PlatformServer;
@@ -127,7 +127,7 @@ public final class SacBukkitLoaderPlugin extends JavaPlugin implements PlatformL
         wireProfileSystem();
         getServer().getMessenger().registerOutgoingPluginChannel(SacBukkitLoaderPlugin.LOADER, "sac:main");
         getServer().getPluginManager().registerEvents(new NettyInjectListener(), this);
-        getServer().getPluginManager().registerEvents(new SacGUI(), this);
+        getServer().getPluginManager().registerEvents(new MenuRouter(), this);
         LogUtil.info("SAC ready — use /sac help for commands");
     }
 

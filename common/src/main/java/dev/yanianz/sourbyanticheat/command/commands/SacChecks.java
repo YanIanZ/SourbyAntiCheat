@@ -31,13 +31,14 @@ public class SacChecks implements BuildableCommand {
 
         if (sender.isPlayer()) {
             try {
-                Class<?> guiClass = Class.forName("dev.yanianz.sourbyanticheat.platform.bukkit.gui.SacGUI");
+                Class<?> hubClass = Class.forName("dev.yanianz.sourbyanticheat.platform.bukkit.gui.menu.HubMenu");
                 var platformPlayer = sender.getPlatformPlayer();
                 if (platformPlayer != null) {
                     try {
                         org.bukkit.entity.Player player = (org.bukkit.entity.Player) platformPlayer.getClass().getMethod("getPlayer").invoke(platformPlayer);
                         if (player != null) {
-                            guiClass.getMethod("openMain", org.bukkit.entity.Player.class).invoke(null, player);
+                            Object hub = hubClass.getDeclaredConstructor().newInstance();
+                            hubClass.getMethod("open", org.bukkit.entity.Player.class).invoke(hub, player);
                             return;
                         }
                     } catch (Exception ignored) {}

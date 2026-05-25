@@ -28,14 +28,14 @@ public class SacGUICommand implements BuildableCommand {
             return;
         }
         try {
-            Class<?> guiClass = Class.forName("dev.yanianz.sourbyanticheat.platform.bukkit.gui.SacGUI");
+            Class<?> hubClass = Class.forName("dev.yanianz.sourbyanticheat.platform.bukkit.gui.menu.HubMenu");
             org.bukkit.entity.Player player = getBukkitPlayer(sender);
             if (player == null) {
                 sender.sendMessage(Component.text("Could not get player instance.", SacColors.RED));
                 return;
             }
-            guiClass.getMethod("openMain", org.bukkit.entity.Player.class)
-                .invoke(null, player);
+            Object hub = hubClass.getDeclaredConstructor().newInstance();
+            hubClass.getMethod("open", org.bukkit.entity.Player.class).invoke(hub, player);
         } catch (ClassNotFoundException e) {
             sender.sendMessage(Component.text("GUI not available on this platform.", SacColors.RED));
         } catch (Exception e) {
