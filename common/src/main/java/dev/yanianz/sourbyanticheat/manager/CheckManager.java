@@ -73,6 +73,9 @@ import dev.yanianz.sourbyanticheat.checks.impl.misc.Post;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.SpartanDivergence;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.SpartanSync;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.TransactionOrder;
+import dev.yanianz.sourbyanticheat.checks.impl.netty.NettyPacketRate;
+import dev.yanianz.sourbyanticheat.checks.impl.netty.NettyOversized;
+import dev.yanianz.sourbyanticheat.checks.impl.netty.NettyUniformTiming;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.Jesus;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.FastLadder;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.NoWeb;
@@ -411,6 +414,10 @@ public class CheckManager {
                 .put(BadPacketsW.class, new BadPacketsW(player))
                 .put(TransactionOrder.class, new TransactionOrder(player))
                 .put(Hitboxes.class, new Hitboxes(player)) // Hitboxes is invoked by Reach
+                // Netty-only lightweight checks — flagged from SacNettyChannelHandler, no packet loop
+                .put(NettyPacketRate.class, new NettyPacketRate(player))
+                .put(NettyOversized.class, new NettyOversized(player))
+                .put(NettyUniformTiming.class, new NettyUniformTiming(player))
                 .build();
 
         allChecks = new ImmutableClassToInstanceMap.Builder<AbstractCheck>()

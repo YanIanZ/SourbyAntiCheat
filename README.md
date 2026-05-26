@@ -34,6 +34,9 @@ detection tight without false-flagging legitimate game mechanics.
   irrelevant ones are unregistered (zero runtime cost) but the code stays, so any
   can be re-enabled. Combat coverage includes Reach/Hitbox, AutoClicker, KillAura
   (angle + target-switch), AimSnap, AntiKB/Velocity, AutoTotem and more.
+- **Netty-layer lightweight checks** — packet-rate flood, oversized-packet and
+  bot-uniform-timing detection run directly in the raw netty pipeline (no packet
+  decode, no prediction), flagging at the cheapest possible layer.
 - **Per-arena profiles** — assign a profile (e.g. `BEDWARS`, `SKYWARS`, `SKYBLOCK`,
   `LOBBY`) per world via glob in `profile-worlds.yml`; each profile (`profiles.yml`)
   tunes thresholds, disables checks and declares event leniencies. Resolution:

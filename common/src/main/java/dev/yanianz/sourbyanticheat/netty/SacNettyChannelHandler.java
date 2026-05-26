@@ -2,6 +2,9 @@ package dev.yanianz.sourbyanticheat.netty;
 
 import dev.yanianz.sourbyanticheat.SacAPI;
 import dev.yanianz.sourbyanticheat.checks.crossapi.CrossValidationData;
+import dev.yanianz.sourbyanticheat.checks.impl.netty.NettyOversized;
+import dev.yanianz.sourbyanticheat.checks.impl.netty.NettyPacketRate;
+import dev.yanianz.sourbyanticheat.checks.impl.netty.NettyUniformTiming;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelDuplexHandler;
@@ -49,7 +52,8 @@ public class SacNettyChannelHandler extends ChannelDuplexHandler {
         long now = System.currentTimeMillis();
         // Roll the 1-second window: snapshot the completed window's rate before reset.
         long windowElapsed = now - floodResetTime;
-        if (windowElapsed >= 1000) {
+        boolean windowRolled = windowElapsed >= 1000;
+        if (windowRolled) {
             lastWindowPacketRate = packetCount * 1000.0 / windowElapsed;
             lastWindowBytesPerPacket = packetCount > 0 ? (double) windowBytesRead / packetCount : 0;
             packetCount = 0;
@@ -73,12 +77,13 @@ public class SacNettyChannelHandler extends ChannelDuplexHandler {
             }
         }
 
+        int packetSize = 0;
         if (msg instanceof ByteBuf buf) {
-            int size = buf.readableBytes();
-            totalBytesRead += size;
-            windowBytesRead += size;
-            if (size > MAX_PACKET_SIZE) {
-                LOGGER.warning("Oversized packet: " + playerName + " " + size + " bytes");
+            packetSize = buf.readableBytes();
+            totalBytesRead += packetSize;
+            windowBytesRead += packetSize;
+            if (packetSize > MAX_PACKET_SIZE) {
+                LOGGER.warning("Oversized packet: " + playerName + " " + packetSize + " bytes");
             }
         }
 
@@ -88,7 +93,7 @@ public class SacNettyChannelHandler extends ChannelDuplexHandler {
         }
         lastReadTime = now;
 
-        updateCrossValidationData(now);
+        updateCrossValidationData(now, packetSize, windowRolled);
 
         super.channelRead(ctx, msg);
     }
@@ -127,7 +132,7 @@ public class SacNettyChannelHandler extends ChannelDuplexHandler {
         ctx.close();
     }
 
-    private void updateCrossValidationData(long now) {
+    private void updateCrossValidationData(long now, int packetSize, boolean windowRolled) {
         try {
             var pdm = SacAPI.INSTANCE.getPlayerDataManager();
             if (pdm == null) return;
@@ -143,6 +148,20 @@ public class SacNettyChannelHandler extends ChannelDuplexHandler {
             data.nettyIntervalVariance = intervalSampleCount > 0
                 ? (double) intervalVarianceAccum / intervalSampleCount
                 : 0;
+
+            // Netty-only lightweight checks — flagged here on the netty thread, no decode.
+            if (packetSize > 0) {
+                NettyOversized ov = sp.checkManager.getCheck(NettyOversized.class);
+                if (ov != null) ov.onPacket(packetSize);
+            }
+            if (windowRolled) {
+                NettyPacketRate pr = sp.checkManager.getCheck(NettyPacketRate.class);
+                if (pr != null) pr.onWindow(lastWindowPacketRate);
+                double avgVar = intervalSampleCount > 0
+                    ? (double) intervalVarianceAccum / intervalSampleCount : 0;
+                NettyUniformTiming ut = sp.checkManager.getCheck(NettyUniformTiming.class);
+                if (ut != null) ut.onSample(avgVar, intervalSampleCount);
+            }
         } catch (Exception ignored) {}
     }
 
