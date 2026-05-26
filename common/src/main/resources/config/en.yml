@@ -549,7 +549,7 @@ max-ping-firework-boost: 1000
 #   config-version: bumped on every breaking shape change. Old configs
 #                   auto-migrate up via the bundled updater on next start.
 config-flavor: V2
-config-version: 13
+config-version: 14
 
 # SpartanAPI configuration
 spartanapi:
@@ -1117,3 +1117,9 @@ hooks:
         super_breaker: [FastBreak]
         giga_drill_breaker: [FastBreak]
         tree_feller: [FastBreak]
+    oldcombatmechanics:
+        enabled: true
+        # Checks to fully disable while OldCombatMechanics is installed.
+        # (AutoClicker auto-relaxes its raw-CPS path when disable-attack-cooldown
+        #  is on; you usually do NOT need to list it here.)
+        disable-when-active: []

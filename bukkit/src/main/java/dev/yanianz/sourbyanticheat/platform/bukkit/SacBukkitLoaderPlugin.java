@@ -220,6 +220,18 @@ public final class SacBukkitLoaderPlugin extends JavaPlugin implements PlatformL
                 dev.yanianz.sourbyanticheat.utils.anticheat.LogUtil.warn("Failed to init plugin hooks: " + t);
             }
 
+            // --- OldCombatMechanics compatibility ---
+            try {
+                var ocCfg = dev.yanianz.sourbyanticheat.SacAPI.INSTANCE.getConfigManager().getConfig();
+                if (ocCfg.getBooleanElse("hooks.oldcombatmechanics.enabled", true)) {
+                    dev.yanianz.sourbyanticheat.platform.bukkit.hooks.OldCombatHook.apply(
+                        dev.yanianz.sourbyanticheat.SacAPI.INSTANCE.getOldCombatState(),
+                        ocCfg.getStringListElse("hooks.oldcombatmechanics.disable-when-active", java.util.List.of()));
+                }
+            } catch (Throwable t) {
+                dev.yanianz.sourbyanticheat.utils.anticheat.LogUtil.warn("Failed to init OCM hook: " + t);
+            }
+
             LogUtil.info("Profile system ready (default=" + defaultProfile + ", " + worldMap.size() + " world mappings)");
         } catch (Throwable t) {
             LogUtil.warn("Profile system failed to initialize; anticheat runs without per-arena profiles: " + t.getMessage());
