@@ -135,6 +135,11 @@ public class Check extends SacProcessor implements AbstractCheck {
             if (exempt != null && exempt.active(player.uuid, checkName)) return false;
         } catch (Throwable ignored) {}
 
+        try {
+            var oc = SacAPI.INSTANCE.getOldCombatState();
+            if (oc != null && oc.isDisabled(checkName)) return false;
+        } catch (Throwable ignored) {}
+
         if (skipForBedrock && GeyserUtil.isBedrockPlayer(player.uuid))
             return false; // §I.7 Bedrock players skip movement/combat checks
 

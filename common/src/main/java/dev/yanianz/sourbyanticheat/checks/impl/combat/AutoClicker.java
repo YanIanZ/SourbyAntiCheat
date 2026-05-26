@@ -5,6 +5,7 @@
 package dev.yanianz.sourbyanticheat.checks.impl.combat;
 
 import ac.grim.grimac.api.config.ConfigManager;
+import dev.yanianz.sourbyanticheat.SacAPI;
 import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.checks.CheckData;
 import dev.yanianz.sourbyanticheat.checks.type.PacketCheck;
@@ -88,7 +89,9 @@ public class AutoClicker extends Check implements PacketCheck {
             int sampleSize = clickTimestamps.size() - 1;
             long varianceRange = intervalMax - intervalMin;
 
-            if (currentCPS > maxLegitCps) {
+            boolean relaxed = SacAPI.INSTANCE.getOldCombatState() != null
+                    && SacAPI.INSTANCE.getOldCombatState().cpsRelaxed();
+            if (currentCPS > maxLegitCps && !relaxed) {
                 flagAndAlert("cps=" + currentCPS);
             } else if (currentCPS > cpsFlagThreshold && varianceRange < minLegitVariance && sampleSize >= 10) {
                 flagAndAlert("cps=" + currentCPS + " consistent=" + varianceRange + "ms");

@@ -82,6 +82,12 @@ public final class SacAPI {
     public dev.yanianz.sourbyanticheat.profile.exempt.ExemptionRegistry getExemptionRegistry() {
         return exemptionRegistry;
     }
+    private final dev.yanianz.sourbyanticheat.profile.oldcombat.OldCombatState oldCombatState =
+            new dev.yanianz.sourbyanticheat.profile.oldcombat.OldCombatState();
+
+    public dev.yanianz.sourbyanticheat.profile.oldcombat.OldCombatState getOldCombatState() {
+        return oldCombatState;
+    }
     private boolean initialized = false;
     private final long startTime = System.currentTimeMillis();
 
