@@ -61,6 +61,7 @@ import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitB;
 import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitC;
 import dev.yanianz.sourbyanticheat.checks.impl.flight.FlightA;
 import dev.yanianz.sourbyanticheat.checks.impl.groundspoof.NoFall;
+import dev.yanianz.sourbyanticheat.checks.impl.groundspoof.NoFallB;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.APIBypass;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.ClientBrand;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.GhostBlockMitigation;
@@ -84,6 +85,7 @@ import dev.yanianz.sourbyanticheat.checks.impl.movement.Tower;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.NoRotate;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.NoSlow;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.Speed;
+import dev.yanianz.sourbyanticheat.checks.impl.movement.SpeedB;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.Spider;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.PredictionRunner;
 import dev.yanianz.sourbyanticheat.checks.impl.movement.SetbackBlocker;
@@ -198,6 +200,7 @@ public class CheckManager {
                 .put(SafeWalk.class, new SafeWalk(player))
                 .put(Blink.class, new Blink(player))
                 .put(NoFall.class, new NoFall(player))
+                .put(NoFallB.class, new NoFallB(player))
                 .put(ExploitA.class, new ExploitA(player))
                 .put(ExploitB.class, new ExploitB(player))
                 .put(BadPacketsA.class, new BadPacketsA(player))
@@ -262,11 +265,6 @@ public class CheckManager {
                 .put(PacketOrderO.class, new PacketOrderO(player))
 //                .put(PacketOrderP.class, new PacketOrderP(player))
                 .put(SprintA.class, new SprintA(player))
-                .put(VehicleA.class, new VehicleA(player))
-                .put(VehicleB.class, new VehicleB(player))
-                .put(VehicleD.class, new VehicleD(player))
-                .put(VehicleE.class, new VehicleE(player))
-                .put(VehicleF.class, new VehicleF(player))
                 .put(CrashB.class, new CrashB(player))
                 .put(CrashD.class, new CrashD(player))
                 .put(CrashE.class, new CrashE(player))
@@ -313,6 +311,7 @@ public class CheckManager {
                 .put(BadPacketsX.class, new BadPacketsX(player))
                 .put(NoSlow.class, new NoSlow(player))
                 .put(Speed.class, new Speed(player))
+                .put(SpeedB.class, new SpeedB(player))
                 .put(Spider.class, new Spider(player))
                 .put(SprintB.class, new SprintB(player))
                 .put(SprintC.class, new SprintC(player))
@@ -322,15 +321,6 @@ public class CheckManager {
                 .put(SprintG.class, new SprintG(player))
                 .put(MultiInteractA.class, new MultiInteractA(player))
                 .put(MultiInteractB.class, new MultiInteractB(player))
-                .put(ElytraA.class, new ElytraA(player))
-                .put(ElytraB.class, new ElytraB(player))
-                .put(ElytraC.class, new ElytraC(player))
-                .put(ElytraD.class, new ElytraD(player))
-                .put(ElytraE.class, new ElytraE(player))
-                .put(ElytraF.class, new ElytraF(player))
-                .put(ElytraG.class, new ElytraG(player))
-                .put(ElytraH.class, new ElytraH(player))
-                .put(ElytraI.class, new ElytraI(player))
                 .put(CrossSpeed.class, new CrossSpeed(player))
                 .put(CrossAntiKB.class, new CrossAntiKB(player))
                 .put(CrossFlight.class, new CrossFlight(player))
@@ -379,6 +369,7 @@ public class CheckManager {
                 .put(GhostBlockMitigation.class, new GhostBlockMitigation(player))
                 .put(ScaffoldA.class, new ScaffoldA(player))
                 .put(ScaffoldB.class, new ScaffoldB(player))
+                .put(ScaffoldC.class, new ScaffoldC(player))
                 .put(CrossScaffold.class, new CrossScaffold(player))
                 .put(CrossFastPlace.class, new CrossFastPlace(player))
                 .put(BlockReach.class, new BlockReach(player))
@@ -416,7 +407,6 @@ public class CheckManager {
                 .put(BadPacketsN.class, new BadPacketsN(player))
                 .put(BadPacketsW.class, new BadPacketsW(player))
                 .put(TransactionOrder.class, new TransactionOrder(player))
-                .put(VehicleC.class, new VehicleC(player))
                 .put(Hitboxes.class, new Hitboxes(player)) // Hitboxes is invoked by Reach
                 .build();
 
