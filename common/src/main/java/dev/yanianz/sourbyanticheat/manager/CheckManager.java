@@ -65,6 +65,7 @@ import dev.yanianz.sourbyanticheat.checks.impl.groundspoof.NoFallB;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.APIBypass;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.ClientBrand;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.GhostBlockMitigation;
+import dev.yanianz.sourbyanticheat.checks.impl.misc.InventoryClickerA;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.NettyDelay;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.NettyFlood;
 import dev.yanianz.sourbyanticheat.checks.impl.misc.PayloadCheck;
@@ -239,6 +240,8 @@ public class CheckManager {
                 .put(FastBow.class, new FastBow(player))
                 .put(FastEat.class, new FastEat(player))
                 .put(AutoArmor.class, new AutoArmor(player))
+                .put(AutoTotemA.class, new AutoTotemA(player))
+                .put(InventoryClickerA.class, new InventoryClickerA(player))
                 .put(AntiVelocity.class, new AntiVelocity(player))
                 .put(FastSwitch.class, new FastSwitch(player))
                 .put(MultiAttack.class, new MultiAttack(player))
