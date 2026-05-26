@@ -1123,3 +1123,17 @@ hooks:
         # (AutoClicker auto-relaxes its raw-CPS path when disable-attack-cooldown
         #  is on; you usually do NOT need to list it here.)
         disable-when-active: []
+
+# --- Netty-only lightweight checks (flagged on the netty thread, no packet decode) ---
+NettyPacketRate:
+    # Inbound packets/sec (per 1s window) above which to flag, after `buffer` windows.
+    max-rate: 500.0
+    buffer: 2
+NettyOversized:
+    # A single inbound packet larger than this (bytes) is a crash attempt.
+    max-bytes: 2097152
+NettyUniformTiming:
+    # Flag bot-perfect spacing: avg inter-packet interval variance below epsilon-ms
+    # over at least min-samples packets.
+    min-samples: 200
+    epsilon-ms: 1.0

@@ -21,16 +21,40 @@ player's physically possible movement every tick and flags deviations, backed by
 large suite of packet, combat, and exploit checks.
 
 Bedrock players connecting through Geyser are exempt by default to avoid false
-positives from the Bedrock movement model.
+positives from the Bedrock movement model. SAC is tuned for **minigame networks** —
+per-arena profiles, event-aware leniency, and soft-depend integrations keep
+detection tight without false-flagging legitimate game mechanics.
 
 ## Features
 
 - **Prediction-based movement detection** — per-tick simulation of legal movement,
   with latency compensation and per-player world replication.
-- **236+ checks across 22 categories** — aim, badpackets, baritone, breaking, chat,
-  combat, crash, crossapi, elytra, exploit, flight, groundspoof, misc, movement,
-  multiactions, packetorder, prediction, scaffolding, sprint, timer, vehicle and
-  velocity.
+- **200+ checks** spanning movement, combat, scaffold/place, timer, packet
+  validation, exploit/crash and aim. Checks follow a **disable-not-delete** model:
+  irrelevant ones are unregistered (zero runtime cost) but the code stays, so any
+  can be re-enabled. Combat coverage includes Reach/Hitbox, AutoClicker, KillAura
+  (angle + target-switch), AimSnap, AntiKB/Velocity, AutoTotem and more.
+- **Netty-layer lightweight checks** — packet-rate flood, oversized-packet and
+  bot-uniform-timing detection run directly in the raw netty pipeline (no packet
+  decode, no prediction), flagging at the cheapest possible layer.
+- **Per-arena profiles** — assign a profile (e.g. `BEDWARS`, `SKYWARS`, `SKYBLOCK`,
+  `LOBBY`) per world via glob in `profile-worlds.yml`; each profile (`profiles.yml`)
+  tunes thresholds, disables checks and declares event leniencies. Resolution:
+  API override → permission → world map → default.
+- **Leniency & exemption layer** — game events (ender-pearl land, MLG water, rod
+  pull, fireball/firework boost, kit potions…) open short, configurable windows
+  where the relevant checks stand down; plugin abilities exempt checks while active.
+- **Plugin integration hooks (soft-depend)** — presence-gated, never crash when a
+  plugin is absent: **mcMMO** (exempt FastBreak/AutoClicker during super-abilities),
+  **SuperiorSkyblock2 / BentoBox** (auto-map island worlds → `SKYBLOCK` profile),
+  **OldCombatMechanics** (relax AutoClicker's raw-CPS path under 1.8 combat, keep
+  inhuman-consistency detection).
+- **One alert pipeline** — `punishments.yml`-driven staff alerts with a per-check
+  cooldown (no duplicate spam), optional Discord/proxy/log routes, and a recent-alert
+  feed surfaced in the GUI.
+- **In-game GUI control panel** — `/sac gui`: paginated players → per-check VL +
+  toggle, editable per-arena profiles, live alerts feed, reports and the ban-wave
+  queue.
 - **Cross-anticheat correlation** — the `crossapi` checks can cross-confirm
   violations with [Spartan](https://www.spigotmc.org/resources/spartan.118226/) via
   SpartanAPI; alerts agreed by both are tagged accordingly.
@@ -70,17 +94,43 @@ forwarding between servers on a network.
   Bedrock players.
 - If using ViaVersion, install it on the **backend server only** — not on the proxy.
 
+## Commands & GUI
+
+All commands are under `/sac`. The default surface is the minigame core; legacy
+and diagnostic commands are hidden unless `commands.legacy-enabled: true`.
+
+| Command | Purpose |
+|---------|---------|
+| `/sac gui` | Open the control panel (players, profiles, alerts, reports, wave) |
+| `/sac alerts` · `/sac verbose` · `/sac brands` | Toggle staff notifications |
+| `/sac info <player>` · `/sac profile <player>` · `/sac history <player>` | Player intel |
+| `/sac list` · `/sac top` · `/sac status` | Overview / health |
+| `/sac toggle <check> <player>` · `/sac reset <player>` · `/sac exempt <player>` | Check management |
+| `/sac reload` · `/sac version` · `/sac help` | Admin |
+
+`/sac help` lists only the registered commands. The GUI routes by inventory
+holder (not title text) and supports editing per-arena profiles in place.
+
 ## Configuration
 
 Configuration lives in the plugin's data folder:
 
 - `config/en.yml` — global settings and every check's tunable thresholds. Each
   check has a block named after its config name (e.g. `crossphase:`, `reach:`),
-  with one commented key per threshold.
+  with one commented key per threshold. Also holds `alerts.cooldown-ms`,
+  `commands.legacy-enabled`, the `hooks:` block (mcMMO / OldCombatMechanics), and
+  `punishment.legacy-auto-enabled`.
+- `punishments.yml` — the single alert/punishment pipeline: groups of checks →
+  `[alert]` / `[webhook]` / `[log]` / `[proxy]` / threshold commands.
+- `profiles.yml` — per-arena profiles: disabled checks, threshold overrides and
+  event leniencies.
+- `profile-worlds.yml` — world-name glob → profile mapping (skyblock worlds are
+  auto-mapped when a supported plugin is present).
 - `messages/<lang>.yml` — alert and command message localisation.
 
 Every threshold defaults to a sane built-in value, so keys are optional — add a
-key only to override its default. Disable a check via `checks.enabled.<CheckName>`.
+key only to override its default. Disable a check via `checks.enabled.<CheckName>`,
+per arena in `profiles.yml`, or live in the GUI.
 
 ## Building from source
 
