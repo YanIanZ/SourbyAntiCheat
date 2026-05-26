@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.command.commands;
 
+import dev.yanianz.sourbyanticheat.command.BuildableCommand;
 import dev.yanianz.sourbyanticheat.platform.api.manager.cloud.CloudCommandAdapter;
 import dev.yanianz.sourbyanticheat.platform.api.sender.Sender;
 import dev.yanianz.sourbyanticheat.predictionengine.MovementCheckRunner;
@@ -10,7 +11,7 @@ import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.context.CommandContext;
 import org.jetbrains.annotations.NotNull;
 
-public class SacPerf {
+public class SacPerf implements BuildableCommand {
 
     public void register(CommandManager<Sender> commandManager, CloudCommandAdapter adapter) {
         Command.Builder<Sender> grimCommand = commandManager.commandBuilder("sac", "sac");

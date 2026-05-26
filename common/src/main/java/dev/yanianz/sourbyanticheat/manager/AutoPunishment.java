@@ -5,7 +5,6 @@ import dev.yanianz.sourbyanticheat.checks.Check;
 import dev.yanianz.sourbyanticheat.player.SacPlayer;
 import dev.yanianz.sourbyanticheat.utils.anticheat.LogUtil;
 import dev.yanianz.sourbyanticheat.utils.anticheat.MessageUtil;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 
 public final class AutoPunishment {
@@ -16,7 +15,6 @@ public final class AutoPunishment {
     private static int banThreshold = 200;
     private static int kickThreshold = 150;
     private static int warnThreshold = 100;
-    private static int staffAlertVL = 150;
     private static double maxVL = -1;
     private static boolean enabled;
     private static final java.util.Set<java.util.UUID> punishedPlayers = java.util.concurrent.ConcurrentHashMap.newKeySet();
@@ -30,16 +28,19 @@ public final class AutoPunishment {
             banThreshold  = config.getIntElse("punishment.ban-threshold", 200);
             kickThreshold = config.getIntElse("punishment.kick-threshold", 150);
             warnThreshold = config.getIntElse("punishment.warn-threshold", 100);
-            staffAlertVL  = config.getIntElse("punishment.staff-alert-vl", 150);
             maxVL         = config.getDoubleElse("punishment.max-vl", -1);
-            enabled = !banCommand.isEmpty() || !kickCommand.isEmpty() || !warnMessage.isEmpty();
+            // Legacy VL-threshold punisher is OFF by default; punishments.yml is
+            // the single pipeline. Staff alerts now come only from the [alert] route.
+            boolean legacy = config.getBooleanElse("punishment.legacy-auto-enabled", false);
+            boolean hasAction = !banCommand.isEmpty() || !kickCommand.isEmpty() || !warnMessage.isEmpty();
+            enabled = legacy && hasAction;
         } catch (Exception e) {
             enabled = false;
         }
     }
 
-    public static int getStaffAlertVL() { return staffAlertVL; }
     public static double getMaxVL() { return maxVL; }
+    public static boolean isEnabled() { return enabled; }
 
     public static void checkAndExecute(SacPlayer player, Check check) {
         if (!enabled) return;
@@ -66,17 +67,7 @@ public final class AutoPunishment {
             warnPlayer(player, check, totalVL);
         }
 
-        if (totalVL >= staffAlertVL) {
-            alertStaff(player, check, totalVL);
-        }
-
         if (punished) punishedPlayers.add(player.uuid);
-    }
-
-    private static void alertStaff(SacPlayer player, Check check, int totalVL) {
-        String msg = "SAC \u00BB " + player.getName() + " reached VL=" + totalVL + " by " + check.getCheckName();
-        Component component = MessageUtil.miniMessage(msg);
-        SacAPI.INSTANCE.getAlertManager().sendVerbose(component, null);
     }
 
     private static void executeCommand(String cmd, SacPlayer player, Check check, int totalVL) {

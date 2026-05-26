@@ -1,5 +1,8 @@
 config-version: 2
 defaultProfile: GENERIC
+# Skyblock worlds are auto-mapped to the SKYBLOCK profile when a supported
+# skyblock plugin is installed (SuperiorSkyblock2, BentoBox). For custom world
+# names or other plugins, add an explicit "world-name*": SKYBLOCK entry below.
 worlds:
   "bedwars-arena-*": BEDWARS
   "skywars-*": SKYWARS

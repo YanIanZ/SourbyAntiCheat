@@ -130,6 +130,16 @@ public class Check extends SacProcessor implements AbstractCheck {
             if (tracker != null && tracker.active(checkName, player.uuid)) return false;
         } catch (Throwable ignored) {}
 
+        try {
+            var exempt = SacAPI.INSTANCE.getExemptionRegistry();
+            if (exempt != null && exempt.active(player.uuid, checkName)) return false;
+        } catch (Throwable ignored) {}
+
+        try {
+            var oc = SacAPI.INSTANCE.getOldCombatState();
+            if (oc != null && oc.isDisabled(checkName)) return false;
+        } catch (Throwable ignored) {}
+
         if (skipForBedrock && GeyserUtil.isBedrockPlayer(player.uuid))
             return false; // §I.7 Bedrock players skip movement/combat checks
 
@@ -148,7 +158,6 @@ public class Check extends SacProcessor implements AbstractCheck {
         lastViolationTime = System.currentTimeMillis();
         violations = (maxVL > 0) ? Math.min(maxVL, violations + 1) : violations + 1;
         SpartanEventBridge.fireViolation(player, checkName, (int) violations, verbose);
-        AutoPunishment.checkAndExecute(player, this);
         CheckPerformance.record(checkName, System.nanoTime() - start);
         return true;
     }
@@ -227,7 +236,11 @@ public class Check extends SacProcessor implements AbstractCheck {
             SacAPI.INSTANCE.getAuditLogger().logAction(player.uuid, player.getName(),
                 "VL_CHECK", checkName, verbose, true);
         } catch (Exception ignored) {}
-        return player.punishmentManager.handleAlert(player, verbose + spartanSuffix, this);
+        boolean handled = player.punishmentManager.handleAlert(player, verbose + spartanSuffix, this);
+        // Legacy VL-threshold punisher (off by default) runs here, after the single
+        // pipeline — never on the hot flag() path, so it cannot double-alert.
+        if (AutoPunishment.isEnabled()) AutoPunishment.checkAndExecute(player, this);
+        return handled;
     }
 
     public boolean setbackIfAboveSetbackVL() {

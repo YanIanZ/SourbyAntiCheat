@@ -7,6 +7,10 @@
 alerts:
     # In addition to broadcasting alerts to players, should they also be sent to the console?
     print-to-console: true
+    # Minimum gap (ms) between consecutive staff alerts for the SAME check on the
+    # SAME player. Collapses bursts so one violation spree = one alert line.
+    # 0 disables the gate.
+    cooldown-ms: 1500
     # This controls whether/how alerts are shared between servers connected to your proxy.
     # You must have 'bungee-plugin-message-channel' enabled in your Velocity's configuration if Velocity is in use.
     proxy:
@@ -19,6 +23,13 @@ verbose:
     print-to-console: false
 
 check-for-updates: true
+
+commands:
+    # When false (default) only the core minigame command surface is registered.
+    # Set true to also expose diagnostic / one-off / integration commands:
+    # perf, debug, summary, checks, spartan, dump, sendalert, testwebhook, log,
+    # history migrate, history copy.
+    legacy-enabled: false
 
 client-brand:
     # This means it won't broadcast their brand to operators if the brand matches the following regexes
@@ -262,6 +273,10 @@ logs:
 
 # --- Auto-Punishment ---
 punishment:
+    # Legacy VL-threshold auto-punisher (ban/kick/warn below). OFF by default:
+    # punishments.yml is the single alert/punish pipeline. Only enable this if you
+    # deliberately want the simple VL-threshold actions in addition.
+    legacy-auto-enabled: false
     # Per-check max VL — violations won't exceed this (per-check, -1 = disabled)
     max-vl: 200
     # Total VL threshold to alert online staff with sac.staff permission
@@ -534,7 +549,7 @@ max-ping-firework-boost: 1000
 #   config-version: bumped on every breaking shape change. Old configs
 #                   auto-migrate up via the bundled updater on next start.
 config-flavor: V2
-config-version: 10
+config-version: 14
 
 # SpartanAPI configuration
 spartanapi:
@@ -1090,3 +1105,21 @@ FastBreak:
 PositionBreakB:
     # Mismatched-face occurrences buffered before a violation is flagged
     flag-threshold: 3
+
+# --- Plugin integration hooks (soft-depend) ---
+# When a hooked plugin grants an ability, the listed checks are exempted for that
+# player while the ability is active. Disable a hook with enabled: false.
+hooks:
+    mcmmo:
+        enabled: true
+        # mcMMO super-ability name -> checks exempted while active
+        berserk: [FastBreak, AutoClicker]
+        super_breaker: [FastBreak]
+        giga_drill_breaker: [FastBreak]
+        tree_feller: [FastBreak]
+    oldcombatmechanics:
+        enabled: true
+        # Checks to fully disable while OldCombatMechanics is installed.
+        # (AutoClicker auto-relaxes its raw-CPS path when disable-attack-cooldown
+        #  is on; you usually do NOT need to list it here.)
+        disable-when-active: []

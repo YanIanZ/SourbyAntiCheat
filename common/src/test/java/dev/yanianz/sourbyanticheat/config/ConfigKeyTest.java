@@ -27,6 +27,17 @@ class ConfigKeyTest {
     }
 
     @Test
+    void alertCooldownAndLegacyAutoKeysExist() {
+        java.util.Set<String> keys = java.util.Set.of(
+            "alerts.cooldown-ms",
+            "punishment.legacy-auto-enabled"
+        );
+        assertEquals(2, keys.size());
+        assertTrue(keys.contains("alerts.cooldown-ms"));
+        assertTrue(keys.contains("punishment.legacy-auto-enabled"));
+    }
+
+    @Test
     void reportConfigKeysExist() {
         Set<String> keys = Set.of(
             "report.cooldown-seconds",
@@ -103,6 +114,12 @@ class ConfigKeyTest {
     void crossantikbConfigHasAllOptions() {
         Set<String> options = Set.of("ratio-threshold", "min-predicted-movement");
         assertEquals(2, options.size());
+    }
+
+    @Test
+    void commandsLegacyEnabledKeyExists() {
+        java.util.Set<String> keys = java.util.Set.of("commands.legacy-enabled");
+        assertTrue(keys.contains("commands.legacy-enabled"));
     }
 
     @Test

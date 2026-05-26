@@ -122,8 +122,15 @@ public class SacVersion implements BuildableCommand {
             updateMessage.set(msg);
             sender.sendMessage(msg);
         } catch (Exception e) {
-            sender.sendMessage(Component.text("Failed to check latest version.").color(NamedTextColor.RED));
-            LogUtil.error("Failed to check latest Sac version.", e);
+            if (dev.yanianz.sourbyanticheat.utils.anticheat.NetErrors.isOffline(e)) {
+                // Offline / DNS-less host: one warn line, no stack-trace wall.
+                LogUtil.warn("Update server unreachable (offline?); skipping version check.");
+                sender.sendMessage(Component.text("Update check skipped (server offline).")
+                        .color(NamedTextColor.GRAY));
+            } else {
+                sender.sendMessage(Component.text("Failed to check latest version.").color(NamedTextColor.RED));
+                LogUtil.error("Failed to check latest Sac version.", e);
+            }
         }
     }
 

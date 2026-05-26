@@ -1,5 +1,6 @@
 package dev.yanianz.sourbyanticheat.command;
 
+import dev.yanianz.sourbyanticheat.SacAPI;
 import dev.yanianz.sourbyanticheat.command.commands.*;
 import dev.yanianz.sourbyanticheat.command.handler.SacCommandFailureHandler;
 import dev.yanianz.sourbyanticheat.platform.api.command.CommandService;
@@ -44,59 +45,55 @@ public class CloudCommandService implements CommandService {
 
         commandManager.command(
                 commandManager.commandBuilder("sac")
-                        .handler(context -> {
-                            Sender sender = context.sender();
-                            sender.sendMessage(dev.yanianz.sourbyanticheat.utils.anticheat.SacColors.spacer());
-                            sender.sendMessage(dev.yanianz.sourbyanticheat.utils.anticheat.SacColors.header("SAC Command Reference"));
-                            sender.sendMessage(dev.yanianz.sourbyanticheat.utils.anticheat.SacColors.spacer());
-                            for (var group : dev.yanianz.sourbyanticheat.command.commands.SacHelp.COMMAND_GROUPS.entrySet()) {
-                                sender.sendMessage(dev.yanianz.sourbyanticheat.utils.anticheat.SacColors.subHeader(group.getKey()));
-                                for (String cmdLine : group.getValue()) {
-                                    String[] parts = cmdLine.split("\\|", 2);
-                                    sender.sendMessage(dev.yanianz.sourbyanticheat.utils.anticheat.SacColors.cmdEntry(parts[0], parts.length > 1 ? parts[1] : ""));
-                                }
-                                sender.sendMessage(dev.yanianz.sourbyanticheat.utils.anticheat.SacColors.spacer());
-                            }
-                            sender.sendMessage(net.kyori.adventure.text.Component.text()
-                                .append(net.kyori.adventure.text.Component.text("  Tip: ", dev.yanianz.sourbyanticheat.utils.anticheat.SacColors.HIGHLIGHT))
-                                .append(net.kyori.adventure.text.Component.text("Click any command above to auto-fill it", dev.yanianz.sourbyanticheat.utils.anticheat.SacColors.GRAY))
-                                .build());
-                            sender.sendMessage(dev.yanianz.sourbyanticheat.utils.anticheat.SacColors.footer());
-                        })
+                        .handler(context -> SacHelp.renderTo(context.sender()))
         );
 
-        new SacPerf().register(commandManager, commandAdapter);
-        new SacDebug().register(commandManager, commandAdapter);
-        new SacAlerts().register(commandManager, commandAdapter);
-        new SacProfile().register(commandManager, commandAdapter);
-        new SacSendAlert().register(commandManager, commandAdapter);
-        new SacHelp().register(commandManager, commandAdapter);
-        new SacHistory().register(commandManager, commandAdapter);
-        new SacHistoryMigrate().register(commandManager, commandAdapter);
-        new SacHistoryCopy().register(commandManager, commandAdapter);
-        new SacReload().register(commandManager, commandAdapter);
-        new SacSpectate().register(commandManager, commandAdapter);
-        new SacStopSpectating().register(commandManager, commandAdapter);
-        new SacLog().register(commandManager, commandAdapter);
-        new SacVerbose().register(commandManager, commandAdapter);
-        new SacVersion().register(commandManager, commandAdapter);
-        new SacDump().register(commandManager, commandAdapter);
-        new SacBrands().register(commandManager, commandAdapter);
-        new SacList().register(commandManager, commandAdapter);
-        new SacTestWebhook().register(commandManager, commandAdapter);
-        new SacSpartan().register(commandManager, commandAdapter);
-        new SacStatus().register(commandManager, commandAdapter);
-        new SacToggle().register(commandManager, commandAdapter);
-        new SacReset().register(commandManager, commandAdapter);
-        new SacGUICommand().register(commandManager, commandAdapter);
-        new SacSummary().register(commandManager, commandAdapter);
-        new SacInfo().register(commandManager, commandAdapter);
-        new SacNote().register(commandManager, commandAdapter);
-        new SacTop().register(commandManager, commandAdapter);
-        new SacExempt().register(commandManager, commandAdapter);
-        new SacChecks().register(commandManager, commandAdapter);
-        new ReportCommand().register(commandManager, commandAdapter);
-        new ReportsCommand().register(commandManager, commandAdapter);
+        boolean legacyEnabled = SacAPI.INSTANCE.getConfigManager().getConfig()
+                .getBooleanElse("commands.legacy-enabled", false);
+
+        java.util.function.BiConsumer<String, dev.yanianz.sourbyanticheat.command.BuildableCommand> reg =
+                (name, cmd) -> {
+                    if (legacyEnabled || !dev.yanianz.sourbyanticheat.command.CommandCatalog.isLegacy(name)) {
+                        cmd.register(commandManager, commandAdapter);
+                    }
+                };
+
+        // --- core ---
+        reg.accept("alerts", new SacAlerts());
+        reg.accept("profile", new SacProfile());
+        reg.accept("help", new SacHelp());
+        reg.accept("history", new SacHistory());
+        reg.accept("reload", new SacReload());
+        reg.accept("spectate", new SacSpectate());
+        reg.accept("stopspectating", new SacStopSpectating());
+        reg.accept("verbose", new SacVerbose());
+        reg.accept("version", new SacVersion());
+        reg.accept("brands", new SacBrands());
+        reg.accept("list", new SacList());
+        reg.accept("status", new SacStatus());
+        reg.accept("toggle", new SacToggle());
+        reg.accept("reset", new SacReset());
+        reg.accept("gui", new SacGUICommand());
+        reg.accept("info", new SacInfo());
+        reg.accept("note", new SacNote());
+        reg.accept("top", new SacTop());
+        reg.accept("exempt", new SacExempt());
+        // standalone player-facing report commands — always registered
+        reg.accept("report", new ReportCommand());
+        reg.accept("reports", new ReportsCommand());
+
+        // --- legacy (registered only when commands.legacy-enabled: true) ---
+        reg.accept("perf", new SacPerf());
+        reg.accept("debug", new SacDebug());
+        reg.accept("sendalert", new SacSendAlert());
+        reg.accept("history-migrate", new SacHistoryMigrate());
+        reg.accept("history-copy", new SacHistoryCopy());
+        reg.accept("log", new SacLog());
+        reg.accept("dump", new SacDump());
+        reg.accept("testwebhook", new SacTestWebhook());
+        reg.accept("spartan", new SacSpartan());
+        reg.accept("summary", new SacSummary());
+        reg.accept("checks", new SacChecks());
 
         final RequirementPostprocessor<Sender, SenderRequirement>
                 senderRequirementPostprocessor = RequirementPostprocessor.of(

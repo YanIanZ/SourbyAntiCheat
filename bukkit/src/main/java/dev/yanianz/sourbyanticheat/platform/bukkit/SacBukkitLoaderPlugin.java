@@ -29,7 +29,7 @@ import dev.yanianz.sourbyanticheat.profile.leniency.handlers.RodPullHandler;
 import dev.yanianz.sourbyanticheat.profile.leniency.handlers.SnowballKbHandler;
 import dev.yanianz.sourbyanticheat.netty.SacNettyInjector;
 import dev.yanianz.sourbyanticheat.platform.api.proxy.ProxyMessenger;
-import dev.yanianz.sourbyanticheat.platform.bukkit.gui.SacGUI;
+import dev.yanianz.sourbyanticheat.platform.bukkit.gui.menu.MenuRouter;
 import dev.yanianz.sourbyanticheat.platform.api.Platform;
 import dev.yanianz.sourbyanticheat.platform.api.PlatformLoader;
 import dev.yanianz.sourbyanticheat.platform.api.PlatformServer;
@@ -127,7 +127,7 @@ public final class SacBukkitLoaderPlugin extends JavaPlugin implements PlatformL
         wireProfileSystem();
         getServer().getMessenger().registerOutgoingPluginChannel(SacBukkitLoaderPlugin.LOADER, "sac:main");
         getServer().getPluginManager().registerEvents(new NettyInjectListener(), this);
-        getServer().getPluginManager().registerEvents(new SacGUI(), this);
+        getServer().getPluginManager().registerEvents(new MenuRouter(), this);
         LogUtil.info("SAC ready — use /sac help for commands");
     }
 
@@ -163,6 +163,8 @@ public final class SacBukkitLoaderPlugin extends JavaPlugin implements PlatformL
                 }
             }
             ProfileWorldMap profileWorldMap = new ProfileWorldMap(worldMap, defaultProfile);
+            // Auto-map present skyblock plugins' island worlds -> SKYBLOCK profile.
+            dev.yanianz.sourbyanticheat.platform.bukkit.hooks.SkyblockWorldDetector.apply(profileWorldMap);
 
             ProfileResolver resolver = new ProfileResolver(
                     id -> {
@@ -193,6 +195,42 @@ public final class SacBukkitLoaderPlugin extends JavaPlugin implements PlatformL
             pm.registerEvents(new SnowballKbHandler(bus), this);
             pm.registerEvents(new ElytraFireworkBoostHandler(bus), this);
             pm.registerEvents(new ProfileLifecycleListener(registry, tracker), this);
+
+            // --- Soft-depend plugin hooks ---
+            try {
+                var cfg = dev.yanianz.sourbyanticheat.SacAPI.INSTANCE.getConfigManager().getConfig();
+                java.util.function.Function<String, dev.yanianz.sourbyanticheat.platform.api.hooks.HookConfig> hookConfigFor =
+                    key -> {
+                        boolean enabled = cfg.getBooleanElse("hooks." + key + ".enabled", false);
+                        java.util.Map<String, java.util.List<String>> abilities = new java.util.HashMap<>();
+                        // mcMMO ability -> checks (keys lowercased to match HookConfig lookup)
+                        for (String ability : new String[]{"berserk", "super_breaker", "giga_drill_breaker", "tree_feller"}) {
+                            java.util.List<String> checks = cfg.getStringListElse("hooks." + key + "." + ability, java.util.List.of());
+                            if (!checks.isEmpty()) abilities.put(ability.toLowerCase(java.util.Locale.ROOT), checks);
+                        }
+                        return new dev.yanianz.sourbyanticheat.platform.api.hooks.HookConfig(enabled, abilities);
+                    };
+
+                var hookManager = new dev.yanianz.sourbyanticheat.platform.bukkit.hooks.HookManager(
+                    java.util.List.of(new dev.yanianz.sourbyanticheat.platform.bukkit.hooks.McMMOHook()));
+                hookManager.enablePresent(this,
+                    dev.yanianz.sourbyanticheat.SacAPI.INSTANCE.getExemptionRegistry(),
+                    hookConfigFor);
+            } catch (Throwable t) {
+                dev.yanianz.sourbyanticheat.utils.anticheat.LogUtil.warn("Failed to init plugin hooks: " + t);
+            }
+
+            // --- OldCombatMechanics compatibility ---
+            try {
+                var ocCfg = dev.yanianz.sourbyanticheat.SacAPI.INSTANCE.getConfigManager().getConfig();
+                if (ocCfg.getBooleanElse("hooks.oldcombatmechanics.enabled", true)) {
+                    dev.yanianz.sourbyanticheat.platform.bukkit.hooks.OldCombatHook.apply(
+                        dev.yanianz.sourbyanticheat.SacAPI.INSTANCE.getOldCombatState(),
+                        ocCfg.getStringListElse("hooks.oldcombatmechanics.disable-when-active", java.util.List.of()));
+                }
+            } catch (Throwable t) {
+                dev.yanianz.sourbyanticheat.utils.anticheat.LogUtil.warn("Failed to init OCM hook: " + t);
+            }
 
             LogUtil.info("Profile system ready (default=" + defaultProfile + ", " + worldMap.size() + " world mappings)");
         } catch (Throwable t) {

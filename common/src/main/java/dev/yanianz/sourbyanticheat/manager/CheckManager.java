@@ -2,30 +2,20 @@ package dev.yanianz.sourbyanticheat.manager;
 
 import dev.yanianz.sourbyanticheat.SacAPI;
 import ac.grim.grimac.api.AbstractCheck;
+import dev.yanianz.sourbyanticheat.checks.impl.aim.AimAccel;
 import dev.yanianz.sourbyanticheat.checks.impl.aim.AimAssist;
-import dev.yanianz.sourbyanticheat.checks.impl.aim.AimDuplicateLook;
-import dev.yanianz.sourbyanticheat.checks.impl.aim.AimModulo360;
 import dev.yanianz.sourbyanticheat.checks.impl.aim.processor.AimProcessor;
-import dev.yanianz.sourbyanticheat.checks.impl.baritone.Baritone;
 import dev.yanianz.sourbyanticheat.checks.impl.badpackets.*;
 import dev.yanianz.sourbyanticheat.checks.impl.breaking.*;
-import dev.yanianz.sourbyanticheat.checks.impl.chat.ChatA;
-import dev.yanianz.sourbyanticheat.checks.impl.chat.ChatB;
-import dev.yanianz.sourbyanticheat.checks.impl.chat.ChatC;
-import dev.yanianz.sourbyanticheat.checks.impl.chat.ChatD;
 import dev.yanianz.sourbyanticheat.checks.impl.combat.*;
 import dev.yanianz.sourbyanticheat.checks.impl.crash.*;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.BackTrack;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.AutoLoot;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.AutoRespawn;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.BedFucker;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.BlockReach;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossAntiKB;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossAutoClicker;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossCriticals;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossElytraMove;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossEntitySpeed;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.ExtraInventory;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastBow;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastBreak;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossFastBreakB;
@@ -41,7 +31,6 @@ import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossJump;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossKillAura;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossKillAuraB;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossNoFall;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossNoSwing;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossPhase;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossPhaseB;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossReach;
@@ -54,9 +43,7 @@ import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossTeleport;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossTimer;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossTower;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.CrossVehicle;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.DerpHead;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.FastFall;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.FastHeal;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.FightBot;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.ForceField;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.Freecam;
@@ -68,7 +55,6 @@ import dev.yanianz.sourbyanticheat.checks.impl.crossapi.MorePackets;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.NoClip;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.Nuker;
 import dev.yanianz.sourbyanticheat.checks.impl.crossapi.PingSpoof;
-import dev.yanianz.sourbyanticheat.checks.impl.crossapi.PortalInventory;
 import dev.yanianz.sourbyanticheat.checks.impl.elytra.*;
 import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitA;
 import dev.yanianz.sourbyanticheat.checks.impl.exploit.ExploitB;
@@ -203,7 +189,6 @@ public class CheckManager {
                 .put(CrossReach.class, new CrossReach(player))
                 .put(CrossFastBow.class, new CrossFastBow(player))
                 .put(ForceField.class, new ForceField(player))
-                .put(CrossNoSwing.class, new CrossNoSwing(player))
                 .put(APIBypass.class, new APIBypass(player))
                 .put(Jesus.class, new Jesus(player))
                 .put(FastLadder.class, new FastLadder(player))
@@ -213,10 +198,6 @@ public class CheckManager {
                 .put(SafeWalk.class, new SafeWalk(player))
                 .put(Blink.class, new Blink(player))
                 .put(NoFall.class, new NoFall(player))
-                .put(ChatA.class, new ChatA(player))
-                .put(ChatB.class, new ChatB(player))
-                .put(ChatC.class, new ChatC(player))
-                .put(ChatD.class, new ChatD(player))
                 .put(ExploitA.class, new ExploitA(player))
                 .put(ExploitB.class, new ExploitB(player))
                 .put(BadPacketsA.class, new BadPacketsA(player))
@@ -257,9 +238,10 @@ public class CheckManager {
                 .put(AutoArmor.class, new AutoArmor(player))
                 .put(AntiVelocity.class, new AntiVelocity(player))
                 .put(FastSwitch.class, new FastSwitch(player))
-                .put(NoSwingAttack.class, new NoSwingAttack(player))
                 .put(MultiAttack.class, new MultiAttack(player))
                 .put(AttackFrequency.class, new AttackFrequency(player))
+                .put(KillAuraA.class, new KillAuraA(player))
+                .put(KillAuraB.class, new KillAuraB(player))
                 .put(InventoryMove.class, new InventoryMove(player))
                 .put(InventoryWalk.class, new InventoryWalk(player))
                 .put(BadPacketsAI.class, new BadPacketsAI(player))
@@ -291,10 +273,6 @@ public class CheckManager {
                 .put(CrashF.class, new CrashF(player))
                 .put(CrashH.class, new CrashH(player))
                 .put(CrashI.class, new CrashI(player))
-                .put(AutoRespawn.class, new AutoRespawn(player))
-                .put(AutoLoot.class, new AutoLoot(player))
-                .put(FastHeal.class, new FastHeal(player))
-                .put(ExtraInventory.class, new ExtraInventory(player))
                 .put(SetbackBlocker.class, new SetbackBlocker(player)) // Must be last class otherwise we can't check while blocking packets
                 .build();
 
@@ -304,11 +282,8 @@ public class CheckManager {
                 .build();
         rotationChecks = new ImmutableClassToInstanceMap.Builder<RotationCheck>()
                 .put(AimProcessor.class, new AimProcessor(player))
-                .put(AimModulo360.class, new AimModulo360(player))
-                .put(AimDuplicateLook.class, new AimDuplicateLook(player))
                 .put(AimAssist.class, new AimAssist(player))
-                .put(Baritone.class, new Baritone(player))
-                .put(DerpHead.class, new DerpHead(player))
+                .put(AimAccel.class, new AimAccel(player))
                 .build();
         vehicleChecks = new ImmutableClassToInstanceMap.Builder<VehicleCheck>()
                 .put(VehiclePredictionRunner.class, new VehiclePredictionRunner(player))
@@ -384,7 +359,6 @@ public class CheckManager {
                 .put(LastInstanceManager.class, player.lastInstanceManager)
                 .put(Liquids.class, new Liquids(player))
                 .put(CrossTower.class, new CrossTower(player))
-                .put(PortalInventory.class, new PortalInventory(player))
                 .build();
 
         blockPlaceChecks = new ImmutableClassToInstanceMap.Builder<BlockPlaceCheck>()
@@ -425,7 +399,6 @@ public class CheckManager {
                 .put(RotationBreak.class, new RotationBreak(player))
                 .put(FastBreak.class, new FastBreak(player))
                 .put(MultiBreak.class, new MultiBreak(player))
-                .put(NoSwingBreak.class, new NoSwingBreak(player))
                 .put(FarBreak.class, new FarBreak(player))
                 .put(InvalidBreak.class, new InvalidBreak(player))
                 .put(PositionBreakA.class, new PositionBreakA(player))
@@ -434,7 +407,6 @@ public class CheckManager {
                 .put(CrossFastBreak.class, new CrossFastBreak(player))
                 .put(CrossFastBreakB.class, new CrossFastBreakB(player))
                 .put(Nuker.class, new Nuker(player))
-                .put(BedFucker.class, new BedFucker(player))
                 .build();
 
         // All checks that have no listeners, generally invoked by other code to flag
